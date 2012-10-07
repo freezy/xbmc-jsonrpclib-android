@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="libs/jackson-core-asl-1.8.8.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://jackson.codehaus.org/1.8.8/javadoc/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="libs/jackson-mapper-asl-1.8.8.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://jackson.codehaus.org/1.8.8/javadoc/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
