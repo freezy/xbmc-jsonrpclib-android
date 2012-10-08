@@ -19,6 +19,8 @@ public class ConstructorView extends AbstractView {
 		}
 
 		final StringBuilder sb = new StringBuilder("\n");
+		
+		// signature
 		sb.append(prefix).append("public ");
 		sb.append(getClassName(constructor.getType()));
 		sb.append("(");
@@ -30,6 +32,16 @@ public class ConstructorView extends AbstractView {
 		}
 		sb.delete(sb.length() - 2, sb.length());
 		sb.append(") {\n");
+		
+		// body
+		for (Parameter p : constructor.getParameters()) {
+			sb.append(prefix).append("\tthis.");
+			sb.append(p.getName());
+			sb.append(" = ");
+			sb.append(p.getName());
+			sb.append(";\n");
+		}
+		
 		
 		sb.append(prefix).append("}\n");
 
