@@ -47,6 +47,10 @@ public class Property {
 	public boolean isNative() {
 		return type != null && type.getName() != null && !type.getName().equals("object");
 	}
+	
+	public boolean isMultitype() {
+		return type != null && type.isArray();
+	}
 
 	public String getRef() {
 		return ref;

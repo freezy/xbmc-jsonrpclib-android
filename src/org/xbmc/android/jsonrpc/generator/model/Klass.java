@@ -10,11 +10,16 @@ public class Klass {
 
 	private boolean isNative = false;
 	private boolean isInner = false;
+	private boolean isMultiType = false;
 
 	private final List<Member> members = new ArrayList<Member>();
 	private final List<Klass> innerTypes = new ArrayList<Klass>();
 	private final List<Enum> innerEnums = new ArrayList<Enum>();
 
+	public Klass(String name) {
+		this(name, null);
+	}
+	
 	public Klass(String name, String apiType) {
 		this.name = name;
 		this.apiType = apiType;
@@ -54,6 +59,14 @@ public class Klass {
 
 	public void setInner(boolean isInner) {
 		this.isInner = isInner;
+	}
+
+	public boolean isMultiType() {
+		return isMultiType;
+	}
+
+	public void setMultiType(boolean isMultiType) {
+		this.isMultiType = isMultiType;
 	}
 
 	public String getName() {

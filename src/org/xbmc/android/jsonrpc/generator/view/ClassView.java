@@ -36,10 +36,12 @@ public class ClassView {
 		sb.append(" {\n");
 
 		// field names
-		sb.append("\n").append(prefix).append("\t// field names\n");
-		for (Member member : klass.getMembers()) {
-			final MemberView memberView = new MemberView(member);
-			sb.append(memberView.renderFieldDeclaration(indent + 1));
+		if (!klass.isMultiType()) {
+			sb.append("\n").append(prefix).append("\t// field names\n");
+			for (Member member : klass.getMembers()) {
+				final MemberView memberView = new MemberView(member);
+				sb.append(memberView.renderFieldDeclaration(indent + 1));
+			}
 		}
 
 		// members

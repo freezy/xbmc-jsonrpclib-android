@@ -1,7 +1,10 @@
 package org.xbmc.android.jsonrpc.generator.controller;
 
+import java.util.List;
+
 import org.xbmc.android.jsonrpc.generator.introspect.Param;
 import org.xbmc.android.jsonrpc.generator.introspect.Property;
+import org.xbmc.android.jsonrpc.generator.introspect.Type;
 import org.xbmc.android.jsonrpc.generator.model.Enum;
 import org.xbmc.android.jsonrpc.generator.model.Klass;
 import org.xbmc.android.jsonrpc.generator.model.Member;
@@ -56,9 +59,26 @@ public class PropertyController {
 	public Klass getClass(String className) {
 		
 		final Klass klass;
+		
+		// create class from native type
 		if (property.isNative()) {
-			klass = new Klass(property.getType().getName(), property.getType().getName());
+			klass = new Klass(property.getType().getName());
 			klass.setNative(true);
+			
+		// create class from multiple values
+		} else if (property.isMultitype()) {
+			final List<Type> types = property.getType().getArray();
+			
+			klass = new Klass(className);
+			klass.setInner(true);
+			klass.setMultiType(true);
+			int i = 0;
+			for (Type t : types) {
+				final MemberController mc = new MemberController("arg" + (i++), t);
+				klass.addMember(mc.getMember());
+			}
+		
+		// create class from global type
 		} else {
 			klass = new Klass(className, name);
 		}

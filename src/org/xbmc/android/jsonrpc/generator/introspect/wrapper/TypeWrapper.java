@@ -37,6 +37,10 @@ public class TypeWrapper {
 		this.obj = null;
 		this.array = array;
 	}
+	
+	public boolean isArray() {
+		return array != null;
+	}
 
 	public String getName() {
 		return name;
