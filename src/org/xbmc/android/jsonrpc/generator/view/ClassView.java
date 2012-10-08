@@ -35,7 +35,15 @@ public class ClassView {
 		}
 		sb.append(" {\n");
 		
+		// field names
+		sb.append("\n").append(prefix).append("\t// field names\n");
+		for (Member member : klass.getMembers()) {
+			final MemberView memberView = new MemberView(member);
+			sb.append(memberView.renderFieldDeclaration(indent + 1));
+		}
+		
 		// members
+		sb.append("\n").append(prefix).append("\t// class members\n");
 		for (Member member : klass.getMembers()) {
 			final MemberView memberView = new MemberView(member);
 			sb.append(memberView.renderDeclaration(indent + 1));
@@ -43,7 +51,6 @@ public class ClassView {
 		
 		// inner classes
 		if (klass.hasInnerTypes()) {
-			sb.append("\n").append(prefix).append("\t// inner types\n");
 			for (Klass innerClass : klass.getInnerTypes()) {
 				final ClassView classView = new ClassView(innerClass);
 				sb.append(classView.renderDeclaration(indent + 1, true));

@@ -33,6 +33,20 @@ public class MemberView {
 		return sb.toString();
 	}
 	
+	public String renderFieldDeclaration(int indent) {
+		String prefix = "";
+		for (int i = 0; i < indent; i++) {
+			prefix += "\t";
+		}
+		final StringBuilder sb = new StringBuilder();
+		sb.append(prefix).append("public static final String ");
+		sb.append(member.getName().toUpperCase());
+		sb.append(" = \"");
+		sb.append(member.getName());
+		sb.append("\";\n");
+		return sb.toString();
+	}
+	
 	private String getNativeType(String type) {
 		if (type.equals("boolean")) {
 			return "Boolean";
