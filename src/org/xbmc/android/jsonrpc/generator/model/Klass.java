@@ -12,6 +12,7 @@ public class Klass {
 	private boolean isInner = false;
 	private boolean isMultiType = false;
 
+	private final List<Constructor> constructors = new ArrayList<Constructor>();
 	private final List<Member> members = new ArrayList<Member>();
 	private final List<Klass> innerTypes = new ArrayList<Klass>();
 	private final List<Enum> innerEnums = new ArrayList<Enum>();
@@ -19,24 +20,28 @@ public class Klass {
 	public Klass(String name) {
 		this(name, null);
 	}
-	
+
 	public Klass(String name, String apiType) {
 		this.name = name;
 		this.apiType = apiType;
 	}
 
+	public void addConstructor(Constructor c) {
+		constructors.add(c);
+	}
+
 	public void addMember(Member member) {
 		members.add(member);
 	}
-	
+
 	public void addInnerType(Klass klass) {
 		innerTypes.add(klass);
 	}
-	
+
 	public void addInnerEnum(Enum e) {
 		innerEnums.add(e);
 	}
-	
+
 	public boolean hasInnerTypes() {
 		return !innerTypes.isEmpty();
 	}
@@ -44,11 +49,11 @@ public class Klass {
 	public boolean hasInnerEnums() {
 		return !innerEnums.isEmpty();
 	}
-	
+
 	public boolean isNative() {
 		return isNative;
 	}
-	
+
 	public void setNative(boolean isNative) {
 		this.isNative = isNative;
 	}
@@ -77,14 +82,18 @@ public class Klass {
 		return apiType;
 	}
 
+	public List<Constructor> getConstructors() {
+		return constructors;
+	}
+
 	public List<Member> getMembers() {
 		return members;
 	}
-	
+
 	public List<Klass> getInnerTypes() {
 		return innerTypes;
 	}
-	
+
 	public List<Enum> getInnerEnums() {
 		return innerEnums;
 	}

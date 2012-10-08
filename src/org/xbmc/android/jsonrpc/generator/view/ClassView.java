@@ -1,5 +1,6 @@
 package org.xbmc.android.jsonrpc.generator.view;
 
+import org.xbmc.android.jsonrpc.generator.model.Constructor;
 import org.xbmc.android.jsonrpc.generator.model.Enum;
 import org.xbmc.android.jsonrpc.generator.model.Klass;
 import org.xbmc.android.jsonrpc.generator.model.Member;
@@ -49,6 +50,12 @@ public class ClassView {
 		for (Member member : klass.getMembers()) {
 			final MemberView memberView = new MemberView(member);
 			sb.append(memberView.renderDeclaration(indent + 1));
+		}
+		
+		// constructors
+		for (Constructor c : klass.getConstructors()) {
+			final ConstructorView constructorView = new ConstructorView(c);
+			sb.append(constructorView.renderDeclaration(indent + 1));
 		}
 
 		// inner classes
