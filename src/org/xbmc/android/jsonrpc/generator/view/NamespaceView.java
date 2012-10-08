@@ -1,5 +1,6 @@
 package org.xbmc.android.jsonrpc.generator.view;
 
+import org.xbmc.android.jsonrpc.generator.model.Enum;
 import org.xbmc.android.jsonrpc.generator.model.Klass;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 
@@ -27,7 +28,12 @@ public class NamespaceView {
 		
 		for (Klass klass : namespace.getClasses()) {
 			final ClassView classView = new ClassView(klass);
-			sb.append(classView.render(1));
+			sb.append(classView.renderDeclaration(1, false));
+		}
+		
+		for (Enum e : namespace.getEnums()) {
+			final EnumView enumView = new EnumView(e);
+			sb.append(enumView.render(1));
 		}
 		
 		sb.append("}\n");

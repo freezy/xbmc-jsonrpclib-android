@@ -8,9 +8,11 @@ import org.codehaus.jackson.Version;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.module.SimpleModule;
-import org.xbmc.android.jsonrpc.generator.controller.TypeController;
+import org.xbmc.android.jsonrpc.generator.controller.PropertyController;
+import org.xbmc.android.jsonrpc.generator.introspect.Property;
 import org.xbmc.android.jsonrpc.generator.introspect.Response;
 import org.xbmc.android.jsonrpc.generator.introspect.Result;
+import org.xbmc.android.jsonrpc.generator.introspect.Type;
 import org.xbmc.android.jsonrpc.generator.introspect.wrapper.AdditionalPropertiesWrapper;
 import org.xbmc.android.jsonrpc.generator.introspect.wrapper.ExtendsWrapper;
 import org.xbmc.android.jsonrpc.generator.introspect.wrapper.TypeWrapper;
@@ -23,6 +25,7 @@ import org.xbmc.android.jsonrpc.jackson.TypeDeserializer;
 public class Introspect {
 	
 	public final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+	private static Result RESULT;
 	
 	static {
 		final SimpleModule module = new SimpleModule("", Version.unknownVersion());
@@ -37,10 +40,10 @@ public class Introspect {
 		try {
 			
 		    final Response response = OBJECT_MAPPER.readValue(new File("introspect.json"), Response.class);
-		    final Result result = response.getResult();
+		    RESULT = response.getResult();
 			
-		    for (String name : result.getTypes().keySet()) {
-		    	final TypeController controller = new TypeController(name, result.getTypes().get(name));
+		    for (String name : RESULT.getTypes().keySet()) {
+		    	final PropertyController controller = new PropertyController(name, RESULT.getTypes().get(name));
 		    	controller.register();
 		    }
 		    
@@ -57,6 +60,21 @@ public class Introspect {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+	
+	public static Property find(Property property) {
+		if (RESULT == null) {
+			throw new RuntimeException("Must parse before finding types!");
+		}
+		if (property.isRef()) {
+			final Type type = RESULT.getTypes().get(property.getRef());
+			if (!RESULT.getTypes().containsKey(property.getRef())) {
+				throw new RuntimeException("Cannot find type " + property.getRef() + ".");
+			}
+			return type;
+		} else {
+			return property;
 		}
 	}
 }

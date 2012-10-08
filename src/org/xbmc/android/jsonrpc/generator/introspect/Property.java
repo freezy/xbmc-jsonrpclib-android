@@ -31,9 +31,29 @@ public class Property {
 
 	@JsonProperty("default")
 	protected String defaultValue;
+	
+	/**
+	 * Returns true if properties are declared within this type, as opposed to
+	 * reference, native type or enum.
+	 * 
+	 * If true, we assume that the {@link #properties} map is filled up.
+	 * 
+	 * @return True if object definition available, false otherwise.
+	 */
+	public boolean isObjectDefinition() {
+		return type != null && type.getName() != null && type.getName().equals("object");
+	}
+	
+	public boolean isNative() {
+		return type != null && type.getName() != null && !type.getName().equals("object");
+	}
 
 	public String getRef() {
 		return ref;
+	}
+	
+	public boolean isRef() {
+		return ref != null;
 	}
 
 	public void setRef(String ref) {
@@ -50,6 +70,10 @@ public class Property {
 
 	public List<String> getEnums() {
 		return enums;
+	}
+	
+	public boolean isEnum() {
+		return enums != null && !enums.isEmpty();
 	}
 
 	public void setEnums(List<String> enums) {
