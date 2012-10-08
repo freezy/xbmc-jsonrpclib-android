@@ -27,6 +27,9 @@ public class Introspect {
 	public final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 	private static Result RESULT;
 	
+	private final static String MODEL_PACKAGE = "org.xbmc.android.jsonrpc.api.model";
+	private final static String CALL_PACKAGE = "org.xbmc.android.jsonrpc.api.call";
+	
 	static {
 		final SimpleModule module = new SimpleModule("", Version.unknownVersion());
 		module.addDeserializer(TypeWrapper.class, new TypeDeserializer());
@@ -39,16 +42,19 @@ public class Introspect {
 	public static void main(String[] args) {
 		try {
 			
+			// parse from json
 		    final Response response = OBJECT_MAPPER.readValue(new File("introspect.json"), Response.class);
 		    RESULT = response.getResult();
 			
+		    // register types
 		    for (String name : RESULT.getTypes().keySet()) {
 		    	final PropertyController controller = new PropertyController(name, RESULT.getTypes().get(name));
 		    	controller.register();
 		    }
 		    
+		    // render types
 		    for (Namespace ns : Namespace.getAll()) {
-		    	final NamespaceView view = new NamespaceView(ns);
+		    	final NamespaceView view = new NamespaceView(ns, MODEL_PACKAGE);
 		    	System.out.print(view.render());
 		    }
 		    

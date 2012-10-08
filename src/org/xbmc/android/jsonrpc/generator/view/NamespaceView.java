@@ -9,9 +9,11 @@ public class NamespaceView extends AbstractView {
 	private final static String DISPLAY_ONLY = "Application";
 	
 	private final Namespace namespace;
+	private final String packageName;
 	
-	public NamespaceView(Namespace namespace) {
+	public NamespaceView(Namespace namespace, String packageName) {
 		this.namespace = namespace;
+		this.packageName = packageName;
 	}
 	
 	public String render() {
@@ -21,16 +23,25 @@ public class NamespaceView extends AbstractView {
 			return "";
 		}
 		
+		// init
 		final StringBuilder sb = new StringBuilder();
+		
+		// package
+		sb.append("package ").append(packageName).append(";\n");
+		
+		// signature
+		sb.append("\n");
 		sb.append("public final class ");
 		sb.append(namespace.getName());
 		sb.append(" {\n");
 		
+		// classes
 		for (Klass klass : namespace.getClasses()) {
 			final ClassView classView = new ClassView(klass);
 			sb.append(classView.renderDeclaration(1, false));
 		}
 		
+		// enum
 		for (Enum e : namespace.getEnums()) {
 			final EnumView enumView = new EnumView(e);
 			sb.append(enumView.render(1, false));
