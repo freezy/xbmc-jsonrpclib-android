@@ -44,8 +44,8 @@ public class PropertyController {
 	 * Registers a global type or enum that is declared in the 
 	 * model package.
 	 */
-	public void register() {
-		final Namespace ns = Namespace.get(name);
+	public void register(String packageName) {
+		final Namespace ns = Namespace.get(name, packageName);
 		
 		// class/enum name
 		final String strippedName = name.contains(".") ? name.substring(name.indexOf(".") + 1) : name;

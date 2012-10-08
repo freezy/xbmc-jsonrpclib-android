@@ -1,6 +1,8 @@
 package org.xbmc.android.jsonrpc.generator;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import org.codehaus.jackson.JsonParseException;
@@ -30,7 +32,7 @@ public class Introspect {
 	private final static String MODEL_PACKAGE = "org.xbmc.android.jsonrpc.api.model";
 	private final static String CALL_PACKAGE = "org.xbmc.android.jsonrpc.api.call";
 	
-	private final static String OUTPUT_FOLDER = "d:/test/";
+	private final static String OUTPUT_FOLDER = "D:/dev/xbmc-jsonrpclib-android-test/src";
 	
 	static {
 		final SimpleModule module = new SimpleModule("", Version.unknownVersion());
@@ -51,13 +53,18 @@ public class Introspect {
 		    // register types
 		    for (String name : RESULT.getTypes().keySet()) {
 		    	final PropertyController controller = new PropertyController(name, RESULT.getTypes().get(name));
-		    	controller.register();
+		    	controller.register(MODEL_PACKAGE);
 		    }
 		    
 		    // render types
 		    for (Namespace ns : Namespace.getAll()) {
-		    	final NamespaceView view = new NamespaceView(ns, MODEL_PACKAGE);
-		    	System.out.print(view.render());
+		    	final NamespaceView view = new NamespaceView(ns);
+		    	final String data = view.render();
+		    	final File out = getFile(ns);
+		    	if (!data.isEmpty()) {
+		    		writeFile(out, data);
+		    		System.out.print(data);
+		    	}
 		    }
 		    
 			System.out.println("Done!");
@@ -71,19 +78,9 @@ public class Introspect {
 		}
 	}
 	
-	private static void createFolders(String pathName, String pak) {
-		final File path = new File(pathName);
-		if (!path.exists()) {
-			
-		}
-	}
-	
-	private static void dump(File file, StringBuffer contents) {
-	}
-	
-	private static String getPathName(String pathName, String packageName) {
-		final StringBuffer sb = new StringBuffer(pathName.replace("\\", "/"));
-		final String[] paks = packageName.split(".");
+	private static File getFile(Namespace ns) {
+		final StringBuffer sb = new StringBuffer(OUTPUT_FOLDER.replace("\\", "/"));
+		final String[] paks = ns.getPackageName().split("\\.");
 		if (!sb.toString().endsWith("/")) {
 			sb.append("/");
 		}
@@ -91,8 +88,29 @@ public class Introspect {
 			sb.append(paks[i]);
 			sb.append("/");
 		}
-		return sb.toString();
+		sb.append(ns.getName());
+		sb.append(".java");
+		
+		return new File(sb.toString());
 	}
+	
+	private static void writeFile(File file, String contents) {
+		final File path = file.getParentFile();
+		if (!path.exists()) {
+			if (!path.mkdirs()) {
+				throw new IllegalArgumentException("Path " + path.getAbsolutePath() + " doesn't exist and cannot be created.");
+			}
+		}
+		
+		try {
+			BufferedWriter out = new BufferedWriter(new FileWriter(file));
+			out.write(contents);
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	
 	public static Property find(Property property) {
 		if (RESULT == null) {

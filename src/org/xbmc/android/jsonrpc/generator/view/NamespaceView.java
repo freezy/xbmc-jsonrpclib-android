@@ -9,11 +9,9 @@ public class NamespaceView extends AbstractView {
 	private final static String DISPLAY_ONLY = "Application";
 	
 	private final Namespace namespace;
-	private final String packageName;
 	
-	public NamespaceView(Namespace namespace, String packageName) {
+	public NamespaceView(Namespace namespace) {
 		this.namespace = namespace;
-		this.packageName = packageName;
 	}
 	
 	public String render() {
@@ -27,7 +25,7 @@ public class NamespaceView extends AbstractView {
 		final StringBuilder sb = new StringBuilder();
 		
 		// package
-		sb.append("package ").append(packageName).append(";\n");
+		sb.append("package ").append(namespace.getPackageName()).append(";\n");
 		
 		// signature
 		sb.append("\n");

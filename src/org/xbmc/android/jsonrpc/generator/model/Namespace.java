@@ -10,11 +10,13 @@ public class Namespace {
 	private static HashMap<String, Namespace> namespaces = new HashMap<String, Namespace>();
 
 	private final String name;
+	private final String packageName;
 	private final List<Klass> classes = new ArrayList<Klass>();
 	private final List<Enum> enums = new ArrayList<Enum>();
 
-	public Namespace(String name) {
+	public Namespace(String name, String packageName) {
 		this.name = name;
+		this.packageName = packageName;
 	}
 
 	public void addClass(Klass klass) {
@@ -29,6 +31,10 @@ public class Namespace {
 		return name;
 	}
 
+	public String getPackageName() {
+		return packageName;
+	}
+
 	public List<Klass> getClasses() {
 		return classes;
 	}
@@ -37,13 +43,13 @@ public class Namespace {
 		return enums;
 	}
 
-	public static Namespace get(String name) {
+	public static Namespace get(String name, String packageName) {
 		// trim suffixes if provided
 		if (name.contains(".")) {
 			name = name.substring(0, name.indexOf("."));
 		}
 		if (!namespaces.containsKey(name)) {
-			namespaces.put(name, new Namespace(name));
+			namespaces.put(name, new Namespace(name, packageName));
 		}
 		return namespaces.get(name);
 	}
