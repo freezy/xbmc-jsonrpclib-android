@@ -36,7 +36,7 @@ public class Introspect {
 	public static void main(String[] args) {
 		try {
 			
-		    final Response response = OBJECT_MAPPER.readValue(new File("R:/phplib/xbmc-introspect.json"), Response.class);
+		    final Response response = OBJECT_MAPPER.readValue(new File("introspect.json"), Response.class);
 		    final Result result = response.getResult();
 			
 		    for (String name : result.getTypes().keySet()) {
