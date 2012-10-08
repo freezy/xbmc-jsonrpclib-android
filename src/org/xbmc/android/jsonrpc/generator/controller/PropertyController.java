@@ -67,11 +67,16 @@ public class PropertyController {
 		if (property.isObjectDefinition()) {
 			for (String propertyName : property.getProperties().keySet()) {
 				final Property prop = property.getProperties().get(propertyName);
-				final MemberController mc = new MemberController(propertyName, prop);
 				
+				final MemberController mc = new MemberController(propertyName, prop);
 				final Member member = mc.getMember();
-				if (member.getType().isInner()) {
+				
+				if (member.isInner()) {
 					klass.addInnerType(member.getType());
+				}
+				
+				if (member.isEnum()) {
+					klass.addInnerEnum(member.getEnum());
 				}
 				
 				klass.addMember(member);
@@ -82,6 +87,9 @@ public class PropertyController {
 	
 	public Enum getEnum(String enumName) {
 		final Enum e = new Enum(enumName, name);
+		for (String enumValue : property.getEnums()) {
+			e.addValue(enumValue);
+		}
 		return e;
 	}
 }

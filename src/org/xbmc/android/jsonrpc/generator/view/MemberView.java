@@ -20,12 +20,17 @@ public class MemberView {
 		
 		final StringBuilder sb = new StringBuilder();
 		sb.append(prefix).append("public final ");
-		if (member.getType().isNative()) {
-			sb.append(getNativeType(member.getType().getName()));
-		} else if (member.getType().isInner()) {
-			sb.append(ClassView.getInnerType(member.getType().getName()));
+		
+		if (!member.isEnum()) {
+			if (member.getType().isNative()) {
+				sb.append(getNativeType(member.getType().getName()));
+			} else if (member.getType().isInner()) {
+				sb.append(ClassView.getInnerType(member.getType().getName()));
+			} else {
+				sb.append(member.getType().getName());
+			}
 		} else {
-			sb.append(member.getType().getName());
+			sb.append(EnumView.getInnerType(member.getEnum().getName()));
 		}
 		sb.append(" ").append(member.getName());
 		sb.append(";\n");

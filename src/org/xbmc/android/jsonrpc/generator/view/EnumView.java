@@ -13,10 +13,10 @@ public class EnumView {
 		this.e = e;
 	}
 	
-	public String render(int indent) {
+	public String render(int indent, boolean force) {
 		
 		// debug
-		if (!DISPLAY_ONLY.isEmpty() && !e.getApiType().equals(DISPLAY_ONLY)) {
+		if (!force && !DISPLAY_ONLY.isEmpty() && !e.getApiType().equals(DISPLAY_ONLY)) {
 			return "";
 		}
 		
@@ -25,12 +25,29 @@ public class EnumView {
 			prefix += "\t";
 		}
 		
-		final StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder("\n");
 		sb.append(prefix).append("public static enum ");
-		sb.append(e.getName());
+		if (e.isInner()) {
+			sb.append(getInnerType(e.getName()));
+		} else {
+			sb.append(e.getName());
+		}
 		sb.append(" {\n");
+		
+		for (String enumValue : e.getValues()) {
+			sb.append(prefix).append("\t");
+			sb.append(enumValue.toUpperCase());
+			sb.append("(\"");
+			sb.append(enumValue);
+			sb.append("\");\n");
+		}
+		
 		sb.append(prefix).append("}\n");
 		
 		return sb.toString();
+	}
+	
+	public static String getInnerType(String type) {
+		return type.substring(0, 1).toUpperCase() + type.substring(1);
 	}
 }

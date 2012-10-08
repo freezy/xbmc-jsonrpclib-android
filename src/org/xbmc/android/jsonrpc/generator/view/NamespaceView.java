@@ -33,7 +33,7 @@ public class NamespaceView {
 		
 		for (Enum e : namespace.getEnums()) {
 			final EnumView enumView = new EnumView(e);
-			sb.append(enumView.render(1));
+			sb.append(enumView.render(1, false));
 		}
 		
 		sb.append("}\n");

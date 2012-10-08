@@ -13,6 +13,7 @@ public class Klass {
 
 	private final List<Member> members = new ArrayList<Member>();
 	private final List<Klass> innerTypes = new ArrayList<Klass>();
+	private final List<Enum> innerEnums = new ArrayList<Enum>();
 
 	public Klass(String name, String apiType) {
 		this.name = name;
@@ -27,10 +28,18 @@ public class Klass {
 		innerTypes.add(klass);
 	}
 	
+	public void addInnerEnum(Enum e) {
+		innerEnums.add(e);
+	}
+	
 	public boolean hasInnerTypes() {
 		return !innerTypes.isEmpty();
 	}
 
+	public boolean hasInnerEnums() {
+		return !innerEnums.isEmpty();
+	}
+	
 	public boolean isNative() {
 		return isNative;
 	}
@@ -61,6 +70,10 @@ public class Klass {
 	
 	public List<Klass> getInnerTypes() {
 		return innerTypes;
+	}
+	
+	public List<Enum> getInnerEnums() {
+		return innerEnums;
 	}
 
 }
