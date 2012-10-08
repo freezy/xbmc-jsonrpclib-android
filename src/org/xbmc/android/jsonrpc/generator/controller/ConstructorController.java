@@ -19,6 +19,7 @@ public class ConstructorController {
 	public List<Constructor> getConstructors() {
 		final List<Constructor> constructors = new ArrayList<Constructor>();
 		
+		// for non-multitype, just create one constructor with all properties
 		if (!type.isMultiType()) {
 			final Constructor c = new Constructor(type);
 			for (Member m : type.getMembers()) {
@@ -29,6 +30,8 @@ public class ConstructorController {
 				}
 			}
 			constructors.add(c);
+			
+		// for multitypes, we need a constructor per type (member)	
 		} else {
 			
 			for (Member m : type.getMembers()) {
@@ -41,7 +44,6 @@ public class ConstructorController {
 				constructors.add(c);
 			}
 		}
-
 		
 		return constructors;
 	}

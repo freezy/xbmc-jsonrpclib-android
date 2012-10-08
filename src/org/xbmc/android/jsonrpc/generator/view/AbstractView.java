@@ -10,7 +10,7 @@ public abstract class AbstractView {
 		if (klass.isInner()) {
 			return getInnerType(klass.getName());
 		} else {
-			return klass.getName();
+			return klass.getName().replace(".", "");
 		}
 	}
 

@@ -34,14 +34,26 @@ public class EnumView extends AbstractView {
 		}
 		sb.append(" {\n");
 		
+		// enumns
 		for (String enumValue : e.getValues()) {
 			sb.append(prefix).append("\t");
 			sb.append(enumValue.toUpperCase());
 			sb.append("(\"");
 			sb.append(enumValue);
-			sb.append("\");\n");
+			sb.append("\"),\n");
 		}
+		sb.delete(sb.length() - 2, sb.length());
+		sb.append(";\n\n");
 		
+		// accessors
+		sb.append(prefix).append("	private final String name;\n");
+		sb.append(prefix).append("	private Tag(String name) {\n");
+		sb.append(prefix).append("		this.name = name;\n");
+		sb.append(prefix).append("	}\n");
+		sb.append(prefix).append("	public String getName() {\n");
+		sb.append(prefix).append("		return name;\n");
+		sb.append(prefix).append("	}\n");
+
 		sb.append(prefix).append("}\n");
 		
 		return sb.toString();
