@@ -24,12 +24,21 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.xbmc.android.jsonrpc.generator.Introspect;
 import org.xbmc.android.jsonrpc.generator.introspect.wrapper.AdditionalPropertiesWrapper;
+import org.xbmc.android.jsonrpc.generator.introspect.wrapper.ExtendsWrapper;
 import org.xbmc.android.jsonrpc.generator.introspect.wrapper.TypeWrapper;
 
 /**
  * A Property defines an attribute of a type and is also the base class
  * for {@link Param} and {@link Type}.
+ * <p/>
+ * A property is used in the following classes:
+ * <ul><li>{@link Type#properties} - As a list of properties of an object.</li>
+ *     <li>{@link Result#types} - As a global type extending Property.</li>
+ *     <li>{@link Method#params} - As a method parameter type extending Property.</li>
+ *     <li>{@link Property#items} - As an array type.</li>
+ * </ul>
  * 
  * All of its members can be found in the JSON-schema draft (see link below).
  * 
@@ -49,6 +58,39 @@ public class Property {
 	 */
 	@JsonProperty("$ref")
 	protected String ref;
+	
+	/**
+	 * The value of this property MUST be another schema which will provide
+	 * a base schema which the current schema will inherit from.  The
+	 * inheritance rules are such that any instance that is valid according
+	 * to the current schema MUST be valid according to the referenced
+	 * schema.  This MAY also be an array, in which case, the instance MUST
+	 * be valid for all the schemas in the array.  A schema that extends
+	 * another schema MAY define additional attributes, constrain existing
+	 * attributes, or add other constraints.<p/>
+	 * 
+	 * Conceptually, the behavior of extends can be seen as validating an
+	 * instance against all constraints in the extending schema as well as
+	 * the extended schema(s).  More optimized implementations that merge
+	 * schemas are possible, but are not required.  An example of using
+	 * "extends":<p/>
+	 * 
+	 * <code><pre>
+	 *    {
+	 *       "description":"An adult",
+	 *       "properties":{"age":{"minimum": 21}},
+	 *       "extends":"person"
+	 *     }
+	 *     
+	 *     {
+	 *       "description":"Extended schema",
+	 *       "properties":{"deprecated":{"type": "boolean"}},
+	 *       "extends":"http://json-schema.org/draft-03/schema"
+	 *     }
+	 * </pre></code>
+	 */
+	@JsonProperty("extends")
+	private ExtendsWrapper extendsValue;
 
 	/**
 	 * This attribute is an object with property definitions that define the
@@ -143,7 +185,7 @@ public class Property {
 	 *  (Section 5.6) attribute using the same rules as
 	 *  "additionalProperties" (Section 5.4) for objects.
 	 */
-	protected Type items;
+	protected Property items;
 	
 	/**
 	 * This attribute indicates that all items in an array instance MUST be
@@ -216,11 +258,17 @@ public class Property {
 	}
 	
 	public boolean isNative() {
-		return type != null && type.getName() != null && !type.getName().equals("object");
+		return type != null && type.getName() != null
+				&& !type.getName().equals("object")
+				&& !type.getName().equals("array");
 	}
 	
 	public boolean isMultitype() {
-		return type != null && type.isArray();
+		return type != null && type.isList();
+	}
+	
+	public boolean isArray() {
+		return type != null && type.getName() != null && type.getName().equals("array");
 	}
 
 	public String getRef() {
@@ -248,7 +296,7 @@ public class Property {
 	}
 	
 	public boolean isEnum() {
-		return enums != null && !enums.isEmpty();
+		return (enums != null && !enums.isEmpty());
 	}
 
 	public void setEnums(List<String> enums) {
@@ -279,11 +327,11 @@ public class Property {
 		this.required = required;
 	}
 
-	public Type getItems() {
+	public Property getItems() {
 		return items;
 	}
 
-	public void setItems(Type items) {
+	public void setItems(Property items) {
 		this.items = items;
 	}
 
@@ -341,5 +389,82 @@ public class Property {
 
 	public void setDefault(String defaultValue) {
 		this.defaultValue = defaultValue;
+	}
+	
+	/**
+	 * Returns true if this type extends another type, false otherwise.
+	 * @return True if extends, false otherwise.
+	 */
+	public boolean doesExtend() {
+		return extendsValue != null;
+	}
+	
+	public ExtendsWrapper getExtends() {
+		return extendsValue;
+	}
+
+	public void setExtends(ExtendsWrapper extendsValue) {
+		this.extendsValue = extendsValue;
+	}
+	
+	private void copyTo(Property dest) {
+		// firstly copy attributes from parent(s)
+		if (extendsValue != null) {
+			// if multiple, copy from each
+			if (extendsValue.isList()) {
+				for (String e : extendsValue.getList()) {
+					Introspect.find(e).copyTo(dest);
+				}
+			} else {
+				Introspect.find(extendsValue.getName()).copyTo(dest);
+			}
+		}
+		// now copy all attributes from here
+		if (additionalProperties != null) {
+			dest.setAdditionalProperties(additionalProperties);
+		}
+		if (defaultValue != null) {
+			dest.setDefault(defaultValue);
+		}
+		if (description != null) {
+			dest.setDescription(description);
+		}
+		if (enums != null) {
+			dest.setEnums(enums);
+		}
+		if (items != null) {
+			dest.setItems(items);
+		}
+		if (maximum != null) {
+			dest.setMaximum(maximum);
+		}
+		if (minimum != null) {
+			dest.setMinimum(minimum);
+		}
+		if (minItems != null) {
+			dest.setMinItems(minItems);
+		}
+		if (minLength != null) {
+			dest.setMinLength(minLength);
+		}
+		if (required != null) {
+			dest.setRequired(required);
+		}
+		if (type != null) {
+			dest.setType(type);
+		}
+		if (uniqueItems != null) {
+			dest.setUniqueItems(uniqueItems);
+		}
+	}
+	
+	/**
+	 * Traverses all parents and copies all attributes.
+	 * @return
+	 */
+	public Property obj() {
+		final Property property = new Property();
+		Introspect.find(this).copyTo(property);
+		return property;
 	}
 }

@@ -34,7 +34,6 @@ import org.xbmc.android.jsonrpc.generator.controller.PropertyController;
 import org.xbmc.android.jsonrpc.generator.introspect.Property;
 import org.xbmc.android.jsonrpc.generator.introspect.Response;
 import org.xbmc.android.jsonrpc.generator.introspect.Result;
-import org.xbmc.android.jsonrpc.generator.introspect.Type;
 import org.xbmc.android.jsonrpc.generator.introspect.wrapper.AdditionalPropertiesWrapper;
 import org.xbmc.android.jsonrpc.generator.introspect.wrapper.ExtendsWrapper;
 import org.xbmc.android.jsonrpc.generator.introspect.wrapper.TypeWrapper;
@@ -174,17 +173,19 @@ public class Introspect {
 		}
 	}
 	
-	
-	public static Property find(Property property) {
+	public static Property find(String name) {
 		if (RESULT == null) {
 			throw new RuntimeException("Must parse before finding types!");
 		}
+		if (!RESULT.getTypes().containsKey(name)) {
+			throw new RuntimeException("Cannot find type " + name + ".");
+		}
+		return RESULT.getTypes().get(name);
+	}
+	
+	public static Property find(Property property) {
 		if (property.isRef()) {
-			final Type type = RESULT.getTypes().get(property.getRef());
-			if (!RESULT.getTypes().containsKey(property.getRef())) {
-				throw new RuntimeException("Cannot find type " + property.getRef() + ".");
-			}
-			return type;
+			return find(property.getRef());
 		} else {
 			return property;
 		}

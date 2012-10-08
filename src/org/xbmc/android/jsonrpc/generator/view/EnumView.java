@@ -52,6 +52,45 @@ public class EnumView extends AbstractView {
 		
 		// signature
 		sb.append("\n");
+		sb.append(prefix).append("public interface ");
+		sb.append(getEnumName(e));
+		sb.append(" {\n\n");
+		
+		// enumns
+		for (String enumValue : e.getValues()) {
+			sb.append(prefix).append("	public final String ");
+			sb.append(enumValue.replaceAll("\\.",  "_").toUpperCase());
+			sb.append(" = \"");
+			sb.append(enumValue);
+			sb.append("\";\n");
+		}
+		sb.append(prefix).append("}\n");
+	}
+	
+	
+	/**
+	 * Renders as a Java enum.
+	 * 
+	 * @deprecated Model uses enum heritate which isn't possible in Java
+	 * @param sb
+	 * @param indent
+	 * @param force
+	 */
+	public void renderEnum(StringBuilder sb, int indent, boolean force) {
+		
+		// debug
+		if (!force && !DISPLAY_ONLY.isEmpty() && !e.getApiType().equals(DISPLAY_ONLY)) {
+			return;
+		}
+		
+		// init
+		String prefix = "";
+		for (int i = 0; i < indent; i++) {
+			prefix += "\t";
+		}
+		
+		// signature
+		sb.append("\n");
 		sb.append(prefix).append("public static enum ");
 		sb.append(getEnumName(e));
 		sb.append(" {\n\n");
@@ -59,7 +98,7 @@ public class EnumView extends AbstractView {
 		// enumns
 		for (String enumValue : e.getValues()) {
 			sb.append(prefix).append("\t");
-			sb.append(enumValue.toUpperCase());
+			sb.append(enumValue.replaceAll("\\.",  "_").toUpperCase());
 			sb.append("(\"");
 			sb.append(enumValue);
 			sb.append("\"),\n");

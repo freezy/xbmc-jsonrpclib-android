@@ -44,7 +44,11 @@ public class ExtendsWrapper {
 		this.name = null;
 		this.list = list;
 	}
-
+	
+	public boolean isList() {
+		return list != null;
+	}
+	
 	public String getName() {
 		return name;
 	}

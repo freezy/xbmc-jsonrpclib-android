@@ -39,12 +39,14 @@ import org.xbmc.android.jsonrpc.generator.model.Namespace;
 public class PropertyController {
 
 	/**
-	 * Name of the property.
+	 * Name of the property.<p/>
 	 * 
-	 * Since most of the time, the name comes from the key of its parent,
-	 * it's not saved in the property itself (exception: {@link Param}).
-	 * In the latter case, the name is read from the Param, which means that
-	 * {@link #name} is never null.
+	 * Since most of the time, the name comes from the key of its parent, it's
+	 * not saved in the property itself (exception: {@link Param}). In the 
+	 * latter case, the name is read from the Param.
+	 * <br>
+	 * The only case where name is null is when it comes from a
+	 * {@link Property#item} where there is no name whatsoever.
 	 */
 	private final String name;
 	private final Property property;
@@ -53,11 +55,8 @@ public class PropertyController {
 		if (property == null) {
 			throw new IllegalArgumentException("Property parameter must not be null.");
 		}
-		if (!(property instanceof Param) && name == null) {
-			throw new IllegalArgumentException("Name parameter can only be null when providing a Param.");
-		}
 		this.property = property;
-		this.name = name != null ? name : ((Param)property).getName();
+		this.name = name != null ? name : (property instanceof Param ? ((Param)property).getName() : null);
 	}
 	
 	/**
@@ -69,10 +68,20 @@ public class PropertyController {
 		
 		// class/enum name
 		final String strippedName = name.contains(".") ? name.substring(name.indexOf(".") + 1) : name;
+		final Property p = property.obj();
 		
 		// either register class or enum
-		if (property.isEnum()) {
+		if (p.isEnum()) {
 			ns.addEnum(getEnum(strippedName));
+			
+		} else if (p.isArray() && p.getItems().isEnum()) {
+			/* So if we have an array that is made out of enums, it's
+			 * really a array of Strings. But still, we should define 
+			 * the enums somewhere, so we ignore the type and treat
+			 * the array type.
+			 */
+			final PropertyController pc = new PropertyController(name, property.getItems());
+			ns.addClass(pc.getClass(strippedName));
 		} else {
 			ns.addClass(getClass(strippedName));
 		}
@@ -105,7 +114,14 @@ public class PropertyController {
 				final MemberController mc = new MemberController("arg" + (i++), t);
 				klass.addMember(mc.getMember());
 			}
-		
+			
+		// create class from array	
+		} else if (property.isArray()) {
+			final PropertyController pc = new PropertyController(null, property.getItems());
+			klass = new Klass();
+			klass.setArray(true);
+			klass.setArrayType(pc.getClass(className));
+			
 		// create class from global type
 		} else {
 			klass = new Klass(className, name);

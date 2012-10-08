@@ -20,6 +20,7 @@
  */
 package org.xbmc.android.jsonrpc.generator.introspect.wrapper;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.xbmc.android.jsonrpc.generator.introspect.Type;
@@ -29,7 +30,7 @@ import org.xbmc.android.jsonrpc.generator.introspect.Type;
  * either of:
  * <ul><li>A String defining a native type ("string", "integer", etc)</li>
  *     <li>A {@link Type} object defining an anonymous type</li>
- *     <li>An array of {@link Type}s defining multiple anonymous types</li>
+ *     <li>An list of {@link Type}s defining multiple anonymous types</li>
  * </ul>
  * 
  * This class contains either value.
@@ -54,14 +55,45 @@ public class TypeWrapper {
 		this.list = null;
 	}
 
-	public TypeWrapper(List<Type> array) {
-		this.name = null;
-		this.obj = null;
-		this.list = array;
+	public TypeWrapper(List<Type> list) {
+		// trim "null" types (wtf!)
+		final Iterator<Type> i = list.iterator();
+		while (i.hasNext()) {
+			final Type type = i.next();
+			final TypeWrapper tr = type.getType();
+			if (tr != null && tr.isNative() && tr.getName().equals("null")) {
+				i.remove();
+			}
+		}
+		if (list.size() == 1) {
+			final Type type = list.get(0);
+			if (type.isNative()) {
+				this.name = type.getType().getName();
+				this.obj = null;
+				this.list = null;
+			} else {
+				this.name = null;
+				this.obj = type;
+				this.list = null;
+			}
+		} else {
+			this.name = null;
+			this.obj = null;
+			this.list = list;
+		}
+		
 	}
 	
-	public boolean isArray() {
+	public boolean isList() {
 		return list != null;
+	}
+	
+	public boolean isNative() {
+		return name != null;
+	}
+	
+	public boolean isObject() {
+		return obj != null;
 	}
 
 	public String getName() {
@@ -80,7 +112,7 @@ public class TypeWrapper {
 		final StringBuilder sb = new StringBuilder();
 		sb.append("[type:");
 		if (list != null) {
-			sb.append("array(");
+			sb.append("list(");
 			for (Type type : list) {
 				sb.append(type);
 				sb.append(",");

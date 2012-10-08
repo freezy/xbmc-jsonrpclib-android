@@ -41,8 +41,12 @@ public abstract class AbstractView {
 	 * @return Java class name
 	 */
 	protected String getClassName(Klass klass) {
-		if (klass.isInner()) {
+		if (klass.isNative()) {
+			return getNativeType(klass);
+		} else if (klass.isInner()) {
 			return getInnerType(klass.getName());
+		} else if (klass.isArray()) {
+			return getArrayType(klass);
 		} else {
 			return klass.getName().replace(".", "");
 		}
@@ -67,30 +71,16 @@ public abstract class AbstractView {
 	 * @return Java class name
 	 */
 	protected String getClassName(Member member) {
-		
 		if (!member.isEnum()) {
-			if (member.getType().isNative()) {
-				return getNativeType(member.getType().getName());
-			} else if (member.getType().isInner()) {
-				return getInnerType(member.getType().getName());
-			} else {
-				return member.getType().getName();
-			}
+			return getClassName(member.getType());
 		} else {
 			return getInnerType(member.getEnum().getName());
 		}
 	}
 	// TODO interface param and member
 	protected String getClassName(Parameter param) {
-		
 		if (!param.isEnum()) {
-			if (param.getType().isNative()) {
-				return getNativeType(param.getType().getName());
-			} else if (param.getType().isInner()) {
-				return getInnerType(param.getType().getName());
-			} else {
-				return param.getType().getName();
-			}
+			return getClassName(param.getType());
 		} else {
 			return getInnerType(param.getEnum().getName());
 		}
@@ -100,21 +90,26 @@ public abstract class AbstractView {
 	 * Returns the Java native type based on the JSON type.
 	 * 
 	 * @see http://tools.ietf.org/html/draft-zyp-json-schema-03#section-5.1
-	 * @param type JSON type
+	 * @param klass type
 	 * @return Java native tape
 	 */
-	private String getNativeType(String type) {
-		if (type.equals("boolean")) {
+	private String getNativeType(Klass klass) {
+		final String typeName = klass.getName();
+		if (typeName.equals("boolean")) {
 			return "Boolean";
-		} else if (type.equals("number")) {
+		} else if (typeName.equals("number")) {
 			return "Double";
-		} else if (type.equals("integer")) {
+		} else if (typeName.equals("integer")) {
 			return "Integer";
-		} else if (type.equals("string")) {
+		} else if (typeName.equals("string")) {
 			return "String";
 		} else {
-			throw new IllegalArgumentException("Unknown native type \"" + type + "\".");
+			throw new IllegalArgumentException("Unknown native type \"" + typeName + "\".");
 		}
+	}
+	
+	protected String getArrayType(Klass klass) {
+		return "List<" + getClassName(klass.getArrayType()) + ">";
 	}
 	
 	/**

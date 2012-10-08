@@ -32,8 +32,8 @@ import org.xbmc.android.jsonrpc.generator.model.Member;
  */
 public class ClassView extends AbstractView {
 
+	//public final static String DISPLAY_ONLY = "Addon.Fields";
 	public final static String DISPLAY_ONLY = "";
-	//public final static String DISPLAY_ONLY = "Application.Property.Value";
 
 	private final Klass klass;
 
