@@ -20,6 +20,7 @@
  */
 package org.xbmc.android.jsonrpc.generator.view;
 
+import org.xbmc.android.jsonrpc.generator.model.Enum;
 import org.xbmc.android.jsonrpc.generator.model.Klass;
 import org.xbmc.android.jsonrpc.generator.model.Member;
 import org.xbmc.android.jsonrpc.generator.model.Parameter;
@@ -44,6 +45,19 @@ public abstract class AbstractView {
 			return getInnerType(klass.getName());
 		} else {
 			return klass.getName().replace(".", "");
+		}
+	}
+	
+	/**
+	 * Returns the Java enum name based on a class object.
+	 * @param e Given enum
+	 * @return Java enum name
+	 */
+	protected String getEnumName(Enum e) {
+		if (e.isInner()) {
+			return getInnerType(e.getName());
+		} else {
+			return e.getName().replace(".", "");
 		}
 	}
 

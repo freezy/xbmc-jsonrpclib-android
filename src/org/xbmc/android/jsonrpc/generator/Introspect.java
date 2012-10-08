@@ -40,6 +40,7 @@ import org.xbmc.android.jsonrpc.generator.introspect.wrapper.ExtendsWrapper;
 import org.xbmc.android.jsonrpc.generator.introspect.wrapper.TypeWrapper;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 import org.xbmc.android.jsonrpc.generator.view.ClassView;
+import org.xbmc.android.jsonrpc.generator.view.EnumView;
 import org.xbmc.android.jsonrpc.generator.view.NamespaceView;
 import org.xbmc.android.jsonrpc.jackson.AdditionalPropertiesDeserializer;
 import org.xbmc.android.jsonrpc.jackson.ExtendsDeserializer;
@@ -58,6 +59,7 @@ import org.xbmc.android.jsonrpc.jackson.TypeDeserializer;
  *     <li>If you want to dump only one type, set {@link ClassView#DISPLAY_ONLY}
  *         ({@link NamespaceView#DISPLAY_ONLY} must be set also, otherwise it 
  *         will be skipped).</li>
+ *     <li>Same for enums, see {@link EnumView#DISPLAY_ONLY}.</li>
  * </u>
  * 
  * Folders will be created. Program will crash if no write permissions.

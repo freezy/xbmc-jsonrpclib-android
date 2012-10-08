@@ -29,7 +29,7 @@ import org.xbmc.android.jsonrpc.generator.model.Enum;
  */
 public class EnumView extends AbstractView {
 	
-	private final static String DISPLAY_ONLY = "Application.Property.Value";
+	public final static String DISPLAY_ONLY = "";
 	
 	private final Enum e;
 	
@@ -53,11 +53,7 @@ public class EnumView extends AbstractView {
 		// signature
 		sb.append("\n");
 		sb.append(prefix).append("public static enum ");
-		if (e.isInner()) {
-			sb.append(getInnerType(e.getName()));
-		} else {
-			sb.append(e.getName());
-		}
+		sb.append(getEnumName(e));
 		sb.append(" {\n\n");
 		
 		// enumns
@@ -73,7 +69,7 @@ public class EnumView extends AbstractView {
 		
 		// accessors
 		sb.append(prefix).append("	private final String name;\n");
-		sb.append(prefix).append("	private Tag(String name) {\n");
+		sb.append(prefix).append("	private ").append(getEnumName(e)).append("(String name) {\n");
 		sb.append(prefix).append("		this.name = name;\n");
 		sb.append(prefix).append("	}\n");
 		sb.append(prefix).append("	public String getName() {\n");
