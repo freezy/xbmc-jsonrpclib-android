@@ -32,34 +32,36 @@ import org.xbmc.android.jsonrpc.generator.introspect.Type;
  *     <li>An array of {@link Type}s defining multiple anonymous types</li>
  * </ul>
  * 
+ * This class contains either value.
+ * 
  * @author freezy <freezy@xbmc.org>
  */
 public class TypeWrapper {
 	
 	private final String name;
 	private final Type obj;
-	private final List<Type> array;
+	private final List<Type> list;
 
 	public TypeWrapper(String name) {
 		this.name = name;
 		obj = null;
-		array = null;
+		list = null;
 	}
 
 	public TypeWrapper(Type obj) {
 		this.name = null;
 		this.obj = obj;
-		this.array = null;
+		this.list = null;
 	}
 
 	public TypeWrapper(List<Type> array) {
 		this.name = null;
 		this.obj = null;
-		this.array = array;
+		this.list = array;
 	}
 	
 	public boolean isArray() {
-		return array != null;
+		return list != null;
 	}
 
 	public String getName() {
@@ -70,16 +72,16 @@ public class TypeWrapper {
 		return obj;
 	}
 
-	public List<Type> getArray() {
-		return array;
+	public List<Type> getList() {
+		return list;
 	}
 
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
 		sb.append("[type:");
-		if (array != null) {
+		if (list != null) {
 			sb.append("array(");
-			for (Type type : array) {
+			for (Type type : list) {
 				sb.append(type);
 				sb.append(",");
 			}

@@ -22,18 +22,27 @@ package org.xbmc.android.jsonrpc.generator.introspect.wrapper;
 
 import java.util.List;
 
+/**
+ * Wraps the <tt>extends</tt> attribute.
+ * 
+ * The attribute can either be a String or a list of Strings. This 
+ * class contains either value.
+ * 
+ * @author freezy <freezy@xbmc.org>
+ */
 public class ExtendsWrapper {
+	
 	private final String name;
-	private final List<String> array;
+	private final List<String> list;
 
 	public ExtendsWrapper(String name) {
 		this.name = name;
-		array = null;
+		list = null;
 	}
 
-	public ExtendsWrapper(List<String> array) {
+	public ExtendsWrapper(List<String> list) {
 		this.name = null;
-		this.array = array;
+		this.list = list;
 	}
 
 	public String getName() {
@@ -41,7 +50,7 @@ public class ExtendsWrapper {
 	}
 	
 	public List<String> getArray() {
-		return array;
+		return list;
 	}
 
 }

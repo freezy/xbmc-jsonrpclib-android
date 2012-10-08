@@ -44,6 +44,18 @@ import org.xbmc.android.jsonrpc.jackson.AdditionalPropertiesDeserializer;
 import org.xbmc.android.jsonrpc.jackson.ExtendsDeserializer;
 import org.xbmc.android.jsonrpc.jackson.TypeDeserializer;
 
+/**
+ * Main program. To make this work, update:
+ * 
+ * <ul><li>{@link #OUTPUT_FOLDER} where you want the java files placed (your
+ *         source folder)</li>
+ *      <li>{@link #MODEL_PACKAGE} in which package you want your model files</li>
+ * </ul>
+ * 
+ * Folders will be created. Program will crash if no write permissions.
+ * 
+ * @author freezy <freezy@xbmc.org>
+ */
 public class Introspect {
 	
 	public final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
@@ -63,6 +75,10 @@ public class Introspect {
 		OBJECT_MAPPER.registerModule(module);
 	}
 	
+	/**
+	 * Main programm
+	 * @param args none
+	 */
 	public static void main(String[] args) {
 		try {
 			
@@ -98,7 +114,13 @@ public class Introspect {
 		}
 	}
 	
-	
+	/**
+	 * Computes the filename of the Java class file based on 
+	 * {@link Introspect#OUTPUT_FOLDER} and the package of the namespace.
+	 * 
+	 * @param ns Namespace
+	 * @return File handler
+	 */
 	private static File getFile(Namespace ns) {
 		final StringBuffer sb = new StringBuffer(OUTPUT_FOLDER.replace("\\", "/"));
 		final String[] paks = ns.getPackageName().split("\\.");
@@ -115,6 +137,11 @@ public class Introspect {
 		return new File(sb.toString());
 	}
 	
+	/**
+	 * Creates folder structure and dumps contents into file.
+	 * @param file File to write to
+	 * @param contents Data to dump
+	 */
 	private static void writeFile(File file, String contents) {
 		final File path = file.getParentFile();
 		

@@ -23,6 +23,11 @@ package org.xbmc.android.jsonrpc.generator.model;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Defines a class constructor in an agnostic way.
+ * 
+ * @author freezy <freezy@xbmc.org>
+ */
 public class Constructor {
 
 	private final Klass type;

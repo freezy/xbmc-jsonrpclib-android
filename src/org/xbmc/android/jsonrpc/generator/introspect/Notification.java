@@ -22,6 +22,13 @@ package org.xbmc.android.jsonrpc.generator.introspect;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
+/**
+ * A notification is what's defined under the <tt>result</tt>'s 
+ * <tt>notifications</tt> object. It represents a push notification
+ * in XBMC's JSON-RPC API.
+ * 
+ * @author freezy <freezy@xbmc.org>
+ */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Notification {
 

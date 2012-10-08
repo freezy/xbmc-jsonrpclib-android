@@ -31,6 +31,16 @@ import org.xbmc.android.jsonrpc.generator.Introspect;
 import org.xbmc.android.jsonrpc.generator.introspect.wrapper.AdditionalPropertiesWrapper;
 import org.xbmc.android.jsonrpc.generator.introspect.wrapper.TypeWrapper;
 
+/**
+ * Deserializes the <tt>additionalProperties</tt> value into 
+ * {@link AdditionalPropertiesWrapper}.
+ * <p/>
+ * 
+ * The reason for that is that <tt>additionalProperties</tt> can be multiple
+ * types, which doesn't work well (like, not at all) with Java.
+ *  
+ * @author freezy <freezy@xbmc.org>
+ */
 public class AdditionalPropertiesDeserializer extends Deserializer<AdditionalPropertiesWrapper> {
 	
 	@Override

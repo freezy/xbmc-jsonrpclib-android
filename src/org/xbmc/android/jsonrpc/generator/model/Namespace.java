@@ -25,6 +25,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Defines the "outer" class, where the classes sit.
+ * 
+ * @author freezy <freezy@xbmc.org>
+ */
 public class Namespace {
 
 	private static HashMap<String, Namespace> namespaces = new HashMap<String, Namespace>();

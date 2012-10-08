@@ -26,6 +26,11 @@ import org.xbmc.android.jsonrpc.generator.model.Enum;
 import org.xbmc.android.jsonrpc.generator.model.Klass;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 
+/**
+ * Renders a Java outer class.
+ * 
+ * @author freezy <freezy@xbmc.org>
+ */
 public class NamespaceView extends AbstractView {
 	
 	private final static String DISPLAY_ONLY = "Application";

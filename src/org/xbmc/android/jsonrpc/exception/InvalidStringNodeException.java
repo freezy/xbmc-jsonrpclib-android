@@ -20,6 +20,11 @@
  */
 package org.xbmc.android.jsonrpc.exception;
 
+/**
+ * Something that was supposed to be a string, isn't.
+ * 
+ * @author freezy <freezy@xbmc.org>
+ */
 public class InvalidStringNodeException extends Exception {
 	
 	public InvalidStringNodeException(String message) {

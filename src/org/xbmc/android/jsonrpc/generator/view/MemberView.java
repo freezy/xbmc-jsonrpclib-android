@@ -22,7 +22,11 @@ package org.xbmc.android.jsonrpc.generator.view;
 
 import org.xbmc.android.jsonrpc.generator.model.Member;
 
-
+/**
+ * Renders a Java class member.
+ * 
+ * @author freezy <freezy@xbmc.org>
+ */
 public class MemberView extends AbstractView {
 	
 	private final Member member;

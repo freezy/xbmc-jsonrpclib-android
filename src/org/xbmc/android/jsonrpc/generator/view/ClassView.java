@@ -25,6 +25,11 @@ import org.xbmc.android.jsonrpc.generator.model.Enum;
 import org.xbmc.android.jsonrpc.generator.model.Klass;
 import org.xbmc.android.jsonrpc.generator.model.Member;
 
+/**
+ * Renders a Java class.
+ * 
+ * @author freezy <freezy@xbmc.org>
+ */
 public class ClassView extends AbstractView {
 
 	private final static String DISPLAY_ONLY = "Application.Property.Value";

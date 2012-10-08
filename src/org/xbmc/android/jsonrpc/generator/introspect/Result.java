@@ -22,6 +22,12 @@ package org.xbmc.android.jsonrpc.generator.introspect;
 
 import java.util.HashMap;
 
+/**
+ * A result, as used as <tt>result</tt> node of the JSON introspect
+ * tree.
+ * 
+ * @author freezy <freezy@xbmc.org>
+ */
 public class Result {
 	
 	private String id;

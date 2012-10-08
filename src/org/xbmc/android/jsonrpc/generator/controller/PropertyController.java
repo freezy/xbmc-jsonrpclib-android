@@ -70,6 +70,7 @@ public class PropertyController {
 		// class/enum name
 		final String strippedName = name.contains(".") ? name.substring(name.indexOf(".") + 1) : name;
 		
+		// either register class or enum
 		if (property.isEnum()) {
 			ns.addEnum(getEnum(strippedName));
 		} else {
@@ -77,6 +78,12 @@ public class PropertyController {
 		}
 	}
 	
+	/**
+	 * Creates the agnostic {@link Klass} object.
+	 * 
+	 * @param className Name of the class (retrieved from parent key)
+	 * @return Class object
+	 */
 	public Klass getClass(String className) {
 		
 		final Klass klass;
@@ -88,7 +95,7 @@ public class PropertyController {
 			
 		// create class from multiple values
 		} else if (property.isMultitype()) {
-			final List<Type> types = property.getType().getArray();
+			final List<Type> types = property.getType().getList();
 			
 			klass = new Klass(className);
 			klass.setInner(true);
@@ -133,6 +140,12 @@ public class PropertyController {
 		return klass;
 	}
 	
+	/**
+	 * Creates the agnostic {@link Enum} object.
+	 * 
+	 * @param enumName Name of the enum (retrieved from parent key)
+	 * @return Enum object
+	 */
 	public Enum getEnum(String enumName) {
 		final Enum e = new Enum(enumName, name);
 		for (String enumValue : property.getEnums()) {

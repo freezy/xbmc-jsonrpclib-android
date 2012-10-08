@@ -20,12 +20,16 @@
  */
 package org.xbmc.android.jsonrpc.generator.introspect;
 
+/**
+ * A response, as used as root node of the JSON introspect output.
+ * 
+ * @author freezy <freezy@xbmc.org>
+ */
 public class Response {
 
 	private String id;
 	private String jsonrpc;
 	private Result result;
-
 	
 	public String getId() {
 		return id;

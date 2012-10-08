@@ -24,6 +24,11 @@ import org.xbmc.android.jsonrpc.generator.model.Constructor;
 import org.xbmc.android.jsonrpc.generator.model.Member;
 import org.xbmc.android.jsonrpc.generator.model.Parameter;
 
+/**
+ * Renders a Java class constructor.
+ * 
+ * @author freezy <freezy@xbmc.org>
+ */
 public class ConstructorView extends AbstractView {
 
 	private final Constructor constructor;

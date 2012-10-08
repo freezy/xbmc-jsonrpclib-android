@@ -20,6 +20,14 @@
  */
 package org.xbmc.android.jsonrpc.generator.introspect.wrapper;
 
+/**
+ * Wraps the <tt>additionalProperties</tt> attibute.
+ * 
+ * The attribute can either be boolean or a type. This class contains
+ * either value.
+ * 
+ * @author freezy <freezy@xbmc.org>
+ */
 public class AdditionalPropertiesWrapper {
 	
 	private final Boolean available;

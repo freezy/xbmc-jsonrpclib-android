@@ -28,6 +28,11 @@ import org.xbmc.android.jsonrpc.generator.model.Klass;
 import org.xbmc.android.jsonrpc.generator.model.Member;
 import org.xbmc.android.jsonrpc.generator.model.Parameter;
 
+/**
+ * Produces a list of {@link Constructor}s for a given {@link Klass}.
+ *  
+ * @author freezy <freezy@xbmc.org>
+ */
 public class ConstructorController {
 
 	private final Klass type;

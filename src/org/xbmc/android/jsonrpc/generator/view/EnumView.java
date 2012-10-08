@@ -22,7 +22,11 @@ package org.xbmc.android.jsonrpc.generator.view;
 
 import org.xbmc.android.jsonrpc.generator.model.Enum;
 
-
+/**
+ * Renders a Java enum.
+ * 
+ * @author freezy <freezy@xbmc.org>
+ */
 public class EnumView extends AbstractView {
 	
 	private final static String DISPLAY_ONLY = "Application.Property.Value";

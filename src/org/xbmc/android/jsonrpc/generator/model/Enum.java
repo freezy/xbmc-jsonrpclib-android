@@ -23,6 +23,11 @@ package org.xbmc.android.jsonrpc.generator.model;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Defines an enum in an agnostic way.
+ * 
+ * @author freezy <freezy@xbmc.org>
+ */
 public class Enum {
 
 	private final String name;

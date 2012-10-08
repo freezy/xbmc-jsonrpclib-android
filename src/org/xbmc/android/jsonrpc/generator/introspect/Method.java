@@ -25,6 +25,12 @@ import java.util.List;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.xbmc.android.jsonrpc.generator.introspect.wrapper.TypeWrapper;
 
+/**
+ * A method is what's defined under the <tt>result</tt>'s <tt>methods</tt>
+ * object. It represents a method in XBMC's JSON-RPC API.
+ * 
+ * @author freezy <freezy@xbmc.org>
+ */
 @JsonIgnoreProperties( { "type" }) // type is always "method"
 public class Method {
 

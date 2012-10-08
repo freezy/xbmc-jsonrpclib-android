@@ -24,8 +24,21 @@ import org.xbmc.android.jsonrpc.generator.model.Klass;
 import org.xbmc.android.jsonrpc.generator.model.Member;
 import org.xbmc.android.jsonrpc.generator.model.Parameter;
 
+/**
+ * Base class for all views. Contains useful stuff.
+ * <p/>
+ * More concretely, methods for getting class names out of various
+ * types.
+ * 
+ * @author freezy <freezy@xbmc.org>
+ */
 public abstract class AbstractView {
 	
+	/**
+	 * Returns the Java class name based on a class object.
+	 * @param klass Given class
+	 * @return Java class name
+	 */
 	protected String getClassName(Klass klass) {
 		if (klass.isInner()) {
 			return getInnerType(klass.getName());
@@ -34,6 +47,11 @@ public abstract class AbstractView {
 		}
 	}
 
+	/**
+	 * Returns the Java type of a member object.
+	 * @param member Given member
+	 * @return Java class name
+	 */
 	protected String getClassName(Member member) {
 		
 		if (!member.isEnum()) {
@@ -64,9 +82,18 @@ public abstract class AbstractView {
 		}
 	}
 	
+	/**
+	 * Returns the Java native type based on the JSON type.
+	 * 
+	 * @see http://tools.ietf.org/html/draft-zyp-json-schema-03#section-5.1
+	 * @param type JSON type
+	 * @return Java native tape
+	 */
 	private String getNativeType(String type) {
 		if (type.equals("boolean")) {
 			return "Boolean";
+		} else if (type.equals("number")) {
+			return "Double";
 		} else if (type.equals("integer")) {
 			return "Integer";
 		} else if (type.equals("string")) {
@@ -76,6 +103,11 @@ public abstract class AbstractView {
 		}
 	}
 	
+	/**
+	 * Returns a Java class based on a variable name.
+	 * @param type Variable name
+	 * @return Java class type
+	 */
 	private String getInnerType(String type) {
 		return type.substring(0, 1).toUpperCase() + type.substring(1);
 	}

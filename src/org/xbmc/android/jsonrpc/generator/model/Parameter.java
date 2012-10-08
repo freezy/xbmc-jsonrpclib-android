@@ -20,6 +20,11 @@
  */
 package org.xbmc.android.jsonrpc.generator.model;
 
+/**
+ * Defines a method parameter in an agnostic way.
+ * 
+ * @author freezy <freezy@xbmc.org>
+ */
 public class Parameter {
 
 	private final String name;

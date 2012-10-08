@@ -20,6 +20,11 @@
  */
 package org.xbmc.android.jsonrpc.generator.model;
 
+/**
+ * Defines a class member in an agnostic way.
+ * 
+ * @author freezy <freezy@xbmc.org>
+ */
 public class Member {
 
 	private final String name;

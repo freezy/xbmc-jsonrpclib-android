@@ -32,6 +32,15 @@ import org.codehaus.jackson.map.DeserializationContext;
 import org.xbmc.android.jsonrpc.generator.Introspect;
 import org.xbmc.android.jsonrpc.generator.introspect.wrapper.ExtendsWrapper;
 
+/**
+ * Deserializes the <tt>extends</tt> value into {@link ExtendsWrapper}.
+ * <p/>
+ * 
+ * The reason for that is that <tt>extends</tt> can be multiple types, which 
+ * doesn't work well (like, not at all) with Java.
+ *  
+ * @author freezy <freezy@xbmc.org>
+ */
 public class ExtendsDeserializer extends Deserializer<ExtendsWrapper> {
 	
 	@Override
