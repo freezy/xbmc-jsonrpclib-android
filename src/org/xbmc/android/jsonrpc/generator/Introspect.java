@@ -30,6 +30,8 @@ public class Introspect {
 	private final static String MODEL_PACKAGE = "org.xbmc.android.jsonrpc.api.model";
 	private final static String CALL_PACKAGE = "org.xbmc.android.jsonrpc.api.call";
 	
+	private final static String OUTPUT_FOLDER = "d:/test/";
+	
 	static {
 		final SimpleModule module = new SimpleModule("", Version.unknownVersion());
 		module.addDeserializer(TypeWrapper.class, new TypeDeserializer());
@@ -67,6 +69,29 @@ public class Introspect {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private static void createFolders(String pathName, String pak) {
+		final File path = new File(pathName);
+		if (!path.exists()) {
+			
+		}
+	}
+	
+	private static void dump(File file, StringBuffer contents) {
+	}
+	
+	private static String getPathName(String pathName, String packageName) {
+		final StringBuffer sb = new StringBuffer(pathName.replace("\\", "/"));
+		final String[] paks = packageName.split(".");
+		if (!sb.toString().endsWith("/")) {
+			sb.append("/");
+		}
+		for (int i = 0; i < paks.length; i++) {
+			sb.append(paks[i]);
+			sb.append("/");
+		}
+		return sb.toString();
 	}
 	
 	public static Property find(Property property) {
