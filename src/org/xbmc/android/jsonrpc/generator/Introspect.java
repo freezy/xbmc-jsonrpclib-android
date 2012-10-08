@@ -1,3 +1,23 @@
+/*
+ *      Copyright (C) 2005-2012 Team XBMC
+ *      http://xbmc.org
+ *
+ *  This Program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2, or (at your option)
+ *  any later version.
+ *
+ *  This Program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with XBMC Remote; see the file license.  If not, write to
+ *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+ *  http://www.gnu.org/copyleft/gpl.html
+ *
+ */
 package org.xbmc.android.jsonrpc.generator;
 
 import java.io.BufferedWriter;
@@ -30,7 +50,7 @@ public class Introspect {
 	private static Result RESULT;
 	
 	private final static String MODEL_PACKAGE = "org.xbmc.android.jsonrpc.api.model";
-	private final static String CALL_PACKAGE = "org.xbmc.android.jsonrpc.api.call";
+//	private final static String CALL_PACKAGE = "org.xbmc.android.jsonrpc.api.call";
 	
 	private final static String OUTPUT_FOLDER = "D:/dev/xbmc-jsonrpclib-android-test/src";
 	
@@ -78,6 +98,7 @@ public class Introspect {
 		}
 	}
 	
+	
 	private static File getFile(Namespace ns) {
 		final StringBuffer sb = new StringBuffer(OUTPUT_FOLDER.replace("\\", "/"));
 		final String[] paks = ns.getPackageName().split("\\.");
@@ -96,12 +117,15 @@ public class Introspect {
 	
 	private static void writeFile(File file, String contents) {
 		final File path = file.getParentFile();
+		
+		// create folders
 		if (!path.exists()) {
 			if (!path.mkdirs()) {
 				throw new IllegalArgumentException("Path " + path.getAbsolutePath() + " doesn't exist and cannot be created.");
 			}
 		}
 		
+		// dump to disk
 		try {
 			BufferedWriter out = new BufferedWriter(new FileWriter(file));
 			out.write(contents);
