@@ -106,7 +106,7 @@ public class PropertyController {
 		}
 		
 		// create constructor
-		final Constructor c = new Constructor(klass.getName());
+		final Constructor c = new Constructor(klass);
 		for (Member m : klass.getMembers()) {
 			if (m.isEnum()) {
 				c.addParameter(new Parameter(m.getName(), m.getEnum()));

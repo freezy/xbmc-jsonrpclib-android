@@ -3,7 +3,7 @@ package org.xbmc.android.jsonrpc.generator.view;
 import org.xbmc.android.jsonrpc.generator.model.Enum;
 
 
-public class EnumView {
+public class EnumView extends AbstractView {
 	
 	private final static String DISPLAY_ONLY = "Application.Property.Value";
 	

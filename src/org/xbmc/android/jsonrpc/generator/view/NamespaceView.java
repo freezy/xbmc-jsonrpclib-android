@@ -4,7 +4,7 @@ import org.xbmc.android.jsonrpc.generator.model.Enum;
 import org.xbmc.android.jsonrpc.generator.model.Klass;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 
-public class NamespaceView {
+public class NamespaceView extends AbstractView {
 	
 	private final static String DISPLAY_ONLY = "Application";
 	

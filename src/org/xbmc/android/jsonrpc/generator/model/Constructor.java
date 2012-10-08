@@ -5,13 +5,13 @@ import java.util.List;
 
 public class Constructor {
 
-	private final String className;
+	private final Klass type;
 	private final List<Parameter> parameters = new ArrayList<Parameter>();
-	
-	public Constructor(String className) {
-		this.className = className;
+
+	public Constructor(Klass type) {
+		this.type = type;
 	}
-	
+
 	public void addParameter(Parameter parameter) {
 		parameters.add(parameter);
 	}
@@ -20,7 +20,8 @@ public class Constructor {
 		return parameters;
 	}
 
-	public String getClassName() {
-		return className;
+	public Klass getType() {
+		return type;
 	}
+
 }

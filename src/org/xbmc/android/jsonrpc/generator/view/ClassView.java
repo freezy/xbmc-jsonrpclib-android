@@ -5,7 +5,7 @@ import org.xbmc.android.jsonrpc.generator.model.Enum;
 import org.xbmc.android.jsonrpc.generator.model.Klass;
 import org.xbmc.android.jsonrpc.generator.model.Member;
 
-public class ClassView {
+public class ClassView extends AbstractView {
 
 	private final static String DISPLAY_ONLY = "Application.Property.Value";
 
@@ -29,11 +29,7 @@ public class ClassView {
 
 		final StringBuilder sb = new StringBuilder("\n");
 		sb.append(prefix).append("public static class ");
-		if (klass.isInner()) {
-			sb.append(getInnerType(klass.getName()));
-		} else {
-			sb.append(klass.getName());
-		}
+		sb.append(getClassName(klass));
 		sb.append(" {\n");
 
 		// field names
@@ -79,7 +75,5 @@ public class ClassView {
 		return sb.toString();
 	}
 
-	public static String getInnerType(String type) {
-		return type.substring(0, 1).toUpperCase() + type.substring(1);
-	}
+
 }

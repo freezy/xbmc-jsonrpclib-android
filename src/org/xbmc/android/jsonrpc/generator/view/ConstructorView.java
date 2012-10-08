@@ -3,7 +3,7 @@ package org.xbmc.android.jsonrpc.generator.view;
 import org.xbmc.android.jsonrpc.generator.model.Constructor;
 import org.xbmc.android.jsonrpc.generator.model.Parameter;
 
-public class ConstructorView {
+public class ConstructorView extends AbstractView {
 
 	private final Constructor constructor;
 
@@ -20,14 +20,10 @@ public class ConstructorView {
 
 		final StringBuilder sb = new StringBuilder("\n");
 		sb.append(prefix).append("public ");
-		sb.append(constructor.getClassName());
+		sb.append(getClassName(constructor.getType()));
 		sb.append("(");
-		for(Parameter p : constructor.getParameters()) {
-			if (p.isEnum()) {
-				sb.append(p.getEnum().getName());
-			} else {
-				sb.append(p.getType().getName());
-			}
+		for (Parameter p : constructor.getParameters()) {
+			sb.append(getClassName(p));
 			sb.append(" ");
 			sb.append(p.getName());
 			sb.append(", ");

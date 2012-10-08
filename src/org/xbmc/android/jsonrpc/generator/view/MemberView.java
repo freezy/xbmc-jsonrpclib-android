@@ -3,7 +3,7 @@ package org.xbmc.android.jsonrpc.generator.view;
 import org.xbmc.android.jsonrpc.generator.model.Member;
 
 
-public class MemberView {
+public class MemberView extends AbstractView {
 	
 	private final Member member;
 	
@@ -20,18 +20,7 @@ public class MemberView {
 		
 		final StringBuilder sb = new StringBuilder();
 		sb.append(prefix).append("public final ");
-		
-		if (!member.isEnum()) {
-			if (member.getType().isNative()) {
-				sb.append(getNativeType(member.getType().getName()));
-			} else if (member.getType().isInner()) {
-				sb.append(ClassView.getInnerType(member.getType().getName()));
-			} else {
-				sb.append(member.getType().getName());
-			}
-		} else {
-			sb.append(EnumView.getInnerType(member.getEnum().getName()));
-		}
+		sb.append(getClassName(member));
 		sb.append(" ").append(member.getName());
 		sb.append(";\n");
 		
@@ -52,16 +41,6 @@ public class MemberView {
 		return sb.toString();
 	}
 	
-	private String getNativeType(String type) {
-		if (type.equals("boolean")) {
-			return "Boolean";
-		} else if (type.equals("integer")) {
-			return "Integer";
-		} else if (type.equals("string")) {
-			return "String";
-		} else {
-			throw new IllegalArgumentException("Unknown native type \"" + type + "\".");
-		}
-	}
+
 	
 }
