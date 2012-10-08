@@ -17,7 +17,7 @@ public class TypeController {
 	public void register() {
 		final Namespace ns = Namespace.get(name);
 		final String strippedName = name.contains(".") ? name.substring(name.indexOf(".") + 1) : name;
-		final Klass klass = new Klass(strippedName);
+		final Klass klass = new Klass(strippedName, name);
 		
 		ns.addClass(klass);
 	}

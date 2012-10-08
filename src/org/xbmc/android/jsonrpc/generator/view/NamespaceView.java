@@ -5,6 +5,8 @@ import org.xbmc.android.jsonrpc.generator.model.Namespace;
 
 public class NamespaceView {
 	
+	private final static String DISPLAY_ONLY = "Application";
+	
 	private final Namespace namespace;
 	
 	public NamespaceView(Namespace namespace) {
@@ -12,6 +14,12 @@ public class NamespaceView {
 	}
 	
 	public String render() {
+		
+		// debug
+		if (!DISPLAY_ONLY.isEmpty() && !namespace.getName().equals(DISPLAY_ONLY)) {
+			return "";
+		}
+		
 		final StringBuilder sb = new StringBuilder();
 		sb.append("public final class ");
 		sb.append(namespace.getName());

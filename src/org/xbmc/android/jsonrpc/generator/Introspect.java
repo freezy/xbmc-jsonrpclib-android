@@ -46,7 +46,7 @@ public class Introspect {
 		    
 		    for (Namespace ns : Namespace.getAll()) {
 		    	final NamespaceView view = new NamespaceView(ns);
-		    	System.out.println(view.render());
+		    	System.out.print(view.render());
 		    }
 		    
 			System.out.println("Done!");
