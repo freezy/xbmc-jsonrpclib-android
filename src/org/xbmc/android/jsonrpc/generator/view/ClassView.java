@@ -32,7 +32,8 @@ import org.xbmc.android.jsonrpc.generator.model.Member;
  */
 public class ClassView extends AbstractView {
 
-	private final static String DISPLAY_ONLY = "Application.Property.Value";
+	public final static String DISPLAY_ONLY = "";
+	//public final static String DISPLAY_ONLY = "Application.Property.Value";
 
 	private final Klass klass;
 
@@ -40,11 +41,11 @@ public class ClassView extends AbstractView {
 		this.klass = klass;
 	}
 
-	public String renderDeclaration(int indent, boolean force) {
+	public void renderDeclaration(StringBuilder sb, int indent, boolean force) {
 
 		// debug
 		if (!force && !DISPLAY_ONLY.isEmpty() && !klass.getApiType().equals(DISPLAY_ONLY)) {
-			return "";
+			//return "";
 		}
 
 		String prefix = "";
@@ -52,7 +53,7 @@ public class ClassView extends AbstractView {
 			prefix += "\t";
 		}
 
-		final StringBuilder sb = new StringBuilder("\n");
+		sb.append("\n");
 		sb.append(prefix).append("public static class ");
 		sb.append(getClassName(klass));
 		sb.append(" {\n");
@@ -70,20 +71,20 @@ public class ClassView extends AbstractView {
 		sb.append("\n").append(prefix).append("\t// class members\n");
 		for (Member member : klass.getMembers()) {
 			final MemberView memberView = new MemberView(member);
-			sb.append(memberView.renderDeclaration(indent + 1));
+			memberView.renderDeclaration(sb, indent + 1);
 		}
 		
 		// constructors
 		for (Constructor c : klass.getConstructors()) {
 			final ConstructorView constructorView = new ConstructorView(c);
-			sb.append(constructorView.renderDeclaration(indent + 1));
+			constructorView.renderDeclaration(sb, indent + 1);
 		}
 
 		// inner classes
 		if (klass.hasInnerTypes()) {
 			for (Klass innerClass : klass.getInnerTypes()) {
 				final ClassView classView = new ClassView(innerClass);
-				sb.append(classView.renderDeclaration(indent + 1, true));
+				classView.renderDeclaration(sb, indent + 1, true);
 			}
 		}
 
@@ -91,13 +92,11 @@ public class ClassView extends AbstractView {
 		if (klass.hasInnerEnums()) {
 			for (Enum e : klass.getInnerEnums()) {
 				final EnumView enumView = new EnumView(e);
-				sb.append(enumView.render(indent + 1, true));
+				enumView.render(sb, indent + 1, true);
 			}
 		}
-
+		
 		sb.append(prefix).append("}\n");
-
-		return sb.toString();
 	}
 
 

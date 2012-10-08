@@ -37,14 +37,13 @@ public class ConstructorView extends AbstractView {
 		this.constructor = constructor;
 	}
 
-	public String renderDeclaration(int indent) {
+	public void renderDeclaration(StringBuilder sb, int indent) {
 
 		String prefix = "";
 		for (int i = 0; i < indent; i++) {
 			prefix += "\t";
 		}
-
-		final StringBuilder sb = new StringBuilder("\n");
+		sb.append("\n");
 		
 		// signature
 		sb.append(prefix).append("public ");
@@ -83,9 +82,6 @@ public class ConstructorView extends AbstractView {
 			}
 		}
 		
-		
 		sb.append(prefix).append("}\n");
-
-		return sb.toString();
 	}
 }

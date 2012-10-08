@@ -35,20 +35,17 @@ public class MemberView extends AbstractView {
 		this.member = member;
 	}
 	
-	public String renderDeclaration(int indent) {
+	public void renderDeclaration(StringBuilder sb, int indent) {
 		
 		String prefix = "";
 		for (int i = 0; i < indent; i++) {
 			prefix += "\t";
 		}
 		
-		final StringBuilder sb = new StringBuilder();
 		sb.append(prefix).append("public final ");
 		sb.append(getClassName(member));
 		sb.append(" ").append(member.getName());
 		sb.append(";\n");
-		
-		return sb.toString();
 	}
 	
 	public String renderFieldDeclaration(int indent) {

@@ -33,7 +33,7 @@ import org.xbmc.android.jsonrpc.generator.model.Namespace;
  */
 public class NamespaceView extends AbstractView {
 	
-	private final static String DISPLAY_ONLY = "Application";
+	public final static String DISPLAY_ONLY = "Application";
 	
 	private final Namespace namespace;
 	
@@ -41,15 +41,15 @@ public class NamespaceView extends AbstractView {
 		this.namespace = namespace;
 	}
 	
-	public String render() {
+	public void render(StringBuilder sb) {
 		
 		// debug
 		if (!DISPLAY_ONLY.isEmpty() && !namespace.getName().equals(DISPLAY_ONLY)) {
-			return "";
+			return;
 		}
 		
 		// init
-		final StringBuilder sb = new StringBuilder(GPL_HEADER);
+		sb.append(GPL_HEADER);
 		
 		// package
 		sb.append("package ").append(namespace.getPackageName()).append(";\n");
@@ -63,17 +63,16 @@ public class NamespaceView extends AbstractView {
 		// classes
 		for (Klass klass : namespace.getClasses()) {
 			final ClassView classView = new ClassView(klass);
-			sb.append(classView.renderDeclaration(1, false));
+			classView.renderDeclaration(sb, 1, false);
 		}
 		
 		// enum
 		for (Enum e : namespace.getEnums()) {
 			final EnumView enumView = new EnumView(e);
-			sb.append(enumView.render(1, false));
+			enumView.render(sb, 1, false);
 		}
 		
 		sb.append("}\n");
-		return sb.toString();
 	}
 	
 	private static final String GPL_HEADER = 

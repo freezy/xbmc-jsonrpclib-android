@@ -49,7 +49,7 @@ public class ExtendsWrapper {
 		return name;
 	}
 	
-	public List<String> getArray() {
+	public List<String> getList() {
 		return list;
 	}
 

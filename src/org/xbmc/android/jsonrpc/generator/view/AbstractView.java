@@ -108,7 +108,7 @@ public abstract class AbstractView {
 	 * @param type Variable name
 	 * @return Java class type
 	 */
-	private String getInnerType(String type) {
+	protected String getInnerType(String type) {
 		return type.substring(0, 1).toUpperCase() + type.substring(1);
 	}
 }

@@ -37,26 +37,28 @@ public class EnumView extends AbstractView {
 		this.e = e;
 	}
 	
-	public String render(int indent, boolean force) {
+	public void render(StringBuilder sb, int indent, boolean force) {
 		
 		// debug
 		if (!force && !DISPLAY_ONLY.isEmpty() && !e.getApiType().equals(DISPLAY_ONLY)) {
-			return "";
+			return;
 		}
 		
+		// init
 		String prefix = "";
 		for (int i = 0; i < indent; i++) {
 			prefix += "\t";
 		}
 		
-		final StringBuilder sb = new StringBuilder("\n");
+		// signature
+		sb.append("\n");
 		sb.append(prefix).append("public static enum ");
 		if (e.isInner()) {
 			sb.append(getInnerType(e.getName()));
 		} else {
 			sb.append(e.getName());
 		}
-		sb.append(" {\n");
+		sb.append(" {\n\n");
 		
 		// enumns
 		for (String enumValue : e.getValues()) {
@@ -79,11 +81,6 @@ public class EnumView extends AbstractView {
 		sb.append(prefix).append("	}\n");
 
 		sb.append(prefix).append("}\n");
-		
-		return sb.toString();
 	}
-	
-	public static String getInnerType(String type) {
-		return type.substring(0, 1).toUpperCase() + type.substring(1);
-	}
+
 }

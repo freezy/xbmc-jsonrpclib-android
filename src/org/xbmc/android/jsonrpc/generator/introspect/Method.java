@@ -35,6 +35,7 @@ import org.xbmc.android.jsonrpc.generator.introspect.wrapper.TypeWrapper;
 public class Method {
 
 	private String description;
+	
 	private List<Param> params;
 	private TypeWrapper returns;
 

@@ -39,6 +39,7 @@ import org.xbmc.android.jsonrpc.generator.introspect.wrapper.AdditionalPropertie
 import org.xbmc.android.jsonrpc.generator.introspect.wrapper.ExtendsWrapper;
 import org.xbmc.android.jsonrpc.generator.introspect.wrapper.TypeWrapper;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
+import org.xbmc.android.jsonrpc.generator.view.ClassView;
 import org.xbmc.android.jsonrpc.generator.view.NamespaceView;
 import org.xbmc.android.jsonrpc.jackson.AdditionalPropertiesDeserializer;
 import org.xbmc.android.jsonrpc.jackson.ExtendsDeserializer;
@@ -51,6 +52,13 @@ import org.xbmc.android.jsonrpc.jackson.TypeDeserializer;
  *         source folder)</li>
  *      <li>{@link #MODEL_PACKAGE} in which package you want your model files</li>
  * </ul>
+ * 
+ * Debugging
+ * <ul><li>If you want to dump just one namespace, set {@link NamespaceView#DISPLAY_ONLY}.</li>
+ *     <li>If you want to dump only one type, set {@link ClassView#DISPLAY_ONLY}
+ *         ({@link NamespaceView#DISPLAY_ONLY} must be set also, otherwise it 
+ *         will be skipped).</li>
+ * </u>
  * 
  * Folders will be created. Program will crash if no write permissions.
  * 
@@ -92,14 +100,16 @@ public class Introspect {
 		    	controller.register(MODEL_PACKAGE);
 		    }
 		    
+		    
 		    // render types
 		    for (Namespace ns : Namespace.getAll()) {
+		    	final StringBuilder sb = new StringBuilder();
 		    	final NamespaceView view = new NamespaceView(ns);
-		    	final String data = view.render();
 		    	final File out = getFile(ns);
-		    	if (!data.isEmpty()) {
-		    		writeFile(out, data);
-		    		System.out.print(data);
+		    	view.render(sb);
+		    	if (sb.length() > 0) {
+		    		writeFile(out, sb.toString());
+		    		System.out.print(sb.toString());
 		    	}
 		    }
 		    
