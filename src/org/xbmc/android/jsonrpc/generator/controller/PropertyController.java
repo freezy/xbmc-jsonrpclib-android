@@ -10,7 +10,6 @@ import org.xbmc.android.jsonrpc.generator.model.Enum;
 import org.xbmc.android.jsonrpc.generator.model.Klass;
 import org.xbmc.android.jsonrpc.generator.model.Member;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
-import org.xbmc.android.jsonrpc.generator.model.Parameter;
 
 /**
  * Produces a {@link Klass} or {@link Enum} for a given {@link Property}.
@@ -105,16 +104,11 @@ public class PropertyController {
 			}
 		}
 		
-		// create constructor
-		final Constructor c = new Constructor(klass);
-		for (Member m : klass.getMembers()) {
-			if (m.isEnum()) {
-				c.addParameter(new Parameter(m.getName(), m.getEnum()));
-			} else {
-				c.addParameter(new Parameter(m.getName(), m.getType()));
-			}
+		// create constructor(s)
+		final ConstructorController cc = new ConstructorController(klass);
+		for (Constructor c : cc.getConstructors()) {
+			klass.addConstructor(c);
 		}
-		klass.addConstructor(c);
 		
 		return klass;
 	}
