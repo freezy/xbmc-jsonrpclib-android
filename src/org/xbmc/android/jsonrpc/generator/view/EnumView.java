@@ -59,12 +59,28 @@ public class EnumView extends AbstractView {
 		// enumns
 		for (String enumValue : e.getValues()) {
 			sb.append(prefix).append("	public final String ");
-			sb.append(enumValue.replaceAll("\\.",  "_").toUpperCase());
+			sb.append(getName(enumValue));
 			sb.append(" = \"");
 			sb.append(enumValue);
 			sb.append("\";\n");
 		}
+		
+		// array public final Set<String> values = new HashSet<String>(Arrays.asList(Type.UNKNOWN, Type.XBMC_ADDON_AUDIO));
+		sb.append("\n");
+		sb.append(prefix).append("	public final static Set<String> values = new HashSet<String>(Arrays.asList(");
+		if (!e.getValues().isEmpty()) {
+			for (String enumValue : e.getValues()) {
+				sb.append(getName(enumValue));
+				sb.append(", ");
+			}
+			sb.delete(sb.length() - 2, sb.length());
+			sb.append("));\n");
+		}
 		sb.append(prefix).append("}\n");
+	}
+	
+	private String getName(String enumValue) {
+		return enumValue.replaceAll("\\.",  "_").toUpperCase();
 	}
 	
 	

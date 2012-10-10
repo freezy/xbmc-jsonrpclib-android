@@ -149,6 +149,9 @@ public class PropertyController {
 				}
 				if (member.isEnum()) {
 					klass.addInnerEnum(member.getEnum());
+					klass.addImport("java.util.Arrays");
+					klass.addImport("java.util.HashSet");
+					klass.addImport("java.util.Set");
 				}
 				
 				if (member.isArray() && !member.getType().getArrayType().isNative()) {
