@@ -73,7 +73,9 @@ public class Introspect {
 	private final static String MODEL_PACKAGE = "org.xbmc.android.jsonrpc.api.model";
 //	private final static String CALL_PACKAGE = "org.xbmc.android.jsonrpc.api.call";
 	
-	private final static String OUTPUT_FOLDER = "D:/dev/xbmc-jsonrpclib-android-test/src";
+//	private final static String OUTPUT_FOLDER = "D:/dev/xbmc-jsonrpclib-android-test/src";
+	private final static String OUTPUT_FOLDER = "S:/Development/xbmc-jsonrpclib-android-output/src";
+
 	
 	static {
 		final SimpleModule module = new SimpleModule("", Version.unknownVersion());
@@ -100,7 +102,6 @@ public class Introspect {
 		    	final PropertyController controller = new PropertyController(name, RESULT.getTypes().get(name));
 		    	controller.register(MODEL_PACKAGE);
 		    }
-		    
 		    
 		    // render types
 		    for (Namespace ns : Namespace.getAll()) {

@@ -459,8 +459,11 @@ public class Property {
 	}
 	
 	/**
-	 * Traverses all parents and copies all attributes.
-	 * @return
+	 * Traverses all parents and copies all attributes. A new object is then
+	 * returned, not a reference.
+	 * 
+	 * @return Copy this object, with all attributes copied from parents and
+	 *         references.
 	 */
 	public Property obj() {
 		final Property property = new Property();

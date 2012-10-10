@@ -66,9 +66,14 @@ public class PropertyController {
 	public void register(String packageName) {
 		final Namespace ns = Namespace.get(name, packageName);
 		
+		if (!(property instanceof Type)) {
+			throw new IllegalArgumentException("Only global types can be registered.");
+		}
+		final Type type = (Type)property;
+		
 		// class/enum name
 		final String strippedName = name.contains(".") ? name.substring(name.indexOf(".") + 1) : name;
-		final Property p = property.obj();
+		final Property p = type.obj();
 		
 		// either register class or enum
 		if (p.isEnum()) {
@@ -80,8 +85,8 @@ public class PropertyController {
 			 * the enums somewhere, so we ignore the type and treat
 			 * the array type.
 			 */
-			final PropertyController pc = new PropertyController(name, property.getItems());
-			ns.addClass(pc.getClass(strippedName));
+			final PropertyController pc = new PropertyController(name, type.getItems());
+			ns.addEnum(pc.getEnum(strippedName));
 		} else {
 			ns.addClass(getClass(strippedName));
 		}
