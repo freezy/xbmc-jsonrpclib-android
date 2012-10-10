@@ -43,10 +43,10 @@ public abstract class AbstractView {
 	protected String getClassName(Klass klass) {
 		if (klass.isNative()) {
 			return getNativeType(klass);
-		} else if (klass.isInner()) {
-			return getInnerType(klass.getName());
 		} else if (klass.isArray()) {
 			return getArrayType(klass);
+		} else if (klass.isInner()) {
+			return getInnerType(klass.getName());
 		} else {
 			return klass.getName().replace(".", "");
 		}
@@ -118,6 +118,7 @@ public abstract class AbstractView {
 	 * @return Java class type
 	 */
 	protected String getInnerType(String type) {
-		return type.substring(0, 1).toUpperCase() + type.substring(1);
+		final String name = type.endsWith("ies") ? type.replace("ies", "y") : type;
+		return name.substring(0, 1).toUpperCase() + name.substring(1);
 	}
 }

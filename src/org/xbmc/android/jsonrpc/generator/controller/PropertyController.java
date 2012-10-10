@@ -125,7 +125,9 @@ public class PropertyController {
 			final PropertyController pc = new PropertyController(null, property.getItems());
 			klass = new Klass();
 			klass.setArray(true);
-			klass.setArrayType(pc.getClass(className));
+			final Klass arrayType = pc.getClass(className);
+			arrayType.setInner(true);
+			klass.setArrayType(arrayType);
 			
 		// create class from global type
 		} else {
@@ -133,19 +135,23 @@ public class PropertyController {
 		}
 		
 		// parse properties
-		if (property.isObjectDefinition()) {
+		if (property.hasProperties()) {
 			for (String propertyName : property.getProperties().keySet()) {
 				final Property prop = property.getProperties().get(propertyName);
 				
 				final MemberController mc = new MemberController(propertyName, prop);
 				final Member member = mc.getMember();
 				
+				// if type is inner or enum, reference here so it can properly rendered
 				if (member.isInner()) {
 					klass.addInnerType(member.getType());
 				}
-				
 				if (member.isEnum()) {
 					klass.addInnerEnum(member.getEnum());
+				}
+				
+				if (member.isArray() && !member.getType().getArrayType().isNative()) {
+					klass.addInnerType(member.getType().getArrayType());
 				}
 				
 				klass.addMember(member);

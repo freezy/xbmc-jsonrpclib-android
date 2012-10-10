@@ -282,6 +282,10 @@ public class Property {
 	public void setRef(String ref) {
 		this.ref = ref;
 	}
+	
+	public boolean hasProperties() {
+		return properties != null && !properties.isEmpty();
+	}
 
 	public HashMap<String, Property> getProperties() {
 		return properties;

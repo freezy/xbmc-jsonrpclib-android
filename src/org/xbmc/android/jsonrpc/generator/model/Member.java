@@ -50,7 +50,11 @@ public class Member {
 	public boolean isInner() {
 		return type != null && type.isInner();
 	}
-
+	
+	public boolean isArray() {
+		return type != null && type.isArray();
+	}
+	
 	public String getName() {
 		return name;
 	}

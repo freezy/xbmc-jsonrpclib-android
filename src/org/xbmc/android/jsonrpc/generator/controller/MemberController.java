@@ -50,7 +50,6 @@ public class MemberController {
 			e.setInner(true);
 			
 			return new Member(name, e);
-			
 		} else {
 			final Klass klass = pc.getClass(name);
 			
