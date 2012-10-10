@@ -34,6 +34,7 @@ public class Klass {
 
 	private final String name;
 	private final String apiType;
+	private final Namespace namespace;
 
 	private boolean isNative = false;
 	private boolean isInner = false;
@@ -49,15 +50,14 @@ public class Klass {
 	
 	private Klass arrayType = null;
 
-	public Klass(String name) {
-		this(name, null);
+	public Klass(Namespace namespace) {
+		this(namespace, null, null);
 	}
-	
-	public Klass() {
-		this(null, null);
+	public Klass(Namespace namespace, String name) {
+		this(namespace, name, null);
 	}
-
-	public Klass(String name, String apiType) {
+	public Klass(Namespace namespace, String name, String apiType) {
+		this.namespace = namespace;
 		this.name = name;
 		this.apiType = apiType;
 	}
@@ -134,6 +134,9 @@ public class Klass {
 		return name;
 	}
 
+	public Namespace getNamespace() {
+		return namespace;
+	}
 	public String getApiType() {
 		return apiType;
 	}

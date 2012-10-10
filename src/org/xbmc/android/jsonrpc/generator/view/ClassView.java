@@ -32,7 +32,7 @@ import org.xbmc.android.jsonrpc.generator.model.Member;
  */
 public class ClassView extends AbstractView {
 
-	//public final static String DISPLAY_ONLY = "Addon.Fields";
+	//public final static String DISPLAY_ONLY = "Filter.Albums";
 	public final static String DISPLAY_ONLY = "";
 
 	private final Klass klass;
@@ -45,7 +45,7 @@ public class ClassView extends AbstractView {
 
 		// debug
 		if (!force && !DISPLAY_ONLY.isEmpty() && !klass.getApiType().equals(DISPLAY_ONLY)) {
-			//return "";
+			return;
 		}
 
 		String prefix = "";

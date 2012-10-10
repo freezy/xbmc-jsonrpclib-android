@@ -34,7 +34,7 @@ import org.xbmc.android.jsonrpc.generator.model.Namespace;
  */
 public class NamespaceView extends AbstractView {
 	
-	//public final static String DISPLAY_ONLY = "Addon";
+	//public final static String DISPLAY_ONLY = "List";
 	public final static String DISPLAY_ONLY = "";
 	
 	private final Namespace namespace;

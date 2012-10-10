@@ -20,9 +20,10 @@
  */
 package org.xbmc.android.jsonrpc.generator.controller;
 
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.xbmc.android.jsonrpc.generator.introspect.Param;
@@ -41,8 +42,18 @@ import org.xbmc.android.jsonrpc.generator.model.Namespace;
  */
 public class PropertyController {
 	
-	private final static Set<String> IGNORED_TYPES = new HashSet<String>(Arrays.asList(
-			"Array.Integer", "Array.String"));
+	private final static Set<String> IGNORED_TYPES = new HashSet<String>();
+	private final static Map<String, String> REPLACED_TYPES = new HashMap<String, String>(); 
+	
+	static {
+		IGNORED_TYPES.add("Array.Integer");
+		IGNORED_TYPES.add("Array.String");
+		
+		REPLACED_TYPES.put("Item.Fields.Base", "List<String>");
+		REPLACED_TYPES.put("Optional.Integer", "Integer");
+		REPLACED_TYPES.put("Optional.Number", "Double");
+		REPLACED_TYPES.put("Optional.String", "String");
+	}
 
 	/**
 	 * Name of the property.<p/>
@@ -72,7 +83,7 @@ public class PropertyController {
 	public void register(String packageName) {
 		
 		// return directly if ignored type.
-		if (name != null && IGNORED_TYPES.contains(name)) {
+		if (name != null && (IGNORED_TYPES.contains(name) || REPLACED_TYPES.containsKey(name))) {
 			return;
 		}
 		
@@ -106,7 +117,7 @@ public class PropertyController {
 			ns.addImport("java.util.Set");
 			ns.addImport("java.util.Arrays");
 		} else {
-			ns.addClass(getClass(strippedName));
+			ns.addClass(getClass(ns, strippedName));
 		}
 	}
 	
@@ -116,41 +127,54 @@ public class PropertyController {
 	 * @param className Name of the class (retrieved from parent key)
 	 * @return Class object
 	 */
-	public Klass getClass(String className) {
+	public Klass getClass(Namespace namespace, String className) {
 		
 		final Klass klass;
 		
 		// create class from native type
 		if (property.isNative()) {
-			klass = new Klass(property.getType().getName());
+			klass = new Klass(namespace, property.getType().getName());
 			klass.setNative(true);
 			
 		// create class from multiple values
 		} else if (property.isMultitype()) {
 			final List<Type> types = property.getType().getList();
 			
-			klass = new Klass(className);
-			klass.setInner(true);
+			klass = new Klass(namespace, className);
 			klass.setMultiType(true);
-			int i = 0;
 			for (Type t : types) {
-				final MemberController mc = new MemberController("arg" + (i++), t);
-				klass.addMember(mc.getMember());
+				final String multiTypeName = getNameFromProps(t);
+				final MemberController mc = new MemberController(multiTypeName, t);
+				klass.addMember(mc.getMember(namespace));
+				if (t.isObjectDefinition()) {
+					final PropertyController pc = new PropertyController(multiTypeName, t);
+					final Klass typeClass = pc.getClass(namespace, multiTypeName);
+					if (!t.isRef()) {
+						typeClass.setInner(true);
+						klass.addInnerType(typeClass);
+					}
+				}
 			}
 			
 		// create class from array	
 		} else if (property.isArray()) {
 			final PropertyController pc = new PropertyController(null, property.getItems());
-			klass = new Klass();
+			klass = new Klass(namespace);
 			klass.setArray(true);
-			final Klass arrayType = pc.getClass(className);
-			arrayType.setInner(true);
+			final Klass arrayType = pc.getClass(namespace, className);
+			if (!property.getItems().isRef()) {
+				arrayType.setInner(true);
+			}
 			klass.setArrayType(arrayType);
 			klass.addImport("java.util.List");
 			
+		// create class from reference
+		} else if (property.isRef()) {
+			klass = new Klass(namespace, property.getRef().substring(property.getRef().indexOf("."), property.getRef().length()), name);
+			
 		// create class from global type
 		} else {
-			klass = new Klass(className, name);
+			klass = new Klass(namespace, className, name);
 		}
 		
 		// parse properties
@@ -159,7 +183,7 @@ public class PropertyController {
 				final Property prop = property.getProperties().get(propertyName);
 				
 				final MemberController mc = new MemberController(propertyName, prop);
-				final Member member = mc.getMember();
+				final Member member = mc.getMember(namespace);
 				
 				// if type is inner or enum, reference here so it can properly rendered
 				if (member.isInner()) {
@@ -169,7 +193,8 @@ public class PropertyController {
 					klass.addInnerEnum(member.getEnum());
 				}
 				
-				if (member.isArray() && !member.getType().getArrayType().isNative()) {
+				if (member.isArray() && !member.getType().getArrayType().isNative()
+						&& !prop.getItems().isRef()) {
 					klass.addInnerType(member.getType().getArrayType());
 				}
 				
@@ -184,6 +209,26 @@ public class PropertyController {
 		}
 		
 		return klass;
+	}
+	
+	public String getNameFromProps(Type t) {
+		if (!t.hasProperties()) {
+			throw new RuntimeException("Cannot construct class name from multitype class without props!");
+		}
+		final StringBuilder sb = new StringBuilder();
+		int i = 0;
+		for (String name : t.getProperties().keySet()) {
+			if (i == 0) {
+				// first name lower case
+				sb.append(name);
+			} else {
+				// then first letter upper case
+				sb.append(name.substring(0, 1).toUpperCase());
+				sb.append(name.substring(1));
+			}
+			i++;
+		}
+		return sb.toString();
 	}
 	
 	/**

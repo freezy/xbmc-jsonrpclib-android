@@ -25,6 +25,7 @@ import org.xbmc.android.jsonrpc.generator.introspect.Property;
 import org.xbmc.android.jsonrpc.generator.model.Enum;
 import org.xbmc.android.jsonrpc.generator.model.Klass;
 import org.xbmc.android.jsonrpc.generator.model.Member;
+import org.xbmc.android.jsonrpc.generator.model.Namespace;
 
 /**
  * Produces a {@link Member} for a given {@link Property}.
@@ -41,7 +42,7 @@ public class MemberController {
 		this.name = name;
 	}
 	
-	public Member getMember() {
+	public Member getMember(Namespace namespace) {
 		final Property prop = Introspect.find(property);
 		final PropertyController pc = new PropertyController(name, prop);
 		
@@ -51,7 +52,7 @@ public class MemberController {
 			
 			return new Member(name, e);
 		} else {
-			final Klass klass = pc.getClass(name);
+			final Klass klass = pc.getClass(namespace, name);
 			
 			// check if the prop is another object definition (=> inner type)
 			if (prop.hasProperties()) {
