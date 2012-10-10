@@ -36,6 +36,10 @@ public class Constructor {
 	public Constructor(Klass type) {
 		this.type = type;
 	}
+	
+	public boolean hasParameters() {
+		return !parameters.isEmpty();
+	}
 
 	public void addParameter(Parameter parameter) {
 		parameters.add(parameter);

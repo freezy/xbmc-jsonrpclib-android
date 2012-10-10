@@ -49,13 +49,15 @@ public class ConstructorView extends AbstractView {
 		sb.append(prefix).append("public ");
 		sb.append(getClassName(constructor.getType()));
 		sb.append("(");
-		for (Parameter p : constructor.getParameters()) {
-			sb.append(getClassName(p));
-			sb.append(" ");
-			sb.append(p.getName());
-			sb.append(", ");
+		if (constructor.hasParameters()) {
+			for (Parameter p : constructor.getParameters()) {
+				sb.append(getClassName(p));
+				sb.append(" ");
+				sb.append(p.getName());
+				sb.append(", ");
+			}
+			sb.delete(sb.length() - 2, sb.length());
 		}
-		sb.delete(sb.length() - 2, sb.length());
 		sb.append(") {\n");
 		
 		// body
