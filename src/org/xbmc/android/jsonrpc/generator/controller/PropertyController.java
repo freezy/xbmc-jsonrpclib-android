@@ -78,6 +78,9 @@ public class PropertyController {
 		// either register class or enum
 		if (p.isEnum()) {
 			ns.addEnum(getEnum(strippedName));
+			ns.addImport("java.util.HashSet");
+			ns.addImport("java.util.Set");
+			ns.addImport("java.util.Arrays");
 			
 		} else if (p.isArray() && p.getItems().isEnum()) {
 			/* So if we have an array that is made out of enums, it's
@@ -87,6 +90,9 @@ public class PropertyController {
 			 */
 			final PropertyController pc = new PropertyController(name, type.getItems());
 			ns.addEnum(pc.getEnum(strippedName));
+			ns.addImport("java.util.HashSet");
+			ns.addImport("java.util.Set");
+			ns.addImport("java.util.Arrays");
 		} else {
 			ns.addClass(getClass(strippedName));
 		}
@@ -133,13 +139,6 @@ public class PropertyController {
 		// create class from global type
 		} else {
 			klass = new Klass(className, name);
-		}
-		
-		// add imports if enum
-		if (property.isEnum()) {
-			klass.addImport("java.util.HashSet");
-			klass.addImport("java.util.Set");
-			klass.addImport("java.util.Arrays");
 		}
 		
 		// parse properties

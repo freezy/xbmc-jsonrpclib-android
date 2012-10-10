@@ -24,6 +24,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.Version;
@@ -73,8 +75,8 @@ public class Introspect {
 	private final static String MODEL_PACKAGE = "org.xbmc.android.jsonrpc.api.model";
 //	private final static String CALL_PACKAGE = "org.xbmc.android.jsonrpc.api.call";
 	
-//	private final static String OUTPUT_FOLDER = "D:/dev/xbmc-jsonrpclib-android-test/src";
-	private final static String OUTPUT_FOLDER = "S:/Development/xbmc-jsonrpclib-android-output/src";
+	private final static String OUTPUT_FOLDER = "D:/dev/xbmc-jsonrpclib-android-test/src";
+//	private final static String OUTPUT_FOLDER = "S:/Development/xbmc-jsonrpclib-android-output/src";
 
 	
 	static {
@@ -98,7 +100,8 @@ public class Introspect {
 		    RESULT = response.getResult();
 			
 		    // register types
-		    for (String name : RESULT.getTypes().keySet()) {
+		    final SortedSet<String> names = new TreeSet<String>(RESULT.getTypes().keySet());
+		    for (String name : names) {
 		    	final PropertyController controller = new PropertyController(name, RESULT.getTypes().get(name));
 		    	controller.register(MODEL_PACKAGE);
 		    }

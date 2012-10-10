@@ -40,6 +40,7 @@ public class Namespace {
 	private final String packageName;
 	private final List<Klass> classes = new ArrayList<Klass>();
 	private final List<Enum> enums = new ArrayList<Enum>();
+	private final Set<String> imports = new HashSet<String>();
 
 	public Namespace(String name, String packageName) {
 		this.name = name;
@@ -55,7 +56,7 @@ public class Namespace {
 	}
 
 	public String getName() {
-		return name;
+		return name + "Model";
 	}
 
 	public String getPackageName() {
@@ -71,11 +72,14 @@ public class Namespace {
 	}
 	
 	public Set<String> getImports() {
-		final Set<String> globalImports = new HashSet<String>();
 		for (Klass klass : classes) {
-			globalImports.addAll(klass.getImports());
+			imports.addAll(klass.getImports());
 		}
-		return globalImports;
+		return imports;
+	}
+	
+	public void addImport(String i) {
+		imports.add(i);
 	}
 
 	public static Namespace get(String name, String packageName) {
