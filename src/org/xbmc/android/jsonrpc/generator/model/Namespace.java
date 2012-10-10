@@ -23,7 +23,9 @@ package org.xbmc.android.jsonrpc.generator.model;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Defines the "outer" class, where the classes sit.
@@ -66,6 +68,14 @@ public class Namespace {
 
 	public List<Enum> getEnums() {
 		return enums;
+	}
+	
+	public Set<String> getImports() {
+		final Set<String> globalImports = new HashSet<String>();
+		for (Klass klass : classes) {
+			globalImports.addAll(klass.getImports());
+		}
+		return globalImports;
 	}
 
 	public static Namespace get(String name, String packageName) {

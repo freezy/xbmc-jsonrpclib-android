@@ -21,7 +21,9 @@
 package org.xbmc.android.jsonrpc.generator.model;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Defines a class in an agnostic way.
@@ -42,6 +44,8 @@ public class Klass {
 	private final List<Member> members = new ArrayList<Member>();
 	private final List<Klass> innerTypes = new ArrayList<Klass>();
 	private final List<Enum> innerEnums = new ArrayList<Enum>();
+	
+	private final Set<String> imports = new HashSet<String>();
 	
 	private Klass arrayType = null;
 
@@ -72,6 +76,10 @@ public class Klass {
 
 	public void addInnerEnum(Enum e) {
 		innerEnums.add(e);
+	}
+	
+	public void addImport(String i) {
+		this.imports.add(i);
 	}
 
 	public boolean hasInnerTypes() {
@@ -144,6 +152,18 @@ public class Klass {
 
 	public List<Enum> getInnerEnums() {
 		return innerEnums;
+	}
+	
+	public Set<String> getImports() {
+		final Set<String> imports = new HashSet<String>();
+		
+		imports.addAll(this.imports);
+		for (Member m : members) {
+			if (m.getType() != null) {
+				imports.addAll(m.getType().getImports());
+			}
+		}
+		return imports;
 	}
 
 }

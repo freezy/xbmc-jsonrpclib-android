@@ -54,7 +54,7 @@ public class MemberController {
 			final Klass klass = pc.getClass(name);
 			
 			// check if the prop is another object definition (=> inner type)
-			if (prop.isObjectDefinition()) {
+			if (prop.hasProperties()) {
 				klass.setInner(true);
 			}
 			

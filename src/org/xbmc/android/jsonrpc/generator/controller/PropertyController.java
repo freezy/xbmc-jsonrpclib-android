@@ -128,6 +128,7 @@ public class PropertyController {
 			final Klass arrayType = pc.getClass(className);
 			arrayType.setInner(true);
 			klass.setArrayType(arrayType);
+			klass.addImport("java.util.List");
 			
 		// create class from global type
 		} else {
