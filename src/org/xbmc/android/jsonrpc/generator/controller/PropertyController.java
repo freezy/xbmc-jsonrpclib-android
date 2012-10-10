@@ -135,6 +135,13 @@ public class PropertyController {
 			klass = new Klass(className, name);
 		}
 		
+		// add imports if enum
+		if (property.isEnum()) {
+			klass.addImport("java.util.HashSet");
+			klass.addImport("java.util.Set");
+			klass.addImport("java.util.Arrays");
+		}
+		
 		// parse properties
 		if (property.hasProperties()) {
 			for (String propertyName : property.getProperties().keySet()) {
@@ -149,9 +156,6 @@ public class PropertyController {
 				}
 				if (member.isEnum()) {
 					klass.addInnerEnum(member.getEnum());
-					klass.addImport("java.util.Arrays");
-					klass.addImport("java.util.HashSet");
-					klass.addImport("java.util.Set");
 				}
 				
 				if (member.isArray() && !member.getType().getArrayType().isNative()) {
