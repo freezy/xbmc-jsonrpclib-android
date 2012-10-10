@@ -74,7 +74,8 @@ public abstract class AbstractView {
 		if (!member.isEnum()) {
 			return getClassName(member.getType());
 		} else {
-			return getInnerType(member.getEnum().getName());
+			return "String";
+			//return getInnerType(member.getEnum().getName());
 		}
 	}
 	// TODO interface param and member
@@ -82,7 +83,8 @@ public abstract class AbstractView {
 		if (!param.isEnum()) {
 			return getClassName(param.getType());
 		} else {
-			return getInnerType(param.getEnum().getName());
+			return "String";
+			//return getInnerType(param.getEnum().getName());
 		}
 	}
 	

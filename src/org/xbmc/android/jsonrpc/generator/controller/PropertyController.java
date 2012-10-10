@@ -20,7 +20,10 @@
  */
 package org.xbmc.android.jsonrpc.generator.controller;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.xbmc.android.jsonrpc.generator.introspect.Param;
 import org.xbmc.android.jsonrpc.generator.introspect.Property;
@@ -37,6 +40,9 @@ import org.xbmc.android.jsonrpc.generator.model.Namespace;
  * @author freezy <freezy@xbmc.org>
  */
 public class PropertyController {
+	
+	private final static Set<String> IGNORED_TYPES = new HashSet<String>(Arrays.asList(
+			"Array.Integer", "Array.String"));
 
 	/**
 	 * Name of the property.<p/>
@@ -64,6 +70,12 @@ public class PropertyController {
 	 * model package.
 	 */
 	public void register(String packageName) {
+		
+		// return directly if ignored type.
+		if (name != null && IGNORED_TYPES.contains(name)) {
+			return;
+		}
+		
 		final Namespace ns = Namespace.get(name, packageName);
 		
 		if (!(property instanceof Type)) {
