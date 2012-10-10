@@ -43,7 +43,7 @@ import org.xbmc.android.jsonrpc.generator.model.Namespace;
 public class PropertyController {
 	
 	private final static Set<String> IGNORED_TYPES = new HashSet<String>();
-	private final static Map<String, String> REPLACED_TYPES = new HashMap<String, String>(); 
+	private final static Map<String, String> REPLACED_TYPES = new HashMap<String, String>();
 	
 	static {
 		IGNORED_TYPES.add("Array.Integer");
@@ -131,6 +131,13 @@ public class PropertyController {
 		
 		final Klass klass;
 		
+		// some basic tests
+		if (property.hasProperties()) {
+			if (property.isNative() || property.isArray() || property.isMultitype() || property.isRef()) {
+				throw new RuntimeException("doh!");
+			}
+		}
+		
 		// create class from native type
 		if (property.isNative()) {
 			klass = new Klass(namespace, property.getType().getName());
@@ -143,7 +150,7 @@ public class PropertyController {
 			klass = new Klass(namespace, className);
 			klass.setMultiType(true);
 			for (Type t : types) {
-				final String multiTypeName = getNameFromProps(t);
+				final String multiTypeName = findName(t);
 				final MemberController mc = new MemberController(multiTypeName, t);
 				klass.addMember(mc.getMember(namespace));
 				if (t.isObjectDefinition()) {
@@ -170,12 +177,29 @@ public class PropertyController {
 			
 		// create class from reference
 		} else if (property.isRef()) {
-			klass = new Klass(namespace, property.getRef().substring(property.getRef().indexOf("."), property.getRef().length()), name);
+			klass = new Klass(namespace, findName(property.getRef()), name);
+			klass.setGlobal(true);
 			
 		// create class from global type
+		} else if (property instanceof Type) {
+			final Type type = (Type)property;
+			
+			// TODO check why the fuck ID would be null.
+			if (type.getId() == null) {
+				klass = new Klass(namespace, className);
+			} else {
+				klass = new Klass(namespace, findName(((Type)property).getId()), name);
+				klass.setGlobal(true); // TODO adopt accordingly, see above.
+			}
+			
+		// create class from object	
+		} else if (property.hasProperties() ) {
+			klass = new Klass(namespace, className);
+			
 		} else {
-			klass = new Klass(namespace, className, name);
+			throw new RuntimeException("Cannot find correct type.");
 		}
+		
 		
 		// parse properties
 		if (property.hasProperties()) {
@@ -193,8 +217,7 @@ public class PropertyController {
 					klass.addInnerEnum(member.getEnum());
 				}
 				
-				if (member.isArray() && !member.getType().getArrayType().isNative()
-						&& !prop.getItems().isRef()) {
+				if (member.isArray() && !member.getType().getArrayType().isNative() && !member.getType().getArrayType().isGlobal()) {
 					klass.addInnerType(member.getType().getArrayType());
 				}
 				
@@ -211,10 +234,39 @@ public class PropertyController {
 		return klass;
 	}
 	
-	public String getNameFromProps(Type t) {
-		if (!t.hasProperties()) {
+	public String findName(String typeId) {
+		String name = typeId;
+		if (name.contains(".")) {
+			name = name.substring(name.indexOf("."));
+		}
+		name = name.replace(".", "");
+		
+		return name;
+	}
+	
+	public String findName(Property t) {
+		
+		if (!t.hasProperties() && !t.isNative() && !t.isRef() && !t.isArray()) {
 			throw new RuntimeException("Cannot construct class name from multitype class without props!");
 		}
+		
+		// native type
+		if (t.isNative()) {
+			return t.getType().getName() + "Arg";
+		}
+		
+		// global type
+		if (t.isRef()) {
+			String name = findName(t.getRef());
+			return "toto" + name.substring(0, 1).toLowerCase() + name.substring(1);
+		}
+		
+		// array
+		if (t.isArray()) {
+			return findName(t.getItems()) + "List";
+		}
+		
+		// object containing props
 		final StringBuilder sb = new StringBuilder();
 		int i = 0;
 		for (String name : t.getProperties().keySet()) {

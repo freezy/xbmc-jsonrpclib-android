@@ -55,6 +55,10 @@ public class Member {
 		return type != null && type.isArray();
 	}
 	
+	public boolean isGlobal() {
+		return type != null && type.isGlobal();
+	}
+	
 	public String getName() {
 		return name;
 	}

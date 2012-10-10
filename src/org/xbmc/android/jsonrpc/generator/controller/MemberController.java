@@ -49,9 +49,10 @@ public class MemberController {
 		if (prop.isEnum()) {
 			final Enum e = pc.getEnum(name);
 			e.setInner(true);
-			
 			return new Member(name, e);
+			
 		} else {
+			
 			final Klass klass = pc.getClass(namespace, name);
 			
 			// check if the prop is another object definition (=> inner type)

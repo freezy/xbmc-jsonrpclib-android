@@ -40,22 +40,25 @@ public class Klass {
 	private boolean isInner = false;
 	private boolean isMultiType = false;
 	private boolean isArray = false;
+	private boolean isGlobal = false;
 
 	private final List<Constructor> constructors = new ArrayList<Constructor>();
 	private final List<Member> members = new ArrayList<Member>();
 	private final List<Klass> innerTypes = new ArrayList<Klass>();
 	private final List<Enum> innerEnums = new ArrayList<Enum>();
-	
+
 	private final Set<String> imports = new HashSet<String>();
-	
+
 	private Klass arrayType = null;
 
 	public Klass(Namespace namespace) {
 		this(namespace, null, null);
 	}
+
 	public Klass(Namespace namespace, String name) {
 		this(namespace, name, null);
 	}
+
 	public Klass(Namespace namespace, String name, String apiType) {
 		this.namespace = namespace;
 		this.name = name;
@@ -77,7 +80,7 @@ public class Klass {
 	public void addInnerEnum(Enum e) {
 		innerEnums.add(e);
 	}
-	
+
 	public void addImport(String i) {
 		this.imports.add(i);
 	}
@@ -121,9 +124,17 @@ public class Klass {
 	public void setArray(boolean isArray) {
 		this.isArray = isArray;
 	}
-	
+
 	public Klass getArrayType() {
 		return arrayType;
+	}
+
+	public boolean isGlobal() {
+		return isGlobal;
+	}
+
+	public void setGlobal(boolean isGlobal) {
+		this.isGlobal = isGlobal;
 	}
 
 	public void setArrayType(Klass arrayType) {
@@ -137,6 +148,7 @@ public class Klass {
 	public Namespace getNamespace() {
 		return namespace;
 	}
+
 	public String getApiType() {
 		return apiType;
 	}
@@ -156,10 +168,10 @@ public class Klass {
 	public List<Enum> getInnerEnums() {
 		return innerEnums;
 	}
-	
+
 	public Set<String> getImports() {
 		final Set<String> imports = new HashSet<String>();
-		
+
 		imports.addAll(this.imports);
 		for (Member m : members) {
 			if (m.getType() != null) {
