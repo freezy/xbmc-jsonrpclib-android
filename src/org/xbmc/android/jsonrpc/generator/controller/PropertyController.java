@@ -149,6 +149,9 @@ public class PropertyController {
 			
 			klass = new Klass(namespace, className);
 			klass.setMultiType(true);
+			if (!(property instanceof Type)) {
+				klass.setInner(true);
+			}
 			for (Type t : types) {
 				final String multiTypeName = findName(t);
 				final MemberController mc = new MemberController(multiTypeName, t);
@@ -191,16 +194,17 @@ public class PropertyController {
 				klass = new Klass(namespace, findName(((Type)property).getId()), name);
 				klass.setGlobal(true); // TODO adopt accordingly, see above.
 			}
-			
+		
 		// create class from object	
 		} else if (property.hasProperties() ) {
 			klass = new Klass(namespace, className);
+			klass.setInner(true);
 			
+		// confusion!
 		} else {
-			throw new RuntimeException("Cannot find correct type.");
+			throw new RuntimeException("Unexpected property type. Put breakpoint and check code :p");
 		}
-		
-		
+
 		// parse properties
 		if (property.hasProperties()) {
 			for (String propertyName : property.getProperties().keySet()) {
@@ -222,7 +226,7 @@ public class PropertyController {
 				}
 				
 				klass.addMember(member);
-			}
+			}			
 		}
 		
 		// create constructor(s)
