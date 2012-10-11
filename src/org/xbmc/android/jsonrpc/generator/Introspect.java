@@ -75,12 +75,12 @@ public class Introspect {
 	private final static String MODEL_PACKAGE = "org.xbmc.android.jsonrpc.api.model";
 //	private final static String CALL_PACKAGE = "org.xbmc.android.jsonrpc.api.call";
 	
-//	private final static String OUTPUT_FOLDER = "D:/dev/xbmc-jsonrpclib-android-test/src";
-	private final static String OUTPUT_FOLDER = "S:/Development/xbmc-jsonrpclib-android-output/src";
+	private final static String OUTPUT_FOLDER = "D:/dev/xbmc-jsonrpclib-android-test/src";
+//	private final static String OUTPUT_FOLDER = "S:/Development/xbmc-jsonrpclib-android-output/src";
 
 	
 	static {
-		final SimpleModule module = new SimpleModule("", Version.unknownVersion());
+		final SimpleModule module = new SimpleModule("xbmc-json-rpc", Version.unknownVersion());
 		module.addDeserializer(TypeWrapper.class, new TypeDeserializer());
 		module.addDeserializer(ExtendsWrapper.class, new ExtendsDeserializer());
 		module.addDeserializer(AdditionalPropertiesWrapper.class, new AdditionalPropertiesDeserializer());
