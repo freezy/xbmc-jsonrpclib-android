@@ -118,7 +118,10 @@ public abstract class AbstractView {
 	 * @return Java class type
 	 */
 	protected String getInnerType(String type) {
-		final String name = type.endsWith("ies") ? type.replace("ies", "y") : type;
+		String name = type;
+		if (name.endsWith("ies") && !name.endsWith("ovies")) {
+			name = name.replace("ies", "y");
+		}
 		return name.substring(0, 1).toUpperCase() + name.substring(1);
 	}
 }
