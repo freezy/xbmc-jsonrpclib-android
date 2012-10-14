@@ -96,5 +96,10 @@ public class Namespace {
 	public static Collection<Namespace> getAll() {
 		return namespaces.values();
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		return this.name.equals(((Namespace)obj).name);
+	}
 
 }

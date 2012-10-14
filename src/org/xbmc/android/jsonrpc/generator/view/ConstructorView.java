@@ -22,6 +22,7 @@ package org.xbmc.android.jsonrpc.generator.view;
 
 import org.xbmc.android.jsonrpc.generator.model.Constructor;
 import org.xbmc.android.jsonrpc.generator.model.Member;
+import org.xbmc.android.jsonrpc.generator.model.Namespace;
 import org.xbmc.android.jsonrpc.generator.model.Parameter;
 
 /**
@@ -42,7 +43,7 @@ public class ConstructorView extends AbstractView {
 		}
 	}
 
-	public void renderDeclaration(StringBuilder sb, int indent) {
+	public void renderDeclaration(StringBuilder sb, Namespace ns, int indent) {
 
 		String prefix = "";
 		for (int i = 0; i < indent; i++) {
@@ -56,7 +57,7 @@ public class ConstructorView extends AbstractView {
 		sb.append("(");
 		if (constructor.hasParameters()) {
 			for (Parameter p : constructor.getParameters()) {
-				sb.append(getClassName(p));
+				sb.append(getClassName(ns, p));
 				sb.append(" ");
 				sb.append(p.getName());
 				sb.append(", ");

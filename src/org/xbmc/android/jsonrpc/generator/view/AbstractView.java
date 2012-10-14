@@ -23,6 +23,7 @@ package org.xbmc.android.jsonrpc.generator.view;
 import org.xbmc.android.jsonrpc.generator.model.Enum;
 import org.xbmc.android.jsonrpc.generator.model.Klass;
 import org.xbmc.android.jsonrpc.generator.model.Member;
+import org.xbmc.android.jsonrpc.generator.model.Namespace;
 import org.xbmc.android.jsonrpc.generator.model.Parameter;
 
 /**
@@ -35,16 +36,20 @@ import org.xbmc.android.jsonrpc.generator.model.Parameter;
  */
 public abstract class AbstractView {
 	
+	protected String getClassName(Klass klass) {
+		return getClassName(klass.getNamespace(), klass);
+	}
+	
 	/**
 	 * Returns the Java class name based on a class object.
 	 * @param klass Given class
 	 * @return Java class name
 	 */
-	protected String getClassName(Klass klass) {
+	private String getClassName(Namespace ns, Klass klass) {
 		if (klass.isNative()) {
 			return getNativeType(klass);
 		} else if (klass.isArray()) {
-			return getArrayType(klass);
+			return getArrayType(ns, klass);
 		} else if (klass.isInner()) {
 			return getInnerType(klass.getName());
 		} else {
@@ -66,13 +71,13 @@ public abstract class AbstractView {
 	 * @param klass
 	 * @return
 	 */
-	protected String getClassReference(Klass klass) {
+	protected String getClassReference(Namespace ns, Klass klass) {
 		final StringBuilder sb = new StringBuilder(); 
-		if (!klass.isNative()) {
+		if (!klass.isNative() && !ns.equals(klass.getNamespace())) {
 			sb.append(klass.getNamespace().getName());
 			sb.append(".");
 		}
-		sb.append(getClassName(klass));
+		sb.append(getClassName(ns, klass));
 		return sb.toString();
 	}
 	
@@ -94,17 +99,17 @@ public abstract class AbstractView {
 	 * @param member Given member
 	 * @return Java class name
 	 */
-	protected String getClassName(Member member) {
+	protected String getClassName(Namespace ns, Member member) {
 		if (!member.isEnum()) {
-			return getClassName(member.getType());
+			return getClassName(ns, member.getType());
 		} else {
 			return "String";
 		}
 	}
 	// TODO interface param and member
-	protected String getClassName(Parameter param) {
+	protected String getClassName(Namespace ns, Parameter param) {
 		if (!param.isEnum()) {
-			return getClassName(param.getType());
+			return getClassName(ns, param.getType());
 		} else {
 			return "String";
 		}
@@ -132,8 +137,8 @@ public abstract class AbstractView {
 		}
 	}
 	
-	protected String getArrayType(Klass klass) {
-		return "List<" + getClassReference(Klass.resolve(klass.getArrayType())) + ">";
+	protected String getArrayType(Namespace ns, Klass klass) {
+		return "List<" + getClassReference(ns, Klass.resolve(klass.getArrayType())) + ">";
 	}
 	
 	/**

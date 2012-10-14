@@ -79,13 +79,13 @@ public class ClassView extends AbstractView {
 		sb.append("\n").append(prefix).append("\t// class members\n");
 		for (Member member : klass.getMembers()) {
 			final MemberView memberView = new MemberView(member);
-			memberView.renderDeclaration(sb, indent + 1);
+			memberView.renderDeclaration(sb, klass.getNamespace(), indent + 1);
 		}
 		
 		// constructors
 		for (Constructor c : klass.getConstructors()) {
 			final ConstructorView constructorView = new ConstructorView(c);
-			constructorView.renderDeclaration(sb, indent + 1);
+			constructorView.renderDeclaration(sb, klass.getNamespace(), indent + 1);
 		}
 
 		// inner classes

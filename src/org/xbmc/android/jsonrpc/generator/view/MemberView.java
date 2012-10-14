@@ -21,6 +21,7 @@
 package org.xbmc.android.jsonrpc.generator.view;
 
 import org.xbmc.android.jsonrpc.generator.model.Member;
+import org.xbmc.android.jsonrpc.generator.model.Namespace;
 
 /**
  * Renders a Java class member.
@@ -35,7 +36,7 @@ public class MemberView extends AbstractView {
 		this.member = member.resolveType();
 	}
 	
-	public void renderDeclaration(StringBuilder sb, int indent) {
+	public void renderDeclaration(StringBuilder sb, Namespace ns, int indent) {
 		
 		String prefix = "";
 		for (int i = 0; i < indent; i++) {
@@ -43,7 +44,7 @@ public class MemberView extends AbstractView {
 		}
 		
 		sb.append(prefix).append("public final ");
-		sb.append(getClassName(member));
+		sb.append(getClassName(ns, member));
 		sb.append(" ").append(member.getName());
 		sb.append(";\n");
 	}
