@@ -30,6 +30,7 @@ import org.xbmc.android.jsonrpc.generator.Introspect;
 import org.xbmc.android.jsonrpc.generator.introspect.Param;
 import org.xbmc.android.jsonrpc.generator.introspect.Property;
 import org.xbmc.android.jsonrpc.generator.introspect.Type;
+import org.xbmc.android.jsonrpc.generator.introspect.wrapper.ExtendsWrapper;
 import org.xbmc.android.jsonrpc.generator.model.Constructor;
 import org.xbmc.android.jsonrpc.generator.model.Enum;
 import org.xbmc.android.jsonrpc.generator.model.Klass;
@@ -282,6 +283,16 @@ public class PropertyController {
 				
 				klass.addMember(member);
 			}			
+		}
+		
+		// parse extends
+		if (property.doesExtend()) {
+			final ExtendsWrapper ew = property.getExtends();
+			if (ew.isList()) {
+				// TODO
+			} else {
+				klass.setParentClass(new Klass(property.getExtends().getName()));
+			}
 		}
 		
 		// create constructor(s)

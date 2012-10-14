@@ -45,6 +45,7 @@ public class Klass {
 	private boolean isMultiType = false;
 	private boolean isArray = false;
 	private boolean isGlobal = false;
+	
 
 	/**
 	 * If true, this is just a place holder and the "real" object has yet to be
@@ -60,6 +61,7 @@ public class Klass {
 	private final Set<String> imports = new HashSet<String>();
 	private final static Map<String, Klass> GLOBALS = new HashMap<String, Klass>();
 
+	private Klass parentClass = null; // set if "extends" 
 	private Klass arrayType = null;
 	private Klass outerType = null; // set if isInner == true.
 
@@ -142,14 +144,24 @@ public class Klass {
 	 * @return
 	 */
 	public static Klass resolve(Klass klass) {
+		final Klass resolvedKlass;
+		
+		// resolve class itself
 		if (klass.isUnresolved()) {
 			if (!GLOBALS.containsKey(klass.apiType)) {
 				throw new RuntimeException("Trying to resolve unknown class \"" + klass.apiType + "\".");
 			}
-			return GLOBALS.get(klass.apiType);
+			resolvedKlass = GLOBALS.get(klass.apiType);
 		} else {
-			return klass;
+			resolvedKlass = klass;
 		}
+		
+		// also resolve parent class
+		if (resolvedKlass.doesExtend()) {
+			resolvedKlass.parentClass = resolve(resolvedKlass.parentClass);
+		}
+		
+		return resolvedKlass;
 	}
 
 	/**
@@ -347,6 +359,18 @@ public class Klass {
 
 	public void setOuterType(Klass outerType) {
 		this.outerType = outerType;
+	}
+
+	public Klass getParentClass() {
+		return parentClass;
+	}
+
+	public void setParentClass(Klass parentClass) {
+		this.parentClass = parentClass;
+	}
+	
+	public boolean doesExtend() {
+		return parentClass != null;
 	}
 
 	public Set<String> getImports() {

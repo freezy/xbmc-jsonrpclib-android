@@ -57,16 +57,20 @@ public class ClassView extends AbstractView {
 		sb.append("\n");
 		sb.append(prefix).append("public static class ");
 		sb.append(getClassName(klass));
+		if (klass.doesExtend()) {
+			sb.append(" extends ");
+			sb.append(getClassReference(klass.getNamespace(), klass.getParentClass()));
+		}
 		sb.append(" {\n");
 		
 		// api type
 		if (klass.getApiType() != null) {
 			sb.append(prefix).append("	public final static String API_TYPE = \"");
 			sb.append(klass.getApiType());
-			sb.append("\";");
+			sb.append("\";\n");
 		}
 
-		// field names
+		// field name constants
 		if (!klass.isMultiType()) {
 			sb.append("\n").append(prefix).append("\t// field names\n");
 			for (Member member : klass.getMembers()) {
@@ -82,7 +86,7 @@ public class ClassView extends AbstractView {
 			memberView.renderDeclaration(sb, klass.getNamespace(), indent + 1);
 		}
 		
-		// constructors
+		// constructors FIXME remove (replace by others)
 		for (Constructor c : klass.getConstructors()) {
 			final ConstructorView constructorView = new ConstructorView(c);
 			constructorView.renderDeclaration(sb, klass.getNamespace(), indent + 1);
