@@ -53,10 +53,18 @@ public class ClassView extends AbstractView {
 			prefix += "\t";
 		}
 
+		// signature
 		sb.append("\n");
 		sb.append(prefix).append("public static class ");
 		sb.append(getClassName(klass));
 		sb.append(" {\n");
+		
+		// api type
+		if (klass.getApiType() != null) {
+			sb.append(prefix).append("	public final static String API_TYPE = \"");
+			sb.append(klass.getApiType());
+			sb.append("\";");
+		}
 
 		// field names
 		if (!klass.isMultiType()) {

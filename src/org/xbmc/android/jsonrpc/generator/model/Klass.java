@@ -21,6 +21,8 @@
 package org.xbmc.android.jsonrpc.generator.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -259,6 +261,13 @@ public class Klass {
 		if (unresolved) {
 			throw new RuntimeException("Unresolved.");
 		}
+		// sort before return.
+		Collections.sort(members, new Comparator<Member>() {
+			@Override
+			public int compare(Member o1, Member o2) {
+				return o1.getName().compareTo(o2.getName());
+			}
+		});
 		return members;
 	}
 
