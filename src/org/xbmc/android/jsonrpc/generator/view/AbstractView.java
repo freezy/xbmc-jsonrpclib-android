@@ -51,7 +51,7 @@ public abstract class AbstractView {
 		} else if (klass.isArray()) {
 			return getArrayType(ns, klass);
 		} else if (klass.isInner()) {
-			return getInnerType(klass.getName(), null);
+			return getInnerType(klass.getName(), klass.getOuterType().getName());
 		} else {
 			return getGlobalType(klass);
 		}
@@ -160,7 +160,12 @@ public abstract class AbstractView {
 		if (name.endsWith("ies") && !name.endsWith("ovies")) {
 			name = name.replace("ies", "y");
 		}
-
-		return name.substring(0, 1).toUpperCase() + name.substring(1);
+		
+		final String suffix = outerType.equals(type) ? "Value" : "";
+		
+		// capitalize first letter
+		name = name.substring(0, 1).toUpperCase() + name.substring(1);
+		
+		return name + suffix;
 	}
 }

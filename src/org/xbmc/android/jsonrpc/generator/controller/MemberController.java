@@ -59,6 +59,7 @@ public class MemberController {
 			// check if the prop is another object definition (=> inner type)
 			if (property.hasProperties()) {
 				klass.setInner(true);
+				klass.setOuterType(parentType);
 			}
 			
 			return new Member(name, klass);

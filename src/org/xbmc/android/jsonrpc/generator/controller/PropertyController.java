@@ -246,7 +246,7 @@ public class PropertyController {
 			klass = new Klass(namespace, className);
 			klass.setInner(true);
 			
-		// confusion!
+		// wtf!
 		} else {
 			throw new RuntimeException("Unexpected property type. Put breakpoint and check code :p");
 		}
