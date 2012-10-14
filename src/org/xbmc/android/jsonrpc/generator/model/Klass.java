@@ -62,6 +62,14 @@ public class Klass {
 
 	private Klass arrayType = null;
 
+	/**
+	 * New class by reference.
+	 * 
+	 * Only the "id" of the global type is provided. When rendering the class
+	 * later, it must be resolved by using {@link #resolve(Klass)}.
+	 * 
+	 * @param apiType Name of the global type ("id" attribute under "types").
+	 */
 	public Klass(String apiType) {
 		if (apiType == null) {
 			throw new IllegalArgumentException("API type must not be null when creating unresolved class references.");
@@ -73,14 +81,43 @@ public class Klass {
 		this.unresolved = true;
 	}
 
+	/**
+	 * New class by namespace only.
+	 * 
+	 * This happens only for anonymous item types ("Addon.Details" ->
+	 * dependencies) where there is neither a parameter name nor a member name.
+	 * 
+	 * @param namespace Namespace reference
+	 */
 	public Klass(Namespace namespace) {
 		this(namespace, null, null);
 	}
 
+	/**
+	 * New class by namespace and variable name.
+	 * 
+	 * Another anonymous type, but with a given variable name, retrieved from
+	 * property name or parameter name. It could also be a computed name for
+	 * multitypes.
+	 * 
+	 * @param namespace Namespace reference
+	 * @param name Best guess of name (will be transformed later depending on
+	 *            type)
+	 */
 	public Klass(Namespace namespace, String name) {
 		this(namespace, name, null);
 	}
 
+	/**
+	 * New class for global types.
+	 * 
+	 * A global type, as defined in introspect's "type" list. The "id" attribute
+	 * corresponds to the {@link #apiType} variable.
+	 * 
+	 * @param namespace Namespace reference
+	 * @param name Best guess of name (will be ignored later)
+	 * @param apiType Name of global type
+	 */
 	public Klass(Namespace namespace, String name, String apiType) {
 		this.namespace = namespace;
 		this.name = name;
@@ -91,6 +128,18 @@ public class Klass {
 		}
 	}
 
+	/**
+	 * Returns the resolved class object if unresolved or the same instance
+	 * otherwise.
+	 * 
+	 * If this class had only a reference to a global type, it was marked as
+	 * unresolved. Later, when all global types are transformed into
+	 * {@link Klass} objects (e.g. when rendering), the reference can be
+	 * returned via this method.
+	 * 
+	 * @param klass
+	 * @return
+	 */
 	public static Klass resolve(Klass klass) {
 		if (klass.isUnresolved()) {
 			if (!GLOBALS.containsKey(klass.apiType)) {
@@ -163,9 +212,6 @@ public class Klass {
 	}
 
 	public boolean isInner() {
-		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
-		}
 		return isInner;
 	}
 
@@ -191,9 +237,6 @@ public class Klass {
 	}
 
 	public boolean isArray() {
-		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
-		}
 		return isArray;
 	}
 

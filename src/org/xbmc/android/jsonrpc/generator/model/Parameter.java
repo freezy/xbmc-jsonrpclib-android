@@ -27,8 +27,8 @@ package org.xbmc.android.jsonrpc.generator.model;
  */
 public class Parameter {
 
+	private Klass type;
 	private final String name;
-	private final Klass type;
 	private final Enum e;
 
 	private String description;
@@ -43,6 +43,13 @@ public class Parameter {
 		this.name = name;
 		this.type = null;
 		this.e = e;
+	}
+	
+	public Parameter resolve() {
+		if (type != null) {
+			type = Klass.resolve(type);
+		}
+		return this;
 	}
 	
 	public boolean isEnum() {

@@ -43,20 +43,21 @@ public class MemberController {
 	}
 	
 	public Member getMember(Namespace namespace) {
-		final Property prop = Introspect.find(property);
-		final PropertyController pc = new PropertyController(name, prop);
 		
+		final Property prop = Introspect.find(property);
 		if (prop.isEnum()) {
+			final PropertyController pc = new PropertyController(name, prop);
 			final Enum e = pc.getEnum(name);
 			e.setInner(true);
 			return new Member(name, e);
 			
 		} else {
 			
+			final PropertyController pc = new PropertyController(name, property);
 			final Klass klass = pc.getClass(namespace, name);
 			
 			// check if the prop is another object definition (=> inner type)
-			if (prop.hasProperties()) {
+			if (property.hasProperties()) {
 				klass.setInner(true);
 			}
 			

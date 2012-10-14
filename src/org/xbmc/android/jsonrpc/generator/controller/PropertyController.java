@@ -68,12 +68,27 @@ public class PropertyController {
 	private final String name;
 	private final Property property;
 	
+	private final String apiType;
+	
 	public PropertyController(String name, Property property) {
 		if (property == null) {
 			throw new IllegalArgumentException("Property parameter must not be null.");
 		}
 		this.property = property;
-		this.name = name != null ? name : (property instanceof Param ? ((Param)property).getName() : null);
+		
+		// apiType we need sometimes, so parse it here.
+		if (property instanceof Type && ((Type)property).getId() != null) {
+			this.apiType = ((Type)property).getId();
+		} else {
+			this.apiType = null;
+		}
+		
+		// read name from property name if name not set
+		if (name == null && property instanceof Param) {
+			this.name = ((Param)property).getName();
+		} else {
+			this.name = name;
+		}
 	}
 	
 	/**
@@ -83,9 +98,9 @@ public class PropertyController {
 	public void register(String packageName) {
 		
 		// return directly if ignored type.
-		if (name != null && (IGNORED_TYPES.contains(name) || REPLACED_TYPES.containsKey(name))) {
-			return;
-		}
+//		if (name != null && (IGNORED_TYPES.contains(name) || REPLACED_TYPES.containsKey(name))) {
+//			return;
+//		}
 		
 		final Namespace ns = Namespace.get(name, packageName);
 		
@@ -140,21 +155,26 @@ public class PropertyController {
 		
 		// create class from native type
 		if (property.isNative()) {
-			klass = new Klass(namespace, property.getType().getName());
+			
+			if (isGlobal()) { // new class
+				klass = new Klass(namespace, property.getType().getName(), apiType);
+			} else {
+				klass = new Klass(namespace, property.getType().getName());
+			}
 			klass.setNative(true);
 			
 		// create class from multiple values
 		} else if (property.isMultitype()) {
-			final List<Type> types = property.getType().getList();
 			
-			if (property instanceof Type && ((Type)property).getId() != null) {
-				klass = new Klass(namespace, className, ((Type)property).getId());
+			if (isGlobal()) { // new class
+				klass = new Klass(namespace, className, apiType);
 			} else {
 				klass = new Klass(namespace, className);
 				klass.setInner(true);
 			}
 			klass.setMultiType(true);
 			
+			final List<Type> types = property.getType().getList();
 			for (Type t : types) {
 				final String multiTypeName = findName(t);
 				final MemberController mc = new MemberController(multiTypeName, t);
@@ -171,9 +191,16 @@ public class PropertyController {
 			
 		// create class from array	
 		} else if (property.isArray()) {
-			final PropertyController pc = new PropertyController(null, property.getItems());
-			klass = new Klass(namespace);
+			
+			if (isGlobal()) { // new class
+				klass = new Klass(namespace, null, apiType);
+			} else {
+				klass = new Klass(namespace);
+			}
 			klass.setArray(true);
+			
+			// get array type
+			final PropertyController pc = new PropertyController(null, property.getItems());
 			final Klass arrayType = pc.getClass(namespace, className);
 			if (!property.getItems().isRef()) {
 				arrayType.setInner(true);
@@ -182,7 +209,8 @@ public class PropertyController {
 			klass.addImport("java.util.List");
 			
 			// arrays can also be defined as globals (List.Items.Sources)
-			if (property instanceof Type && ((Type)property).getId() != null) {
+			// TODO still necessary with new class constructor?
+			if (isGlobal()) {
 				klass.setInner(false);
 				klass.setGlobal(true);
 				klass.getArrayType().setInner(false);
@@ -201,7 +229,7 @@ public class PropertyController {
 			if (type.getId() == null) {
 				klass = new Klass(namespace, className);
 			} else {
-				klass = new Klass(namespace, findName(((Type)property).getId()), name);
+				klass = new Klass(namespace, findName(apiType), name);
 				klass.setGlobal(true); // TODO adopt accordingly, see above.
 			}
 		
@@ -231,7 +259,9 @@ public class PropertyController {
 					klass.addInnerEnum(member.getEnum());
 				}
 				
-				if (member.isArray() && !member.getType().getArrayType().isNative() && !member.getType().getArrayType().isGlobal()) {
+				if (member.isArray() 
+						&& !member.getType().getArrayType().isNative() 
+						&& !member.getType().getArrayType().isGlobal()) {
 					klass.addInnerType(member.getType().getArrayType());
 				}
 				
@@ -297,6 +327,10 @@ public class PropertyController {
 			i++;
 		}
 		return sb.toString();
+	}
+	
+	private boolean isGlobal() {
+		return apiType != null;
 	}
 	
 	/**

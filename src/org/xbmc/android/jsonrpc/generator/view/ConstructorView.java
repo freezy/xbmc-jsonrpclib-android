@@ -35,6 +35,11 @@ public class ConstructorView extends AbstractView {
 
 	public ConstructorView(Constructor constructor) {
 		this.constructor = constructor;
+		
+		// resolve param types
+		for (Parameter param : constructor.getParameters()) {
+			param.resolve();
+		}
 	}
 
 	public void renderDeclaration(StringBuilder sb, int indent) {
