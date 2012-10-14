@@ -42,7 +42,7 @@ public class MemberController {
 		this.name = name;
 	}
 	
-	public Member getMember(Namespace namespace) {
+	public Member getMember(Namespace namespace, Klass parentType) {
 		
 		final Property prop = Introspect.find(property);
 		if (prop.isEnum()) {
@@ -54,7 +54,7 @@ public class MemberController {
 		} else {
 			
 			final PropertyController pc = new PropertyController(name, property);
-			final Klass klass = pc.getClass(namespace, name);
+			final Klass klass = pc.getClass(namespace, name, parentType);
 			
 			// check if the prop is another object definition (=> inner type)
 			if (property.hasProperties()) {

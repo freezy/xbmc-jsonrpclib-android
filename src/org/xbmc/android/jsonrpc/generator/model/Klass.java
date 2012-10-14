@@ -61,6 +61,7 @@ public class Klass {
 	private final static Map<String, Klass> GLOBALS = new HashMap<String, Klass>();
 
 	private Klass arrayType = null;
+	private Klass outerType = null; // set if isInner == true.
 
 	/**
 	 * New class by reference.
@@ -151,6 +152,28 @@ public class Klass {
 		}
 	}
 
+	/**
+	 * Adds type to inner types and updates the reference back
+	 * to this instance.
+	 * 
+	 * @param klass
+	 */
+	public void linkInnerType(Klass klass) {
+		if (unresolved) {
+			throw new RuntimeException("Unresolved.");
+		}
+		innerTypes.add(klass);
+		klass.setOuterType(this);
+	}
+	
+	public void linkInnerEnum(Enum e) {
+		if (unresolved) {
+			throw new RuntimeException("Unresolved.");
+		}
+		innerEnums.add(e);
+		e.setOuterType(this);
+	}
+
 	public void addConstructor(Constructor c) {
 		if (unresolved) {
 			throw new RuntimeException("Unresolved.");
@@ -163,20 +186,6 @@ public class Klass {
 			throw new RuntimeException("Unresolved.");
 		}
 		members.add(member);
-	}
-
-	public void addInnerType(Klass klass) {
-		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
-		}
-		innerTypes.add(klass);
-	}
-
-	public void addInnerEnum(Enum e) {
-		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
-		}
-		innerEnums.add(e);
 	}
 
 	public void addImport(String i) {
@@ -330,6 +339,14 @@ public class Klass {
 
 	public boolean isUnresolved() {
 		return unresolved;
+	}
+
+	public Klass getOuterType() {
+		return outerType;
+	}
+
+	public void setOuterType(Klass outerType) {
+		this.outerType = outerType;
 	}
 
 	public Set<String> getImports() {

@@ -133,7 +133,7 @@ public class PropertyController {
 			ns.addImport("java.util.Set");
 			ns.addImport("java.util.Arrays");
 		} else {
-			ns.addClass(getClass(ns, strippedName));
+			ns.addClass(getClass(ns, strippedName, null));
 		}
 	}
 	
@@ -143,7 +143,7 @@ public class PropertyController {
 	 * @param className Name of the class (retrieved from parent key)
 	 * @return Class object
 	 */
-	public Klass getClass(Namespace namespace, String className) {
+	public Klass getClass(Namespace namespace, String className, Klass outerType) {
 		
 		final Klass klass;
 		
@@ -153,6 +153,10 @@ public class PropertyController {
 				throw new RuntimeException("Property has properties but either array, native, multitype or ref. That's weird!");
 			}
 		}
+		if (outerType == null && !isGlobal()) {
+			throw new IllegalArgumentException("Outer type must be set for non-global classes.");
+		}
+		
 		
 		// create class from native type
 		if (property.isNative()) {
@@ -179,13 +183,13 @@ public class PropertyController {
 			for (Type t : types) {
 				final String multiTypeName = findName(t);
 				final MemberController mc = new MemberController(multiTypeName, t);
-				klass.addMember(mc.getMember(namespace));
+				klass.addMember(mc.getMember(namespace, klass));
 				if (t.isObjectDefinition()) {
 					final PropertyController pc = new PropertyController(multiTypeName, t);
-					final Klass typeClass = pc.getClass(namespace, multiTypeName);
+					final Klass typeClass = pc.getClass(namespace, multiTypeName, klass);
 					if (!t.isRef()) {
 						typeClass.setInner(true);
-						klass.addInnerType(typeClass);
+						klass.linkInnerType(typeClass);
 					}
 				}
 			}
@@ -202,7 +206,7 @@ public class PropertyController {
 			
 			// get array type
 			final PropertyController pc = new PropertyController(null, property.getItems());
-			final Klass arrayType = pc.getClass(namespace, className);
+			final Klass arrayType = pc.getClass(namespace, className, klass);
 			if (!property.getItems().isRef() && !property.getItems().isNative()) {
 				arrayType.setInner(true);
 			}
@@ -253,20 +257,20 @@ public class PropertyController {
 				final Property prop = property.getProperties().get(propertyName);
 				
 				final MemberController mc = new MemberController(propertyName, prop);
-				final Member member = mc.getMember(namespace);
+				final Member member = mc.getMember(namespace, klass);
 				
 				// if type is inner or enum, reference here so it can properly rendered
 				if (member.isInner()) {
-					klass.addInnerType(member.getType());
+					klass.linkInnerType(member.getType());
 				}
 				if (member.isEnum()) {
-					klass.addInnerEnum(member.getEnum());
+					klass.linkInnerEnum(member.getEnum());
 				}
 				
 				if (member.isArray()) {
 					final Klass arrayType = member.getType().getArrayType();
 					if (!arrayType.isNative() && !arrayType.isGlobal()) {
-						klass.addInnerType(arrayType);
+						klass.linkInnerType(arrayType);
 					}
 				}
 				

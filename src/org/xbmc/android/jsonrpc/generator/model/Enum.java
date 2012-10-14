@@ -33,14 +33,15 @@ public class Enum {
 	private final String name;
 	private final String apiType;
 	private final List<String> values = new ArrayList<String>();
-	
+
 	private boolean isInner = false;
+	private Klass outerType = null; // set if isInner == true
 
 	public Enum(String name, String apiType) {
 		this.name = name;
 		this.apiType = apiType;
 	}
-	
+
 	public void addValue(String value) {
 		values.add(value);
 	}
@@ -63,6 +64,14 @@ public class Enum {
 
 	public void setInner(boolean isInner) {
 		this.isInner = isInner;
+	}
+
+	public Klass getOuterType() {
+		return outerType;
+	}
+
+	public void setOuterType(Klass outerType) {
+		this.outerType = outerType;
 	}
 
 }

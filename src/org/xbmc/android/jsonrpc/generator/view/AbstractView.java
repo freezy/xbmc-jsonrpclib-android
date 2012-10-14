@@ -51,7 +51,7 @@ public abstract class AbstractView {
 		} else if (klass.isArray()) {
 			return getArrayType(ns, klass);
 		} else if (klass.isInner()) {
-			return getInnerType(klass.getName());
+			return getInnerType(klass.getName(), null);
 		} else {
 			return getGlobalType(klass);
 		}
@@ -88,7 +88,7 @@ public abstract class AbstractView {
 	 */
 	protected String getEnumName(Enum e) {
 		if (e.isInner()) {
-			return getInnerType(e.getName());
+			return getInnerType(e.getName(), e.getOuterType().getName());
 		} else {
 			return e.getName().replace(".", "");
 		}
@@ -155,11 +155,12 @@ public abstract class AbstractView {
 	 * @param type Variable name
 	 * @return Java class type
 	 */
-	protected String getInnerType(String type) {
+	protected String getInnerType(String type, String outerType) {
 		String name = type;
 		if (name.endsWith("ies") && !name.endsWith("ovies")) {
 			name = name.replace("ies", "y");
 		}
+
 		return name.substring(0, 1).toUpperCase() + name.substring(1);
 	}
 }
