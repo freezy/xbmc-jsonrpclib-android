@@ -76,12 +76,22 @@ public class NamespaceView extends AbstractView {
 		// classes
 		for (Klass klass : namespace.getClasses()) {
 			final ClassView classView;
+			boolean doRender = true;
 			if (klass.isArray()) {
 				classView = new ClassView(klass.getArrayType());
+				if (klass.getArrayType().isNative()) {
+					doRender = false;
+				}
 			} else {
 				classView = new ClassView(klass);
+				if (klass.isNative()) {
+					doRender = false;
+				}
 			}
-			classView.renderDeclaration(sb, 1, false);
+			
+			if (doRender) {
+				classView.renderDeclaration(sb, 1, false);
+			}
 		}
 		
 		// enum

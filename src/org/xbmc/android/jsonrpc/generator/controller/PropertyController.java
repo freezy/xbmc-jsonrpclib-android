@@ -150,7 +150,7 @@ public class PropertyController {
 		// some basic tests
 		if (property.hasProperties()) {
 			if (property.isNative() || property.isArray() || property.isMultitype() || property.isRef()) {
-				throw new RuntimeException("doh!");
+				throw new RuntimeException("Property has properties but either array, native, multitype or ref. That's weird!");
 			}
 		}
 		
@@ -203,14 +203,17 @@ public class PropertyController {
 			// get array type
 			final PropertyController pc = new PropertyController(null, property.getItems());
 			final Klass arrayType = pc.getClass(namespace, className);
-			if (!property.getItems().isRef()) {
+			if (!property.getItems().isRef() && !property.getItems().isNative()) {
 				arrayType.setInner(true);
 			}
 			klass.setArrayType(arrayType);
-			klass.addImport("java.util.List");
+			
+			// rendering will skip native arrays, so dont add import if that's the case.
+			if (!arrayType.isNative()) {
+				klass.addImport("java.util.List");
+			}
 			
 			// arrays can also be defined as globals (List.Items.Sources)
-			// TODO still necessary with new class constructor?
 			if (isGlobal()) {
 				klass.setInner(false);
 				klass.setGlobal(true);
