@@ -44,7 +44,11 @@ public class MemberView extends AbstractView {
 		}
 		
 		sb.append(prefix).append("public final ");
-		sb.append(getClassName(ns, member));
+		if (member.isEnum()) {
+			sb.append(getClassName(ns, member));
+		} else {
+			sb.append(getClassReference(ns, member.getType()));
+		}
 		sb.append(" ").append(member.getName());
 		sb.append(";\n");
 	}

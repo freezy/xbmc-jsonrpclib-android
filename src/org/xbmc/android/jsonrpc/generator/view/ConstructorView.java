@@ -57,7 +57,11 @@ public class ConstructorView extends AbstractView {
 		sb.append("(");
 		if (constructor.hasParameters()) {
 			for (Parameter p : constructor.getParameters()) {
-				sb.append(getClassName(ns, p));
+				if (p.isEnum()) {
+					sb.append(getClassName(ns, p));
+				} else {
+					sb.append(getClassReference(ns, p.getType()));
+				}
 				sb.append(" ");
 				sb.append(p.getName());
 				sb.append(", ");

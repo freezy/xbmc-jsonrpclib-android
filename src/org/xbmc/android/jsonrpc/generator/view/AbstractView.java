@@ -72,12 +72,14 @@ public abstract class AbstractView {
 	 * @return
 	 */
 	protected String getClassReference(Namespace ns, Klass klass) {
-		final StringBuilder sb = new StringBuilder(); 
-		if (!klass.isNative() && !ns.equals(klass.getNamespace())) {
+		final StringBuilder sb = new StringBuilder();
+		
+		final String className = getClassName(ns, klass);
+		if (!klass.isNative() && !ns.equals(klass.getNamespace()) && !className.startsWith("List")) {
 			sb.append(klass.getNamespace().getName());
 			sb.append(".");
 		}
-		sb.append(getClassName(ns, klass));
+		sb.append(className);
 		return sb.toString();
 	}
 	
