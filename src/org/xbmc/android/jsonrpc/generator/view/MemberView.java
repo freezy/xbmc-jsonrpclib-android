@@ -32,7 +32,7 @@ public class MemberView extends AbstractView {
 	private final Member member;
 	
 	public MemberView(Member member) {
-		this.member = member;
+		this.member = member.resolveType();
 	}
 	
 	public void renderDeclaration(StringBuilder sb, int indent) {

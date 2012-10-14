@@ -27,17 +27,29 @@ package org.xbmc.android.jsonrpc.generator.model;
  */
 public class Member {
 
+	private Klass type;
 	private final String name;
-	private final Klass type;
 	private final Enum e;
 
 	public Member(String name, Klass type) {
+		if (name == null) {
+			throw new IllegalArgumentException("Member name cannot be null.");
+		}
+		if (type == null) {
+			throw new IllegalArgumentException("Member type cannot be null. Use other constructor if you want to set an enum.");
+		}
 		this.name = name;
 		this.type = type;
 		this.e = null;
 	}
 	
 	public Member(String name, Enum e) {
+		if (name == null) {
+			throw new IllegalArgumentException("Member name cannot be null.");
+		}
+		if (e == null) {
+			throw new IllegalArgumentException("Enum cannot be null. Use other constructor if you want to set a class type.");
+		}
 		this.name = name;
 		this.type = null;
 		this.e = e;
@@ -69,6 +81,13 @@ public class Member {
 	
 	public Enum getEnum() {
 		return e;
+	}
+	
+	public Member resolveType() {
+		if (type != null) {
+			type = Klass.resolve(type);
+		}
+		return this;
 	}
 
 }

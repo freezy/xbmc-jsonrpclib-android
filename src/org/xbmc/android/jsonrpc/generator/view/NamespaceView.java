@@ -75,7 +75,12 @@ public class NamespaceView extends AbstractView {
 		
 		// classes
 		for (Klass klass : namespace.getClasses()) {
-			final ClassView classView = new ClassView(klass);
+			final ClassView classView;
+			if (klass.isArray()) {
+				classView = new ClassView(klass.getArrayType());
+			} else {
+				classView = new ClassView(klass);
+			}
 			classView.renderDeclaration(sb, 1, false);
 		}
 		

@@ -147,11 +147,14 @@ public class PropertyController {
 		} else if (property.isMultitype()) {
 			final List<Type> types = property.getType().getList();
 			
-			klass = new Klass(namespace, className);
-			klass.setMultiType(true);
-			if (!(property instanceof Type)) {
+			if (property instanceof Type && ((Type)property).getId() != null) {
+				klass = new Klass(namespace, className, ((Type)property).getId());
+			} else {
+				klass = new Klass(namespace, className);
 				klass.setInner(true);
 			}
+			klass.setMultiType(true);
+			
 			for (Type t : types) {
 				final String multiTypeName = findName(t);
 				final MemberController mc = new MemberController(multiTypeName, t);
@@ -178,10 +181,17 @@ public class PropertyController {
 			klass.setArrayType(arrayType);
 			klass.addImport("java.util.List");
 			
+			// arrays can also be defined as globals (List.Items.Sources)
+			if (property instanceof Type && ((Type)property).getId() != null) {
+				klass.setInner(false);
+				klass.setGlobal(true);
+				klass.getArrayType().setInner(false);
+				klass.getArrayType().setGlobal(true);
+			}
+			
 		// create class from reference
 		} else if (property.isRef()) {
-			klass = new Klass(namespace, findName(property.getRef()), name);
-			klass.setGlobal(true);
+			klass = new Klass(property.getRef());
 			
 		// create class from global type
 		} else if (property instanceof Type) {
@@ -230,9 +240,11 @@ public class PropertyController {
 		}
 		
 		// create constructor(s)
-		final ConstructorController cc = new ConstructorController(klass);
-		for (Constructor c : cc.getConstructors()) {
-			klass.addConstructor(c);
+		if (!klass.isUnresolved()) { 
+			final ConstructorController cc = new ConstructorController(klass);
+			for (Constructor c : cc.getConstructors()) {
+				klass.addConstructor(c);
+			}
 		}
 		
 		return klass;
@@ -262,7 +274,7 @@ public class PropertyController {
 		// global type
 		if (t.isRef()) {
 			String name = findName(t.getRef());
-			return "toto" + name.substring(0, 1).toLowerCase() + name.substring(1);
+			return name.substring(0, 1).toLowerCase() + name.substring(1);
 		}
 		
 		// array

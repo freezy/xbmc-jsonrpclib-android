@@ -48,8 +48,32 @@ public abstract class AbstractView {
 		} else if (klass.isInner()) {
 			return getInnerType(klass.getName());
 		} else {
-			return klass.getName().replace(".", "");
+			return getGlobalType(klass);
 		}
+	}
+	
+	/**
+	 * Sometimes, in declarations the class is different compared as
+	 * what the class is referred to by variables. 
+	 * 
+	 * Example:
+	 * <h3>Video.Cast</h3>
+	 * <ul><li>In the declaration, it renders <tt>Cast</tt></li>
+	 *     <li>In a direct reference, it renders <tt>VideoModel.Cast</tt></li>
+	 *     <li>In a list, it renders <tt>List&lt;VideoModel.Cast&gt;</tt></li>
+	 * </ul>
+	 * 
+	 * @param klass
+	 * @return
+	 */
+	protected String getClassReference(Klass klass) {
+		final StringBuilder sb = new StringBuilder(); 
+		if (!klass.isNative()) {
+			sb.append(klass.getNamespace().getName());
+			sb.append(".");
+		}
+		sb.append(getClassName(klass));
+		return sb.toString();
 	}
 	
 	/**
@@ -109,7 +133,16 @@ public abstract class AbstractView {
 	}
 	
 	protected String getArrayType(Klass klass) {
-		return "List<" + getClassName(klass.getArrayType()) + ">";
+		return "List<" + getClassReference(Klass.resolve(klass.getArrayType())) + ">";
+	}
+	
+	/**
+	 * Returns a Java class name based on a global class
+	 * @param klass
+	 * @return
+	 */
+	protected String getGlobalType(Klass klass) {
+		return klass.getName().replace(".", "");
 	}
 	
 	/**
