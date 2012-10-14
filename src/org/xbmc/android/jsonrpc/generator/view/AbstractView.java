@@ -29,19 +29,19 @@ import org.xbmc.android.jsonrpc.generator.model.Parameter;
 /**
  * Base class for all views. Contains useful stuff.
  * <p/>
- * More concretely, methods for getting class names out of various
- * types.
+ * More concretely, methods for getting class names out of various types.
  * 
  * @author freezy <freezy@xbmc.org>
  */
 public abstract class AbstractView {
-	
+
 	protected String getClassName(Klass klass) {
 		return getClassName(klass.getNamespace(), klass);
 	}
-	
+
 	/**
 	 * Returns the Java class name based on a class object.
+	 * 
 	 * @param klass Given class
 	 * @return Java class name
 	 */
@@ -56,16 +56,16 @@ public abstract class AbstractView {
 			return getGlobalType(klass);
 		}
 	}
-	
+
 	/**
-	 * Sometimes, in declarations the class is different compared as
-	 * what the class is referred to by variables. 
+	 * Sometimes, in declarations the class is different compared as what the
+	 * class is referred to by variables.
 	 * 
-	 * Example:
-	 * <h3>Video.Cast</h3>
-	 * <ul><li>In the declaration, it renders <tt>Cast</tt></li>
-	 *     <li>In a direct reference, it renders <tt>VideoModel.Cast</tt></li>
-	 *     <li>In a list, it renders <tt>List&lt;VideoModel.Cast&gt;</tt></li>
+	 * Example: <h3>Video.Cast</h3>
+	 * <ul>
+	 * <li>In the declaration, it renders <tt>Cast</tt></li>
+	 * <li>In a direct reference, it renders <tt>VideoModel.Cast</tt></li>
+	 * <li>In a list, it renders <tt>List&lt;VideoModel.Cast&gt;</tt></li>
 	 * </ul>
 	 * 
 	 * @param klass
@@ -73,7 +73,7 @@ public abstract class AbstractView {
 	 */
 	protected String getClassReference(Namespace ns, Klass klass) {
 		final StringBuilder sb = new StringBuilder();
-		
+
 		final String className = getClassName(ns, klass);
 		if (!klass.isNative() && !ns.equals(klass.getNamespace()) && !className.startsWith("List")) {
 			sb.append(klass.getNamespace().getName());
@@ -82,9 +82,10 @@ public abstract class AbstractView {
 		sb.append(className);
 		return sb.toString();
 	}
-	
+
 	/**
 	 * Returns the Java enum name based on a class object.
+	 * 
 	 * @param e Given enum
 	 * @return Java enum name
 	 */
@@ -92,12 +93,13 @@ public abstract class AbstractView {
 		if (e.isInner()) {
 			return getInnerType(e.getName(), e.getOuterType().getName());
 		} else {
-			return e.getName().replace(".", "");
+			return getGlobalEnum(e);
 		}
 	}
 
 	/**
 	 * Returns the Java type of a member object.
+	 * 
 	 * @param member Given member
 	 * @return Java class name
 	 */
@@ -108,6 +110,7 @@ public abstract class AbstractView {
 			return "String";
 		}
 	}
+
 	// TODO interface param and member
 	protected String getClassName(Namespace ns, Parameter param) {
 		if (!param.isEnum()) {
@@ -116,7 +119,7 @@ public abstract class AbstractView {
 			return "String";
 		}
 	}
-	
+
 	/**
 	 * Returns the Java native type based on the JSON type.
 	 * 
@@ -138,36 +141,106 @@ public abstract class AbstractView {
 			throw new IllegalArgumentException("Unknown native type \"" + typeName + "\".");
 		}
 	}
-	
+
 	protected String getArrayType(Namespace ns, Klass klass) {
 		return "List<" + getClassReference(ns, Klass.resolve(klass.getArrayType())) + ">";
 	}
-	
+
 	/**
-	 * Returns a Java class name based on a global class
+	 * Returns a Java class name based on a global class.
+	 * 
+	 * There is some tweaking here so class names read nicely, like
+	 * "AlbumRuleFilter" instead of "FilterRuleAlbums".
+	 * 
 	 * @param klass
 	 * @return
 	 */
-	protected String getGlobalType(Klass klass) {
-		return klass.getName().replace(".", "");
+	private String getGlobalType(Klass klass) {
+
+		String name = klass.getName();
+		
+		// Item.All -> AllItems
+		if (name.equals("ItemAll")) {
+			return "AllItems";
+			
+		// Items.Source -> SourceItem
+		} else if (name.startsWith("Items")) {
+			name = getPlural(name.substring(5)) + "Item";
+			
+		// Item.File -> FileItem
+		} else if (name.startsWith("Item")) {
+			name = getPlural(name.substring(4)) + "Item";
+		}
+		
+		// Details.Album -> AlbumDetail
+		if (name.startsWith("Details")) {
+			name = getPlural(name.substring(7)) + "Detail";
+		}
+
+		// Filter.Rule.Albums -> AlbumRuleFilter
+		if (name.startsWith("FilterRule")) {
+			name = getPlural(name.substring(10)) + "FilterRule";
+
+		// Filter.Albums -> AlbumFilter
+		} else if (name.startsWith("Filter.")) {
+			name = getPlural(name.substring(7)) + "Filter";
+		}
+
+		return name.replace(".", "");
 	}
-	
+
+	private String getGlobalEnum(Enum e) {
+		String name = e.getName();
+
+		// Fields.Files -> FileFields
+		if (name.startsWith("Fields.")) {
+			name = getPlural(name.substring(7)) + "Fields";
+		}
+
+		// Filter.Fields.TVShows -> TVShowFilterFields
+		if (name.startsWith("Filter.Fields.")) {
+			name = getPlural(name.substring(14)) + "FilterFields";
+
+		// Filter.Operators -> OperatorFilters
+		} else if (name.startsWith("Filter.")) {
+			name = getPlural(name.substring(7)) + "Filters";
+		}
+
+		return name.replace(".", "");
+	}
+
 	/**
 	 * Returns a Java class based on a variable name.
+	 * 
 	 * @param type Variable name
 	 * @return Java class type
 	 */
 	protected String getInnerType(String type, String outerType) {
-		String name = type;
-		if (name.endsWith("ies") && !name.endsWith("ovies")) {
-			name = name.replace("ies", "y");
-		}
-		
+
+		String name = getPlural(type);
 		final String suffix = outerType.equals(type) ? "Value" : "";
-		
+
 		// capitalize first letter
 		name = name.substring(0, 1).toUpperCase() + name.substring(1);
-		
+
 		return name + suffix;
+	}
+
+	/**
+	 * Tries to convert a plural word into the singular form.
+	 * 
+	 * @param plural Word in plural form
+	 * @return Word in singular form
+	 */
+	private String getPlural(String plural) {
+		if (plural.endsWith("ies") && !plural.endsWith("ovies")) {
+			return plural.replace("ies", "y");
+		}
+
+		if (plural.endsWith("s")) {
+			return plural.substring(0, plural.length() - 1);
+		}
+
+		return plural;
 	}
 }
