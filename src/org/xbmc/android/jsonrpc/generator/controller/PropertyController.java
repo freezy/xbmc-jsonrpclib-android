@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.xbmc.android.jsonrpc.generator.Introspect;
 import org.xbmc.android.jsonrpc.generator.introspect.Param;
 import org.xbmc.android.jsonrpc.generator.introspect.Property;
 import org.xbmc.android.jsonrpc.generator.introspect.Type;
@@ -259,10 +260,17 @@ public class PropertyController {
 					klass.addInnerEnum(member.getEnum());
 				}
 				
-				if (member.isArray() 
-						&& !member.getType().getArrayType().isNative() 
-						&& !member.getType().getArrayType().isGlobal()) {
-					klass.addInnerType(member.getType().getArrayType());
+				if (member.isArray()) {
+					final Klass arrayType = member.getType().getArrayType();
+					if (!arrayType.isNative() && !arrayType.isGlobal()) {
+						klass.addInnerType(arrayType);
+					}
+				}
+				
+				// we must resolve the type if we want to find out if it's really an array.
+				final Property propResolved = Introspect.find(prop);
+				if (propResolved.isArray()) {
+					klass.addImport("java.util.List");
 				}
 				
 				klass.addMember(member);
