@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.apache.commons.io.FileUtils;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.Version;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -75,8 +76,8 @@ public class Introspect {
 	private final static String MODEL_PACKAGE = "org.xbmc.android.jsonrpc.api.model";
 //	private final static String CALL_PACKAGE = "org.xbmc.android.jsonrpc.api.call";
 	
-//	private final static String OUTPUT_FOLDER = "D:/dev/xbmc-jsonrpclib-android-test/src";
-	private final static String OUTPUT_FOLDER = "S:/Development/xbmc-jsonrpclib-android-output/src";
+//	private final static String OUTPUT_FOLDER = "D:/dev/xbmc-jsonrpclib-android-test";
+	private final static String OUTPUT_FOLDER = "S:/Development/xbmc-jsonrpclib-android-output";
 
 	
 	static {
@@ -118,7 +119,27 @@ public class Introspect {
 		    	}
 		    }
 		    
-			System.out.println("Done!");
+		    // copy static classes
+		    final String relRoot = "org/xbmc/android/jsonrpc";
+		    final File destRoot = new File(OUTPUT_FOLDER + "/src/" + relRoot);
+		    if (!destRoot.exists()) {
+		    	if (!destRoot.mkdirs()) {
+		    		throw new RuntimeException("Cannot create folder " + destRoot.getAbsolutePath() + ".");
+		    	}
+		    }
+		    FileUtils.copyDirectory(new File("tpl/" + relRoot), destRoot);
+		    
+		    // copy resources
+		    final File resRoot = new File(OUTPUT_FOLDER + "/res/");
+		    if (!resRoot.exists()) {
+		    	if (!resRoot.mkdir()) {
+		    		throw new RuntimeException("Cannot create folder " + resRoot.getAbsolutePath() + ".");
+		    	}
+		    }
+		    FileUtils.copyDirectory(new File("res/"), resRoot);
+		    
+
+		    System.out.println("Done!");
 			
 		} catch (JsonParseException e) {
 			e.printStackTrace();
@@ -142,6 +163,7 @@ public class Introspect {
 		if (!sb.toString().endsWith("/")) {
 			sb.append("/");
 		}
+		sb.append("src/");
 		for (int i = 0; i < paks.length; i++) {
 			sb.append(paks[i]);
 			sb.append("/");

@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="tpl"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry kind="lib" path="libs/jackson-core-asl-1.8.8.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://jackson.codehaus.org/1.8.8/javadoc/"/>
@@ -12,5 +14,12 @@
 			<attribute name="javadoc_location" value="http://jackson.codehaus.org/1.8.8/javadoc/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
+	<classpathentry kind="src" path="gen"/>
+	<classpathentry kind="lib" path="libs/commons-io-2.4.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://commons.apache.org/io/api-release/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
