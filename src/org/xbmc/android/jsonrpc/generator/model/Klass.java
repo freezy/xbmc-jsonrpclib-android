@@ -49,7 +49,6 @@ public class Klass {
 	private boolean isArray = false;
 	private boolean isGlobal = false;
 	
-
 	/**
 	 * If true, this is just a place holder and the "real" object has yet to be
 	 * fetched.
@@ -195,6 +194,9 @@ public class Klass {
 	public void findModuleImports() {
 		for (IClassModule module : Introspect.getClassModules()) {
 			imports.addAll(module.getImports(this));
+			for (Klass klass : innerTypes) {
+				klass.findModuleImports();
+			}
 		}
 	}
 
@@ -393,6 +395,10 @@ public class Klass {
 			if (m.getType() != null) {
 				imports.addAll(m.getType().getImports());
 			}
+		}
+		
+		for (Klass klass : innerTypes) {
+			imports.addAll(klass.getImports());
 		}
 		return imports;
 	}

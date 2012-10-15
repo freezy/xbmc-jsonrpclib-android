@@ -49,6 +49,7 @@ import org.xbmc.android.jsonrpc.generator.model.Namespace;
 import org.xbmc.android.jsonrpc.generator.view.ClassView;
 import org.xbmc.android.jsonrpc.generator.view.EnumView;
 import org.xbmc.android.jsonrpc.generator.view.NamespaceView;
+import org.xbmc.android.jsonrpc.generator.view.module.GeneralImportsClassModule;
 import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
 import org.xbmc.android.jsonrpc.generator.view.module.JsonAccesClassModule;
 
@@ -95,6 +96,7 @@ public class Introspect {
 		OBJECT_MAPPER.registerModule(module);
 		
 		CLASS_RENDER_MODULES.add(new JsonAccesClassModule());
+		CLASS_RENDER_MODULES.add(new GeneralImportsClassModule());
 	}
 	
 	/**

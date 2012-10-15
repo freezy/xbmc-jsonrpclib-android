@@ -30,6 +30,7 @@ public class Member {
 	private Klass type;
 	private final String name;
 	private final Enum e;
+	private boolean required = false;
 
 	public Member(String name, Klass type) {
 		if (name == null) {
@@ -83,11 +84,24 @@ public class Member {
 		return e;
 	}
 	
+	public boolean isRequired() {
+		return required;
+	}
+
+	public void setRequired(boolean required) {
+		this.required = required;
+	}
+
 	public Member resolveType() {
 		if (type != null) {
 			type = Klass.resolve(type);
 		}
 		return this;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		return ((Member)obj).getName().equals(name);
 	}
 
 }

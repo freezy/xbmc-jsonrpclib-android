@@ -56,9 +56,11 @@ public class ClassView extends AbstractView {
 		sb.append("\n");
 		sb.append(prefix).append("public static class ");
 		sb.append(getClassName(klass));
+		sb.append(" extends ");
 		if (klass.doesExtend()) {
-			sb.append(" extends ");
 			sb.append(getClassReference(klass.getNamespace(), klass.getParentClass()));
+		} else {
+			sb.append("AbstractModel");
 		}
 		sb.append(" {\n");
 		
@@ -90,10 +92,12 @@ public class ClassView extends AbstractView {
 			module.render(sb, indent + 1, klass);
 		}
 		
-		// constructors FIXME remove (replace by others)
-		for (Constructor c : klass.getConstructors()) {
-			final ConstructorView constructorView = new ConstructorView(c);
-			constructorView.renderDeclaration(sb, klass.getNamespace(), indent + 1);
+		// constructors
+		if (!klass.doesExtend()) {
+			for (Constructor c : klass.getConstructors()) {
+				final ConstructorView constructorView = new ConstructorView(c);
+				constructorView.renderDeclaration(sb, klass.getNamespace(), indent + 1);
+			}
 		}
 
 		// inner classes

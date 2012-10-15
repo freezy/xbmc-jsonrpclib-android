@@ -45,11 +45,12 @@ public class MemberController {
 	public Member getMember(Namespace namespace, Klass parentType) {
 		
 		final Property prop = Introspect.find(property);
+		final Member member;
 		if (prop.isEnum()) {
 			final PropertyController pc = new PropertyController(name, prop);
 			final Enum e = pc.getEnum(name);
 			e.setInner(true);
-			return new Member(name, e);
+			member = new Member(name, e);
 			
 		} else {
 			
@@ -62,8 +63,14 @@ public class MemberController {
 				klass.setOuterType(parentType);
 			}
 			
-			return new Member(name, klass);
+			member = new Member(name, klass);
 		}
+		
+		if (prop.getRequired() != null) {
+			member.setRequired(prop.getRequired());
+		}
+		
+		return member;
 	}
 
 }
