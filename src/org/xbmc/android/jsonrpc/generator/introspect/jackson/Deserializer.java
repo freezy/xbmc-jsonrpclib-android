@@ -18,7 +18,7 @@
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
-package org.xbmc.android.jsonrpc.jackson;
+package org.xbmc.android.jsonrpc.generator.introspect.jackson;
 
 import org.codehaus.jackson.map.JsonDeserializer;
 

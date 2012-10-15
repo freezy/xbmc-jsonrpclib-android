@@ -36,6 +36,9 @@ import org.xbmc.android.jsonrpc.generator.controller.PropertyController;
 import org.xbmc.android.jsonrpc.generator.introspect.Property;
 import org.xbmc.android.jsonrpc.generator.introspect.Response;
 import org.xbmc.android.jsonrpc.generator.introspect.Result;
+import org.xbmc.android.jsonrpc.generator.introspect.jackson.AdditionalPropertiesDeserializer;
+import org.xbmc.android.jsonrpc.generator.introspect.jackson.ExtendsDeserializer;
+import org.xbmc.android.jsonrpc.generator.introspect.jackson.TypeDeserializer;
 import org.xbmc.android.jsonrpc.generator.introspect.wrapper.AdditionalPropertiesWrapper;
 import org.xbmc.android.jsonrpc.generator.introspect.wrapper.ExtendsWrapper;
 import org.xbmc.android.jsonrpc.generator.introspect.wrapper.TypeWrapper;
@@ -43,9 +46,6 @@ import org.xbmc.android.jsonrpc.generator.model.Namespace;
 import org.xbmc.android.jsonrpc.generator.view.ClassView;
 import org.xbmc.android.jsonrpc.generator.view.EnumView;
 import org.xbmc.android.jsonrpc.generator.view.NamespaceView;
-import org.xbmc.android.jsonrpc.jackson.AdditionalPropertiesDeserializer;
-import org.xbmc.android.jsonrpc.jackson.ExtendsDeserializer;
-import org.xbmc.android.jsonrpc.jackson.TypeDeserializer;
 
 /**
  * Main program. To make this work, update:
@@ -75,8 +75,8 @@ public class Introspect {
 	private final static String MODEL_PACKAGE = "org.xbmc.android.jsonrpc.api.model";
 //	private final static String CALL_PACKAGE = "org.xbmc.android.jsonrpc.api.call";
 	
-	private final static String OUTPUT_FOLDER = "D:/dev/xbmc-jsonrpclib-android-test/src";
-//	private final static String OUTPUT_FOLDER = "S:/Development/xbmc-jsonrpclib-android-output/src";
+//	private final static String OUTPUT_FOLDER = "D:/dev/xbmc-jsonrpclib-android-test/src";
+	private final static String OUTPUT_FOLDER = "S:/Development/xbmc-jsonrpclib-android-output/src";
 
 	
 	static {
