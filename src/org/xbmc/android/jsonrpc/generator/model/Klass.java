@@ -29,6 +29,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.xbmc.android.jsonrpc.generator.Introspect;
+import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
+
 /**
  * Defines a class in an agnostic way.
  * 
@@ -184,6 +187,15 @@ public class Klass {
 		}
 		innerEnums.add(e);
 		e.setOuterType(this);
+	}
+	
+	/**
+	 * Retrieves imports for each module of this class.
+	 */
+	public void findModuleImports() {
+		for (IClassModule module : Introspect.getClassModules()) {
+			imports.addAll(module.getImports(this));
+		}
 	}
 
 	public void addConstructor(Constructor c) {

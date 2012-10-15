@@ -82,8 +82,8 @@ public class Introspect {
 	private final static String MODEL_PACKAGE = "org.xbmc.android.jsonrpc.api.model";
 //	private final static String CALL_PACKAGE = "org.xbmc.android.jsonrpc.api.call";
 	
-//	private final static String OUTPUT_FOLDER = "D:/dev/xbmc-jsonrpclib-android-test";
-	private final static String OUTPUT_FOLDER = "S:/Development/xbmc-jsonrpclib-android-output";
+	private final static String OUTPUT_FOLDER = "D:/dev/xbmc-jsonrpclib-android-test";
+//	private final static String OUTPUT_FOLDER = "S:/Development/xbmc-jsonrpclib-android-output";
 
 	
 	static {
@@ -117,7 +117,7 @@ public class Introspect {
 		    
 		    // pre-fetch imports
 		    for (Namespace ns : Namespace.getAll()) {
-		    	ns.retrieveImports();
+		    	ns.findModuleImports();
 		    }
 		    
 		    // render types
@@ -151,7 +151,16 @@ public class Introspect {
 		    }
 		    FileUtils.copyDirectory(new File("res/"), resRoot);
 		    
-
+		    // while we're at it, copy necessary libs
+		    final File libRoot = new File(OUTPUT_FOLDER + "/libs/");
+		    if (!libRoot.exists()) {
+		    	if (!libRoot.mkdir()) {
+		    		throw new RuntimeException("Cannot create folder " + libRoot.getAbsolutePath() + ".");
+		    	}
+		    }
+		    FileUtils.copyFile(new File("libs/jackson-core-asl-1.8.8.jar"), new File(OUTPUT_FOLDER + "/libs/jackson-core-asl-1.8.8.jar"));
+		    FileUtils.copyFile(new File("libs/jackson-mapper-asl-1.8.8.jar"), new File(OUTPUT_FOLDER + "/libs/jackson-mapper-asl-1.8.8.jar"));
+		    
 		    System.out.println("Done!");
 			
 		} catch (JsonParseException e) {

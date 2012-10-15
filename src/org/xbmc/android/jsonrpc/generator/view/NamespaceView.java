@@ -57,7 +57,7 @@ public class NamespaceView extends AbstractView {
 		sb.append("package ").append(namespace.getPackageName()).append(";\n");
 		
 		// imports
-		final Set<String> imports = namespace.retrieveImports();
+		final Set<String> imports = namespace.findImports();
 		if (!imports.isEmpty()) {
 			sb.append("\n");
 			for (String i : imports) {
