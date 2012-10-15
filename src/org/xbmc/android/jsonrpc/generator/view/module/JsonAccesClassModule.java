@@ -60,7 +60,8 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 	
 	@Override
 	public void render(StringBuilder sb, int indent, Klass klass) {
-		
+
+		// 1. render class constructor
 		renderNodeConstructor(sb, indent, klass);
 	}
 
@@ -71,6 +72,13 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 		return imports;
 	}
 	
+	/**
+	 * Renders the entire constructor taking in one ObjectNode which is
+	 * then parsed into the class member values.
+	 * @param sb
+	 * @param indent
+	 * @param klass
+	 */
 	private void renderNodeConstructor(StringBuilder sb, int indent, Klass klass) {
 		
 		final String prefix = getIndent(indent);
@@ -118,6 +126,55 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 		sb.append(prefix).append("}\n");
 	}
 	
+	/**
+	 * Within the constructor, this writes the value of the field depending on 
+	 * the class type.
+	 * 
+	 * @param sb
+	 * @param member
+	 */
+	private void renderParseLine(StringBuilder sb, Member member) {
+		if (member.isEnum()) {
+			// TODO
+			sb.append("null;\n");
+		} else {
+			final Klass klass = member.getType();
+			
+			if (klass.isNative() && member.isRequired()) {
+				renderRequiredNativeNodeGetter(sb, member.getName(), NATIVE_REQUIRED_NODE_GETTER.get(klass.getName()));
+				
+			} else if (klass.isNative()) {
+				renderOptionalNativeNodeGetter(sb, member.getName(), NATIVE_OPTIONAL_NODE_GETTER.get(klass.getName()));
+				
+			} else if (klass.isArray()) { // native arrays
+				final Klass arrayType = klass.getArrayType();
+				if (arrayType.isNative()) {
+					
+					if (arrayType.getName().equals("string")) {
+						renderOptionalNativeNodeGetter(sb, member.getName(), "getStringArray");
+					}
+					if (arrayType.getName().equals("integer")) {
+						renderOptionalNativeNodeGetter(sb, member.getName(), "getIntegerArray");
+					}
+				} else {
+					// TODO
+					sb.append("null; /* needs JavaArrayCreatorMethod */\n");
+				}
+			} else {
+				// TODO
+				sb.append("null; /* neither native nor array */\n");
+			}
+		}
+	}
+	
+	/**
+	 * For a multitype constructor, this renders the field attribution for one member.
+	 * @param sb
+	 * @param member
+	 * @param allMembers
+	 * @param indent
+	 * @param isFirst
+	 */
 	private void renderMultiTypeLine(StringBuilder sb, Member member, List<Member> allMembers, int indent, boolean isFirst) {
 		final String prefix = getIndent(indent);
 		if (!member.isEnum()) {
@@ -153,41 +210,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 			}
 		}
 	}
-	
-	
-	private void renderParseLine(StringBuilder sb, Member member) {
-		if (member.isEnum()) {
-			// TODO
-			sb.append("null;\n");
-		} else {
-			final Klass klass = member.getType();
-			
-			if (klass.isNative() && member.isRequired()) {
-				renderRequiredNativeNodeGetter(sb, member.getName(), NATIVE_REQUIRED_NODE_GETTER.get(klass.getName()));
-				
-			} else if (klass.isNative()) {
-				renderOptionalNativeNodeGetter(sb, member.getName(), NATIVE_OPTIONAL_NODE_GETTER.get(klass.getName()));
-				
-			} else if (klass.isArray()) { // native arrays
-				final Klass arrayType = klass.getArrayType();
-				if (arrayType.isNative()) {
-					
-					if (arrayType.getName().equals("string")) {
-						renderOptionalNativeNodeGetter(sb, member.getName(), "getStringArray");
-					}
-					if (arrayType.getName().equals("integer")) {
-						renderOptionalNativeNodeGetter(sb, member.getName(), "getIntegerArray");
-					}
-				} else {
-					// TODO
-					sb.append("null;\n");
-				}
-			} else {
-				// TODO
-				sb.append("null;\n");
-			}
-		}
-	}
+
 	
 	/**
 	 * Returns something like <tt>node.get(ALBUMID).getIntValue();</tt>
