@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.xbmc.android.jsonrpc.generator.model.Klass;
+import org.xbmc.android.jsonrpc.generator.model.Namespace;
 import org.xbmc.android.jsonrpc.generator.view.AbstractView;
 
 /**
@@ -34,7 +35,7 @@ import org.xbmc.android.jsonrpc.generator.view.AbstractView;
 public class GeneralImportsClassModule extends AbstractView implements IClassModule {
 
 	@Override
-	public void render(StringBuilder sb, int indent, Klass klass) {
+	public void render(StringBuilder sb, Namespace ns, Klass klass, int indent) {
 		// do nothing.
 	}
 
@@ -46,4 +47,5 @@ public class GeneralImportsClassModule extends AbstractView implements IClassMod
 		}
 		return imports;
 	}
+
 }

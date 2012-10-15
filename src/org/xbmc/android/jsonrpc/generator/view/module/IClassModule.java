@@ -23,6 +23,7 @@ package org.xbmc.android.jsonrpc.generator.view.module;
 import java.util.Set;
 
 import org.xbmc.android.jsonrpc.generator.model.Klass;
+import org.xbmc.android.jsonrpc.generator.model.Namespace;
 
 /**
  * A module that provides additional rendering to a class.
@@ -35,10 +36,11 @@ public interface IClassModule {
 	 * Renders whatever the module renders.
 	 * 
 	 * @param sb String buffer to append the rendering to.
-	 * @param indent Indentation for the rendering
+	 * @param ns Current namespace
 	 * @param klass Class to render with
+	 * @param indent Indentation for the rendering
 	 */
-	public void render(StringBuilder sb, int indent, Klass klass);
+	public void render(StringBuilder sb, Namespace ns, Klass klass, int indent);
 	
 	/**
 	 * Returns the necessary imports for a class.

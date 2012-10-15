@@ -89,7 +89,7 @@ public class ClassView extends AbstractView {
 		
 		// render additional modules
 		for (IClassModule module : Introspect.getClassModules()) {
-			module.render(sb, indent + 1, klass);
+			module.render(sb, klass.getNamespace(), klass, indent + 1);
 		}
 		
 		// constructors

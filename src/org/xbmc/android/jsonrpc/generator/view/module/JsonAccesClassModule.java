@@ -28,6 +28,7 @@ import java.util.Set;
 
 import org.xbmc.android.jsonrpc.generator.model.Klass;
 import org.xbmc.android.jsonrpc.generator.model.Member;
+import org.xbmc.android.jsonrpc.generator.model.Namespace;
 import org.xbmc.android.jsonrpc.generator.view.AbstractView;
 
 /**
@@ -59,10 +60,10 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 	}
 	
 	@Override
-	public void render(StringBuilder sb, int indent, Klass klass) {
+	public void render(StringBuilder sb, Namespace ns, Klass klass, int indent) {
 
 		// 1. render class constructor
-		renderNodeConstructor(sb, indent, klass);
+		renderNodeConstructor(sb, ns, klass, indent);
 	}
 
 	@Override
@@ -79,7 +80,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 	 * @param indent
 	 * @param klass
 	 */
-	private void renderNodeConstructor(StringBuilder sb, int indent, Klass klass) {
+	private void renderNodeConstructor(StringBuilder sb, Namespace ns, Klass klass, int indent) {
 		
 		final String prefix = getIndent(indent);
 		
@@ -111,7 +112,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 				sb.append(prefix).append("\t");
 				sb.append(member.getName());
 				sb.append(" = ");
-				renderParseLine(sb, member);
+				renderParseLine(sb, member, ns);
 			}
 			isFirst = false;
 		}
@@ -133,10 +134,10 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 	 * @param sb
 	 * @param member
 	 */
-	private void renderParseLine(StringBuilder sb, Member member) {
+	private void renderParseLine(StringBuilder sb, Member member, Namespace ns) {
 		if (member.isEnum()) {
 			// TODO
-			sb.append("null;\n");
+			sb.append("null; /* enum */\n");
 		} else {
 			final Klass klass = member.getType();
 			
@@ -161,8 +162,16 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 					sb.append("null; /* needs JavaArrayCreatorMethod */\n");
 				}
 			} else {
-				// TODO
-				sb.append("null; /* neither native nor array */\n");
+				if (member.isRequired()) {
+					renderObjectNodeGetter(sb, ns, klass, member.getName());
+					sb.append(";\n");
+				} else {
+					sb.append("node.has(");
+					sb.append(member.getName().toUpperCase());
+					sb.append(") ? ");
+					renderObjectNodeGetter(sb, ns, klass, member.getName());
+					sb.append(" : null;\n");
+				}
 			}
 		}
 	}
@@ -237,5 +246,20 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 		sb.append("(node, ");
 		sb.append(name.toUpperCase());
 		sb.append(");\n");
+	}
+	
+	/**
+	 * Returns something like <tt>new Broken((ObjectNode)node.get(BROKEN))</tt>.
+	 * Note there is no semicolon nor newline for this.
+	 * @param sb
+	 * @param name
+	 * @param method
+	 */
+	private void renderObjectNodeGetter(StringBuilder sb, Namespace ns, Klass klass, String name) {
+		sb.append("new ");
+		sb.append(getClassReference(ns, klass));
+		sb.append("((ObjectNode)node.get(");
+		sb.append(name.toUpperCase());
+		sb.append("))");
 	}
 }
