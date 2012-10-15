@@ -2,6 +2,6 @@
     package="org.xbmc.android.jsonrpc.api"
     android:versionCode="1"
     android:versionName="1.0">
-    <uses-sdk android:minSdkVersion="3" android:targetSdkVersion="15" />
+    <uses-sdk android:minSdkVersion="15" android:targetSdkVersion="15" />
 
 </manifest>

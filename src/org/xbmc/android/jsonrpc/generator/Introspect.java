@@ -24,6 +24,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -47,6 +49,8 @@ import org.xbmc.android.jsonrpc.generator.model.Namespace;
 import org.xbmc.android.jsonrpc.generator.view.ClassView;
 import org.xbmc.android.jsonrpc.generator.view.EnumView;
 import org.xbmc.android.jsonrpc.generator.view.NamespaceView;
+import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
+import org.xbmc.android.jsonrpc.generator.view.module.JsonAccesClassModule;
 
 /**
  * Main program. To make this work, update:
@@ -71,6 +75,8 @@ import org.xbmc.android.jsonrpc.generator.view.NamespaceView;
 public class Introspect {
 	
 	public final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+	public final static Set<IClassModule> CLASS_RENDER_MODULES = new HashSet<IClassModule>();
+	
 	private static Result RESULT;
 	
 	private final static String MODEL_PACKAGE = "org.xbmc.android.jsonrpc.api.model";
@@ -87,6 +93,8 @@ public class Introspect {
 		module.addDeserializer(AdditionalPropertiesWrapper.class, new AdditionalPropertiesDeserializer());
 		
 		OBJECT_MAPPER.registerModule(module);
+		
+		CLASS_RENDER_MODULES.add(new JsonAccesClassModule());
 	}
 	
 	/**
@@ -105,6 +113,11 @@ public class Introspect {
 		    for (String name : names) {
 		    	final PropertyController controller = new PropertyController(name, RESULT.getTypes().get(name));
 		    	controller.register(MODEL_PACKAGE);
+		    }
+		    
+		    // pre-fetch imports
+		    for (Namespace ns : Namespace.getAll()) {
+		    	ns.retrieveImports();
 		    }
 		    
 		    // render types
@@ -215,5 +228,9 @@ public class Introspect {
 		} else {
 			return property;
 		}
+	}
+	
+	public static Set<IClassModule> getClassModules() {
+		return CLASS_RENDER_MODULES;
 	}
 }

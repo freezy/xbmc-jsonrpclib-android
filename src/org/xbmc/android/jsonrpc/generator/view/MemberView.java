@@ -38,10 +38,7 @@ public class MemberView extends AbstractView {
 	
 	public void renderDeclaration(StringBuilder sb, Namespace ns, int indent) {
 		
-		String prefix = "";
-		for (int i = 0; i < indent; i++) {
-			prefix += "\t";
-		}
+		final String prefix = getIndent(indent);
 		
 		sb.append(prefix).append("public final ");
 		if (member.isEnum()) {
@@ -66,7 +63,5 @@ public class MemberView extends AbstractView {
 		sb.append("\";\n");
 		return sb.toString();
 	}
-	
-
 	
 }

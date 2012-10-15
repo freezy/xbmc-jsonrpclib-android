@@ -20,10 +20,12 @@
  */
 package org.xbmc.android.jsonrpc.generator.view;
 
+import org.xbmc.android.jsonrpc.generator.Introspect;
 import org.xbmc.android.jsonrpc.generator.model.Constructor;
 import org.xbmc.android.jsonrpc.generator.model.Enum;
 import org.xbmc.android.jsonrpc.generator.model.Klass;
 import org.xbmc.android.jsonrpc.generator.model.Member;
+import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
 
 /**
  * Renders a Java class.
@@ -48,10 +50,7 @@ public class ClassView extends AbstractView {
 			return;
 		}
 
-		String prefix = "";
-		for (int i = 0; i < indent; i++) {
-			prefix += "\t";
-		}
+		final String prefix = getIndent(indent);
 
 		// signature
 		sb.append("\n");
@@ -84,6 +83,11 @@ public class ClassView extends AbstractView {
 		for (Member member : klass.getMembers()) {
 			final MemberView memberView = new MemberView(member);
 			memberView.renderDeclaration(sb, klass.getNamespace(), indent + 1);
+		}
+		
+		// render additional modules
+		for (IClassModule module : Introspect.getClassModules()) {
+			module.render(sb, indent + 1, klass);
 		}
 		
 		// constructors FIXME remove (replace by others)

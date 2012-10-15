@@ -27,6 +27,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.xbmc.android.jsonrpc.generator.Introspect;
+import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
+
 /**
  * Defines the "outer" class, where the classes sit.
  * 
@@ -45,6 +48,18 @@ public class Namespace {
 	public Namespace(String name, String packageName) {
 		this.name = name;
 		this.packageName = packageName;
+	}
+	
+	/**
+	 * Goes through all modules for each class in order to
+	 * retrieve imports before rendering.
+	 */
+	public void findImports() {
+		for (Klass klass : classes) {
+			for (IClassModule module : Introspect.getClassModules()) {
+				imports.addAll(module.getImports(klass));
+			}
+		}
 	}
 
 	public void addClass(Klass klass) {
@@ -71,7 +86,7 @@ public class Namespace {
 		return enums;
 	}
 	
-	public Set<String> getImports() {
+	public Set<String> retrieveImports() {
 		for (Klass klass : classes) {
 			imports.addAll(klass.getImports());
 		}

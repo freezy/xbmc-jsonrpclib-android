@@ -45,10 +45,7 @@ public class EnumView extends AbstractView {
 		}
 		
 		// init
-		String prefix = "";
-		for (int i = 0; i < indent; i++) {
-			prefix += "\t";
-		}
+		final String prefix = getIndent(indent);
 		
 		// signature
 		sb.append("\n");
