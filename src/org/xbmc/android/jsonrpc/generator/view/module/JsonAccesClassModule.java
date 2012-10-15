@@ -154,41 +154,65 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 		}
 	}
 	
+	
 	private void renderParseLine(StringBuilder sb, Member member) {
 		if (member.isEnum()) {
+			// TODO
 			sb.append("null;\n");
 		} else {
 			final Klass klass = member.getType();
 			
-			// native types
-			if (klass.isNative()) {
+			if (klass.isNative() && member.isRequired()) {
+				renderRequiredNativeNodeGetter(sb, member.getName(), NATIVE_REQUIRED_NODE_GETTER.get(klass.getName()));
 				
-				// required values
-				if (member.isRequired()) {
+			} else if (klass.isNative()) {
+				renderOptionalNativeNodeGetter(sb, member.getName(), NATIVE_OPTIONAL_NODE_GETTER.get(klass.getName()));
+				
+			} else if (klass.isArray()) { // native arrays
+				final Klass arrayType = klass.getArrayType();
+				if (arrayType.isNative()) {
 					
-					if (!NATIVE_REQUIRED_NODE_GETTER.containsKey(klass.getName())) {
-						throw new RuntimeException("Unknown native type \"" + klass.getName() + "\".");
+					if (arrayType.getName().equals("string")) {
+						renderOptionalNativeNodeGetter(sb, member.getName(), "getStringArray");
 					}
-					sb.append("node.get(");
-					sb.append(member.getName().toUpperCase());
-					sb.append(").");
-					sb.append(NATIVE_REQUIRED_NODE_GETTER.get(klass.getName()));
-					sb.append("(); // required value\n");
-				
-				// optional values	
+					if (arrayType.getName().equals("integer")) {
+						renderOptionalNativeNodeGetter(sb, member.getName(), "getIntegerArray");
+					}
 				} else {
-					
-					if (!NATIVE_OPTIONAL_NODE_GETTER.containsKey(klass.getName())) {
-						throw new RuntimeException("Unknown native type \"" + klass.getName() + "\".");
-					}
-					sb.append(NATIVE_OPTIONAL_NODE_GETTER.get(klass.getName()));
-					sb.append("(node, ");
-					sb.append(member.getName().toUpperCase());
-					sb.append(");\n");
+					// TODO
+					sb.append("null;\n");
 				}
 			} else {
+				// TODO
 				sb.append("null;\n");
 			}
 		}
+	}
+	
+	/**
+	 * Returns something like <tt>node.get(ALBUMID).getIntValue();</tt>
+	 * @param sb
+	 * @param name
+	 * @param method
+	 */
+	private void renderRequiredNativeNodeGetter(StringBuilder sb, String name, String method) {
+		sb.append("node.get(");
+		sb.append(name.toUpperCase());
+		sb.append(").");
+		sb.append(method);
+		sb.append("(); // required value\n");
+	}
+	
+	/**
+	 * Returns something like <tt>parseString(node, ALBUMLABEL);</tt>
+	 * @param sb
+	 * @param name
+	 * @param method
+	 */
+	private void renderOptionalNativeNodeGetter(StringBuilder sb, String name, String method) {
+		sb.append(method);
+		sb.append("(node, ");
+		sb.append(name.toUpperCase());
+		sb.append(");\n");
 	}
 }
