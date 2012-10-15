@@ -18,7 +18,7 @@
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
-package org.xbmc.android.jsonrpc.exception;
+package org.xbmc.android.jsonrpc.generator.introspect.exception;
 
 /**
  * Something that was supposed to be a string, isn't.
