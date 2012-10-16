@@ -163,6 +163,11 @@ public class Klass {
 			resolvedKlass.parentClass = resolve(resolvedKlass.parentClass);
 		}
 		
+		// ..and array type
+		if (resolvedKlass.isArray()) {
+			resolvedKlass.arrayType = resolve(resolvedKlass.arrayType);
+		}
+		
 		return resolvedKlass;
 	}
 

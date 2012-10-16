@@ -244,6 +244,10 @@ public abstract class AbstractView {
 		return plural;
 	}
 	
+	protected String getListGetter(Klass klass) {
+		return "get" + getClassName(klass) + "List";
+	}
+	
 	protected String getIndent(int indent) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < indent; i++) {

@@ -64,12 +64,17 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 
 		// 1. render class constructor
 		renderNodeConstructor(sb, ns, klass, indent);
+		
+		// render list getter
+		renderListGetter(sb, klass, indent);
 	}
 
 	@Override
 	public Set<String> getImports(Klass klass) {
 		final Set<String> imports = new HashSet<String>();
+		imports.add("org.codehaus.jackson.node.ArrayNode");
 		imports.add("org.codehaus.jackson.node.ObjectNode");
+		imports.add("java.util.ArrayList");
 		return imports;
 	}
 	
@@ -159,7 +164,12 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 					}
 				} else {
 					// TODO
-					sb.append("null; /* needs JavaArrayCreatorMethod */\n");
+					sb.append(getClassName(arrayType));
+					sb.append(".");
+					sb.append(getListGetter(arrayType));
+					sb.append("(node, ");
+					sb.append(member.getName().toUpperCase());
+					sb.append(");\n");
 				}
 			} else {
 				if (member.isRequired()) {
@@ -218,6 +228,39 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 				sb.append(prefix).append("}\n");
 			}
 		}
+	}
+	
+	private void renderListGetter(StringBuilder sb, Klass klass, int indent) {
+		final String prefix = getIndent(indent);
+		final String name = getClassReference(klass.getNamespace(), klass);
+
+		// method header comment
+		sb.append(prefix).append("/**\n");
+		sb.append(prefix).append(" * Extracts a list of {@link ");
+		sb.append(name);
+		sb.append("} objects from a JSON array.\n");
+		sb.append(prefix).append(" * @param obj ObjectNode containing the list of objects.\n");
+		sb.append(prefix).append(" * @param key Key pointing to the node where the list is stored.\n");
+		sb.append(prefix).append(" */\n");
+		
+		// signature
+		sb.append(prefix).append("static List<");
+		sb.append(name);
+		sb.append("> ");
+		sb.append(getListGetter(klass));
+		sb.append("(ObjectNode node, String key) {\n");
+		
+		sb.append(prefix).append("	if (node.has(key)) {\n");
+		sb.append(prefix).append("		final ArrayNode a = (ArrayNode)node.get(key);\n");
+		sb.append(prefix).append("		final List<").append(name).append("> l = new ArrayList<").append(name).append(">(a.size());\n");
+		sb.append(prefix).append("		for (int i = 0; i < a.size(); i++) {\n");
+		sb.append(prefix).append("			l.add(new ").append(name).append("((ObjectNode)a.get(i)));\n");
+		sb.append(prefix).append("		}\n");
+		sb.append(prefix).append("		return l;\n");
+		sb.append(prefix).append("	}\n");
+		sb.append(prefix).append("	return new ArrayList<").append(name).append(">(0);\n");
+		
+		sb.append(prefix).append("}\n");
 	}
 
 	
