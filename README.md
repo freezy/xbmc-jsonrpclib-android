@@ -18,7 +18,11 @@ Java application, no Android is actually needed to execute.
 Status
 ------
 
-Work in progress. It compiles and the type structure should be fine now.
+Work in progress. Generated code compiles and the type structure should be
+fine now.
+
+TODO is mainly multi-type related stuff which is tricky in Java, as well as
+all the method parsing & rendering.
 
 Usage
 -----
