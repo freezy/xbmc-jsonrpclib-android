@@ -60,16 +60,16 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 	}
 	
 	@Override
-	public void render(StringBuilder sb, Namespace ns, Klass klass, int indent) {
+	public void render(StringBuilder sb, Namespace ns, Klass klass, int idt) {
 
 		// 1. render class constructor
-		renderNodeConstructor(sb, ns, klass, indent);
+		renderNodeConstructor(sb, ns, klass, idt);
 		
 		// toObjectNode()
-		renderSerializer(sb, klass, ns, indent);
+		renderToObjectNode(sb, klass, ns, idt);
 		
 		// render list getter
-		renderListGetter(sb, klass, indent);
+		renderListGetter(sb, klass, ns, idt);
 	}
 
 	@Override
@@ -77,6 +77,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 		final Set<String> imports = new HashSet<String>();
 		imports.add("org.codehaus.jackson.node.ArrayNode");
 		imports.add("org.codehaus.jackson.node.ObjectNode");
+		imports.add("java.util.List");
 		imports.add("java.util.ArrayList");
 		return imports;
 	}
@@ -85,39 +86,39 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 	 * Renders the entire constructor taking in one ObjectNode which is
 	 * then parsed into the class member values.
 	 * @param sb
-	 * @param indent
+	 * @param idt
 	 * @param klass
 	 */
-	private void renderNodeConstructor(StringBuilder sb, Namespace ns, Klass klass, int indent) {
+	private void renderNodeConstructor(StringBuilder sb, Namespace ns, Klass klass, int idt) {
 		
-		final String prefix = getIndent(indent);
+		final String indent = getIndent(idt);
 		
 		// comment
-		sb.append(prefix).append("/**\n");
-		sb.append(prefix).append(" * Construct from JSON object.\n");
-		sb.append(prefix).append(" * @param node JSON object representing a ");
+		sb.append(indent).append("/**\n");
+		sb.append(indent).append(" * Construct from JSON object.\n");
+		sb.append(indent).append(" * @param node JSON object representing a ");
 		sb.append(getClassName(klass));
 		sb.append(" object\n");
-		sb.append(prefix).append(" */\n");
+		sb.append(indent).append(" */\n");
 		
 		// signature
-		sb.append(prefix).append("public ");
+		sb.append(indent).append("public ");
 		sb.append(getClassName(klass));
 		sb.append("(ObjectNode node) {\n");
 		
 		// call to super()
 		if (klass.doesExtend()) {
-			sb.append(prefix).append("	super(node);\n");
+			sb.append(indent).append("	super(node);\n");
 		}
 		
 		// parse members
-//		sb.append(prefix).append("	mType = API_TYPE;\n");
+//		sb.append(indent).append("	mType = API_TYPE;\n");
 		boolean isFirst = true;
 		for (Member member : klass.getMembers()) {
 			if (klass.isMultiType()) {
-				renderMultiTypeLine(sb, member, klass.getMembers(), indent + 1, isFirst);
+				renderMultiTypeLine(sb, member, klass.getMembers(), idt + 1, isFirst);
 			} else {
-				sb.append(prefix).append("\t");
+				sb.append(indent).append("\t");
 				sb.append(member.getName());
 				sb.append(" = ");
 				renderParseLine(sb, member, ns);
@@ -125,50 +126,50 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 			isFirst = false;
 		}
 		if (klass.isMultiType()) {
-			sb.append(prefix).append("	else {\n");
-			sb.append(prefix).append("		throw new RuntimeException(\"Weird type for \\\"");
+			sb.append(indent).append("	else {\n");
+			sb.append(indent).append("		throw new RuntimeException(\"Weird type for \\\"");
 			sb.append(klass.getName());
 			sb.append("\\\", I'm confused!\");\n");
-			sb.append(prefix).append("	}\n");
+			sb.append(indent).append("	}\n");
 		}
 
-		sb.append(prefix).append("}\n");
+		sb.append(indent).append("}\n");
 	}
 	
-	private void renderSerializer(StringBuilder sb, Klass klass, Namespace ns, int indent) {
-		final String prefix = getIndent(indent);
+	private void renderToObjectNode(StringBuilder sb, Klass klass, Namespace ns, int idt) {
+		final String indent = getIndent(idt);
 		
 		// comment
-		sb.append(prefix).append("@Override\n");
-		sb.append(prefix).append("public ObjectNode toObjectNode() {\n");
+		sb.append(indent).append("@Override\n");
+		sb.append(indent).append("public ObjectNode toObjectNode() {\n");
 		
 		if (!klass.isMultiType()) {
 			
-			sb.append(prefix).append("	final ObjectNode node = OM.createObjectNode();\n");
+			sb.append(indent).append("	final ObjectNode node = OM.createObjectNode();\n");
 			for (Member member : klass.getMembers()) {
-				renderPutLine(sb, member, ns, indent + 1);
+				renderPutLine(sb, member, ns, idt + 1);
 			}
-			sb.append(prefix).append("	return node;\n");
+			sb.append(indent).append("	return node;\n");
 			
 		} else {
 			// TODO
-			sb.append(prefix).append("	return null; // TODO return JsonBaseNode or whatever\n");
+			sb.append(indent).append("	return null; // TODO return JsonBaseNode or whatever\n");
 		}
 		
-		sb.append(prefix).append("}\n");
+		sb.append(indent).append("}\n");
 	}
 	
-	private void renderPutLine(StringBuilder sb, Member member, Namespace ns, int indent) {
-		final String prefix = getIndent(indent);
+	private void renderPutLine(StringBuilder sb, Member member, Namespace ns, int idt) {
+		final String indent = getIndent(idt);
 		
 		if (member.isEnum()) {
 			// TODO
-			sb.append(prefix).append("/* TODO enum for").append(member.getName()).append(" */\n");
+			sb.append(indent).append("/* TODO enum for").append(member.getName()).append(" */\n");
 		} else {
 			final Klass klass = member.getType();
 			if (klass.isNative()) {
 				
-				sb.append(prefix);
+				sb.append(indent);
 				renderNodeSetter(sb, member, member.getName());
 				sb.append(";\n");
 				
@@ -176,30 +177,36 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 				final String arrayName = member.getName() + "Array";
 				
 				// like: final ArrayNode dependencyArray = OM.createArrayNode();
-				sb.append(prefix).append("final ArrayNode ");
+				sb.append(indent).append("final ArrayNode ");
 				sb.append(arrayName);
 				sb.append(" = OM.createArrayNode();\n");
 				
 				// like: for (Dependencies item : dependencies) {
-				sb.append(prefix).append("for (");
+				sb.append(indent).append("for (");
 				sb.append(getClassReference(ns, klass.getArrayType()));
 				sb.append(" item : ");
 				sb.append(member.getName());
 				sb.append(") {\n");
 				
 				// like: dependenciesArray.add(item.toObjectNode());
-				sb.append(prefix).append("\t");
+				sb.append(indent).append("\t");
 				sb.append(arrayName);
-				sb.append(".add(item.toObjectNode());\n");
+				sb.append(".add(");
+				if (klass.getArrayType().isNative()) {
+					sb.append("item");
+				} else {
+					sb.append("item.toObjectNode()");
+				}
+				sb.append(");\n");
 				
-				sb.append(prefix).append("}\n");
-				sb.append(prefix);
+				sb.append(indent).append("}\n");
+				sb.append(indent);
 				renderNodeSetter(sb, member, arrayName);
 				sb.append(";\n");
 				
 			} else {
 				// like: node.put(BROKEN, broken.toObjectNode());
-				sb.append(prefix);
+				sb.append(indent);
 				renderNodeSetter(sb, member, member.getName() + ".toObjectNode()");
 				sb.append(";\n");
 			}
@@ -240,7 +247,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 					}
 				} else {
 					// like: Dependency.getDependencyList(node, DEPENDENCIES);
-					sb.append(getClassName(arrayType));
+					sb.append(getClassReference(ns, arrayType));
 					sb.append(".");
 					sb.append(getListGetter(arrayType));
 					sb.append("(node, ");
@@ -270,13 +277,18 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 	 * @param sb
 	 * @param member
 	 * @param allMembers
-	 * @param indent
+	 * @param idt
 	 * @param isFirst
 	 */
-	private void renderMultiTypeLine(StringBuilder sb, Member member, List<Member> allMembers, int indent, boolean isFirst) {
-		final String prefix = getIndent(indent);
+	private void renderMultiTypeLine(StringBuilder sb, Member member, List<Member> allMembers, int idt, boolean isFirst) {
+		final String indent = getIndent(idt);
 		if (!member.isEnum()) {
 			final Klass klass = member.getType();
+			
+			sb.append(indent);
+			if (!isFirst) {
+				sb.append("else ");
+			}
 			
 			// native types
 			if (klass.isNative()) {
@@ -285,61 +297,65 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 					throw new RuntimeException("Unknown native type \"" + klass.getName() + "\".");
 				}
 				
-				sb.append(prefix);
-				if (!isFirst) {
-					sb.append("else ");
-				}
 				sb.append("if (node.");
 				sb.append(NATIVE_NODE_TYPECHECK.get(klass.getName()));
 				sb.append("()) {\n");
-				sb.append(prefix).append("\t");
+				sb.append(indent).append("\t");
 				sb.append(member.getName());
 				sb.append(" = node.");
 				sb.append(NATIVE_REQUIRED_NODE_GETTER.get(klass.getName()));
 				sb.append("();\n");
 				for (Member m : allMembers) {
 					if (m != member) {
-						sb.append(prefix).append("\t");
+						sb.append(indent).append("\t");
 						sb.append(m.getName());
 						sb.append(" = null;\n");
 					}
 				}
-				sb.append(prefix).append("}\n");
+			} else {
+				// TODO
+				sb.append("if (node.isObject()) { // TODO - check what's returned and see if we can match by name rather than type.\n");
+				for (Member m : allMembers) {
+					sb.append(indent).append("\t");
+					sb.append(m.getName());
+					sb.append(" = null;\n");
+				}
 			}
+			sb.append(indent).append("}\n");
 		}
 	}
 	
-	private void renderListGetter(StringBuilder sb, Klass klass, int indent) {
-		final String prefix = getIndent(indent);
-		final String name = getClassReference(klass.getNamespace(), klass);
+	private void renderListGetter(StringBuilder sb, Klass klass, Namespace ns, int idt) {
+		final String indent = getIndent(idt);
+		final String name = getClassReference(ns, klass);
 
 		// method header comment
-		sb.append(prefix).append("/**\n");
-		sb.append(prefix).append(" * Extracts a list of {@link ");
+		sb.append(indent).append("/**\n");
+		sb.append(indent).append(" * Extracts a list of {@link ");
 		sb.append(name);
 		sb.append("} objects from a JSON array.\n");
-		sb.append(prefix).append(" * @param obj ObjectNode containing the list of objects.\n");
-		sb.append(prefix).append(" * @param key Key pointing to the node where the list is stored.\n");
-		sb.append(prefix).append(" */\n");
+		sb.append(indent).append(" * @param obj ObjectNode containing the list of objects.\n");
+		sb.append(indent).append(" * @param key Key pointing to the node where the list is stored.\n");
+		sb.append(indent).append(" */\n");
 		
 		// signature
-		sb.append(prefix).append("static List<");
+		sb.append(indent).append("static List<");
 		sb.append(name);
 		sb.append("> ");
 		sb.append(getListGetter(klass));
 		sb.append("(ObjectNode node, String key) {\n");
 		
-		sb.append(prefix).append("	if (node.has(key)) {\n");
-		sb.append(prefix).append("		final ArrayNode a = (ArrayNode)node.get(key);\n");
-		sb.append(prefix).append("		final List<").append(name).append("> l = new ArrayList<").append(name).append(">(a.size());\n");
-		sb.append(prefix).append("		for (int i = 0; i < a.size(); i++) {\n");
-		sb.append(prefix).append("			l.add(new ").append(name).append("((ObjectNode)a.get(i)));\n");
-		sb.append(prefix).append("		}\n");
-		sb.append(prefix).append("		return l;\n");
-		sb.append(prefix).append("	}\n");
-		sb.append(prefix).append("	return new ArrayList<").append(name).append(">(0);\n");
+		sb.append(indent).append("	if (node.has(key)) {\n");
+		sb.append(indent).append("		final ArrayNode a = (ArrayNode)node.get(key);\n");
+		sb.append(indent).append("		final List<").append(name).append("> l = new ArrayList<").append(name).append(">(a.size());\n");
+		sb.append(indent).append("		for (int i = 0; i < a.size(); i++) {\n");
+		sb.append(indent).append("			l.add(new ").append(name).append("((ObjectNode)a.get(i)));\n");
+		sb.append(indent).append("		}\n");
+		sb.append(indent).append("		return l;\n");
+		sb.append(indent).append("	}\n");
+		sb.append(indent).append("	return new ArrayList<").append(name).append(">(0);\n");
 		
-		sb.append(prefix).append("}\n");
+		sb.append(indent).append("}\n");
 	}
 
 	

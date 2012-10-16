@@ -245,7 +245,7 @@ public abstract class AbstractView {
 	}
 	
 	protected String getListGetter(Klass klass) {
-		return "get" + getClassName(klass) + "List";
+		return "get" + klass.getNamespace().getName() + getClassName(klass) + "List";
 	}
 	
 	protected String getIndent(int indent) {
