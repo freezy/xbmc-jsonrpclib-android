@@ -27,13 +27,15 @@ import java.util.Map;
 import java.util.Set;
 
 import org.xbmc.android.jsonrpc.generator.Introspect;
+import org.xbmc.android.jsonrpc.generator.introspect.Method;
 import org.xbmc.android.jsonrpc.generator.introspect.Param;
 import org.xbmc.android.jsonrpc.generator.introspect.Property;
 import org.xbmc.android.jsonrpc.generator.introspect.Type;
 import org.xbmc.android.jsonrpc.generator.introspect.wrapper.ExtendsWrapper;
+import org.xbmc.android.jsonrpc.generator.model.IClassContainer;
+import org.xbmc.android.jsonrpc.generator.model.JavaClass;
 import org.xbmc.android.jsonrpc.generator.model.JavaConstructor;
 import org.xbmc.android.jsonrpc.generator.model.JavaEnum;
-import org.xbmc.android.jsonrpc.generator.model.JavaClass;
 import org.xbmc.android.jsonrpc.generator.model.JavaMember;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 
@@ -64,8 +66,9 @@ public class PropertyController {
 	 * not saved in the property itself (exception: {@link Param}). In the 
 	 * latter case, the name is read from the Param.
 	 * <br>
-	 * The only case where name is null is when it comes from a
-	 * {@link Property#item} where there is no name whatsoever.
+	 * The only cases where name is null is when it comes from
+	 * {@link Property#items} or {@link Method#returns} where there is no name
+	 * whatsoever.
 	 */
 	private final String name;
 	private final Property property;
@@ -144,7 +147,7 @@ public class PropertyController {
 	 * @param className Name of the class (retrieved from parent key)
 	 * @return Class object
 	 */
-	public JavaClass getClass(Namespace namespace, String className, JavaClass outerType) {
+	public JavaClass getClass(Namespace namespace, String className, IClassContainer outerType) {
 		
 		final JavaClass klass;
 		

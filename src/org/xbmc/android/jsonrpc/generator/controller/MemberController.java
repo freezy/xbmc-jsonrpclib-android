@@ -22,8 +22,9 @@ package org.xbmc.android.jsonrpc.generator.controller;
 
 import org.xbmc.android.jsonrpc.generator.Introspect;
 import org.xbmc.android.jsonrpc.generator.introspect.Property;
-import org.xbmc.android.jsonrpc.generator.model.JavaEnum;
+import org.xbmc.android.jsonrpc.generator.model.IClassContainer;
 import org.xbmc.android.jsonrpc.generator.model.JavaClass;
+import org.xbmc.android.jsonrpc.generator.model.JavaEnum;
 import org.xbmc.android.jsonrpc.generator.model.JavaMember;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 
@@ -42,7 +43,7 @@ public class MemberController {
 		this.name = name;
 	}
 	
-	public JavaMember getMember(Namespace namespace, JavaClass parentType) {
+	public JavaMember getMember(Namespace namespace, IClassContainer parentType) {
 		
 		final Property prop = Introspect.find(property);
 		final JavaMember member;

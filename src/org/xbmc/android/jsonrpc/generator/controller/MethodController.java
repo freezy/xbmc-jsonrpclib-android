@@ -21,14 +21,14 @@
 package org.xbmc.android.jsonrpc.generator.controller;
 
 import org.xbmc.android.jsonrpc.generator.introspect.Method;
-import org.xbmc.android.jsonrpc.generator.introspect.Property;
+import org.xbmc.android.jsonrpc.generator.introspect.Param;
+import org.xbmc.android.jsonrpc.generator.introspect.wrapper.TypeWrapper;
+import org.xbmc.android.jsonrpc.generator.model.JavaClass;
 import org.xbmc.android.jsonrpc.generator.model.JavaMethod;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 
-import com.sun.xml.internal.bind.v2.schemagen.episode.Klass;
-
 /**
- * Produces a {@link Klass} or {@link Enum} for a given {@link Property}.
+ * Produces a {@link JavaMethod} for a given {@link Method}.
  * 
  * @author freezy <freezy@xbmc.org>
  */
@@ -64,14 +64,33 @@ public class MethodController {
 	}
 	
 	/**
-	 * Creates the agnostic {@link Klass} object.
+	 * Creates the agnostic {@link JavaClass} object.
 	 * 
 	 * @param className Name of the class (retrieved from parent key)
 	 * @return Class object
 	 */
 	public JavaMethod getMethod(Namespace namespace, String methodName) {
 		
-		final JavaMethod method = new JavaMethod();
-		return method;
+		final JavaMethod m = new JavaMethod(name, method.getDescription());
+		
+		// parameters
+		for (Param p : method.getParams()) {
+//			final JavaParameter param = new JavaParameter(p.getName(), p.getType());
+		}
+		
+
+		// return type
+		final TypeWrapper returnType = method.getReturns();
+		if (returnType.isObject()) {
+			
+			final PropertyController returnTypeController = new PropertyController(null, method.getReturns().getObj());
+			m.setReturns(returnTypeController.getClass(namespace, name + "ReturnType", m));
+			
+		} else {
+			// TODO
+		}
+		
+		
+		return m;
 	}
 }

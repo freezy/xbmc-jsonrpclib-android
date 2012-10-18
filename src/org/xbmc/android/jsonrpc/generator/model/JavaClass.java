@@ -37,7 +37,7 @@ import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
  * 
  * @author freezy <freezy@xbmc.org>
  */
-public class JavaClass {
+public class JavaClass implements IClassContainer {
 
 	private final String name;
 	private final String apiType;
@@ -65,7 +65,7 @@ public class JavaClass {
 
 	private JavaClass parentClass = null; // set if "extends" 
 	private JavaClass arrayType = null;
-	private JavaClass outerType = null; // set if isInner == true.
+	private IClassContainer outerType = null; // set if isInner == true.
 
 	/**
 	 * New class by reference.
@@ -146,29 +146,29 @@ public class JavaClass {
 	 * @return
 	 */
 	public static JavaClass resolve(JavaClass klass) {
-		final JavaClass resolvedKlass;
+		final JavaClass resolvedClass;
 		
 		// resolve class itself
 		if (klass.isUnresolved()) {
 			if (!GLOBALS.containsKey(klass.apiType)) {
 				throw new RuntimeException("Trying to resolve unknown class \"" + klass.apiType + "\".");
 			}
-			resolvedKlass = GLOBALS.get(klass.apiType);
+			resolvedClass = GLOBALS.get(klass.apiType);
 		} else {
-			resolvedKlass = klass;
+			resolvedClass = klass;
 		}
 		
 		// also resolve parent class
-		if (resolvedKlass.doesExtend()) {
-			resolvedKlass.parentClass = resolve(resolvedKlass.parentClass);
+		if (resolvedClass.doesExtend()) {
+			resolvedClass.parentClass = resolve(resolvedClass.parentClass);
 		}
 		
 		// ..and array type
-		if (resolvedKlass.isArray()) {
-			resolvedKlass.arrayType = resolve(resolvedKlass.arrayType);
+		if (resolvedClass.isArray()) {
+			resolvedClass.arrayType = resolve(resolvedClass.arrayType);
 		}
 		
-		return resolvedKlass;
+		return resolvedClass;
 	}
 
 	/**
@@ -372,11 +372,11 @@ public class JavaClass {
 		return unresolved;
 	}
 
-	public JavaClass getOuterType() {
+	public IClassContainer getOuterType() {
 		return outerType;
 	}
 
-	public void setOuterType(JavaClass outerType) {
+	public void setOuterType(IClassContainer outerType) {
 		this.outerType = outerType;
 	}
 

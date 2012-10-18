@@ -20,49 +20,12 @@
  */
 package org.xbmc.android.jsonrpc.generator.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * Defines a method modelized in Java.
+ * A class or method that can contain inner classes.
  * 
  * @author freezy <freezy@xbmc.org>
  */
-public class JavaMethod implements IClassContainer {
+public interface IClassContainer {
 
-	private final String name;
-	private final String description;
-
-	private final List<JavaParameter> params = new ArrayList<JavaParameter>();
-	private JavaClass returns;
-
-	public JavaMethod(String name) {
-		this(name, null);
-	}
-
-	public JavaMethod(String name, String description) {
-		this.name = name.replace(".", "");
-		this.description = description;
-	}
-
-	public JavaClass getReturns() {
-		return returns;
-	}
-
-	public void setReturns(JavaClass returns) {
-		this.returns = returns;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public List<JavaParameter> getParams() {
-		return params;
-	}
-
+	public String getName();
 }
