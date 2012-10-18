@@ -20,11 +20,11 @@
  */
 package org.xbmc.android.jsonrpc.generator.view;
 
-import org.xbmc.android.jsonrpc.generator.model.Enum;
-import org.xbmc.android.jsonrpc.generator.model.Klass;
-import org.xbmc.android.jsonrpc.generator.model.Member;
+import org.xbmc.android.jsonrpc.generator.model.JavaEnum;
+import org.xbmc.android.jsonrpc.generator.model.JavaClass;
+import org.xbmc.android.jsonrpc.generator.model.JavaMember;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
-import org.xbmc.android.jsonrpc.generator.model.Parameter;
+import org.xbmc.android.jsonrpc.generator.model.JavaParameter;
 
 /**
  * Base class for all views. Contains useful stuff.
@@ -35,7 +35,7 @@ import org.xbmc.android.jsonrpc.generator.model.Parameter;
  */
 public abstract class AbstractView {
 
-	protected String getClassName(Klass klass) {
+	protected String getClassName(JavaClass klass) {
 		return getClassName(klass.getNamespace(), klass);
 	}
 
@@ -45,7 +45,7 @@ public abstract class AbstractView {
 	 * @param klass Given class
 	 * @return Java class name
 	 */
-	private String getClassName(Namespace ns, Klass klass) {
+	private String getClassName(Namespace ns, JavaClass klass) {
 		if (klass.isNative()) {
 			return getNativeType(klass);
 		} else if (klass.isArray()) {
@@ -71,7 +71,7 @@ public abstract class AbstractView {
 	 * @param klass
 	 * @return
 	 */
-	protected String getClassReference(Namespace ns, Klass klass) {
+	protected String getClassReference(Namespace ns, JavaClass klass) {
 		final StringBuilder sb = new StringBuilder();
 
 		final String className = getClassName(ns, klass);
@@ -89,7 +89,7 @@ public abstract class AbstractView {
 	 * @param e Given enum
 	 * @return Java enum name
 	 */
-	protected String getEnumName(Enum e) {
+	protected String getEnumName(JavaEnum e) {
 		if (e.isInner()) {
 			return getInnerType(e.getName(), e.getOuterType().getName());
 		} else {
@@ -103,7 +103,7 @@ public abstract class AbstractView {
 	 * @param member Given member
 	 * @return Java class name
 	 */
-	protected String getClassName(Namespace ns, Member member) {
+	protected String getClassName(Namespace ns, JavaMember member) {
 		if (!member.isEnum()) {
 			return getClassName(ns, member.getType());
 		} else {
@@ -112,7 +112,7 @@ public abstract class AbstractView {
 	}
 
 	// TODO interface param and member
-	protected String getClassName(Namespace ns, Parameter param) {
+	protected String getClassName(Namespace ns, JavaParameter param) {
 		if (!param.isEnum()) {
 			return getClassName(ns, param.getType());
 		} else {
@@ -127,7 +127,7 @@ public abstract class AbstractView {
 	 * @param klass type
 	 * @return Java native tape
 	 */
-	private String getNativeType(Klass klass) {
+	private String getNativeType(JavaClass klass) {
 		final String typeName = klass.getName();
 		if (typeName.equals("boolean")) {
 			return "Boolean";
@@ -142,8 +142,8 @@ public abstract class AbstractView {
 		}
 	}
 
-	protected String getArrayType(Namespace ns, Klass klass) {
-		return "List<" + getClassReference(ns, Klass.resolve(klass.getArrayType())) + ">";
+	protected String getArrayType(Namespace ns, JavaClass klass) {
+		return "List<" + getClassReference(ns, JavaClass.resolve(klass.getArrayType())) + ">";
 	}
 
 	/**
@@ -155,7 +155,7 @@ public abstract class AbstractView {
 	 * @param klass
 	 * @return
 	 */
-	private String getGlobalType(Klass klass) {
+	private String getGlobalType(JavaClass klass) {
 
 		String name = klass.getName();
 		
@@ -189,7 +189,7 @@ public abstract class AbstractView {
 		return name.replace(".", "");
 	}
 
-	private String getGlobalEnum(Enum e) {
+	private String getGlobalEnum(JavaEnum e) {
 		String name = e.getName();
 
 		// Fields.Files -> FileFields
@@ -244,7 +244,7 @@ public abstract class AbstractView {
 		return plural;
 	}
 	
-	protected String getListGetter(Klass klass) {
+	protected String getListGetter(JavaClass klass) {
 		return "get" + klass.getNamespace().getName() + getClassName(klass) + "List";
 	}
 	

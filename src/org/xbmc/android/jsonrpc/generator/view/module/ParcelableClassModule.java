@@ -23,8 +23,8 @@ package org.xbmc.android.jsonrpc.generator.view.module;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.xbmc.android.jsonrpc.generator.model.Klass;
-import org.xbmc.android.jsonrpc.generator.model.Member;
+import org.xbmc.android.jsonrpc.generator.model.JavaClass;
+import org.xbmc.android.jsonrpc.generator.model.JavaMember;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 import org.xbmc.android.jsonrpc.generator.view.AbstractView;
 
@@ -37,7 +37,7 @@ public class ParcelableClassModule extends AbstractView implements IClassModule 
 
 	
 	@Override
-	public void render(StringBuilder sb, Namespace ns, Klass klass, int idt) {
+	public void render(StringBuilder sb, Namespace ns, JavaClass klass, int idt) {
 		
 		// writeToParcel()
 		renderWriteToParcel(sb, ns, klass, idt);
@@ -53,7 +53,7 @@ public class ParcelableClassModule extends AbstractView implements IClassModule 
 	}
 
 	@Override
-	public Set<String> getImports(Klass klass) {
+	public Set<String> getImports(JavaClass klass) {
 		final Set<String> imports = new HashSet<String>();
 		imports.add("android.os.Parcel");
 		imports.add("android.os.Parcelable");
@@ -67,7 +67,7 @@ public class ParcelableClassModule extends AbstractView implements IClassModule 
 	 * @param klass Class to render
 	 * @param idt Indent
 	 */
-	private void renderWriteToParcel(StringBuilder sb, Namespace ns, Klass klass, int idt) {
+	private void renderWriteToParcel(StringBuilder sb, Namespace ns, JavaClass klass, int idt) {
 		final String indent = getIndent(idt);
 		
 		// method header
@@ -85,7 +85,7 @@ public class ParcelableClassModule extends AbstractView implements IClassModule 
 		if (klass.doesExtend()) {
 			sb.append(indent).append("	super.writeToParcel(parcel, flags);\n");
 		}
-		for (Member member : klass.getMembers()) {
+		for (JavaMember member : klass.getMembers()) {
 			renderWriteToParcel(sb, ns, member, idt + 1);
 		}
 		sb.append(indent).append("}\n");
@@ -98,7 +98,7 @@ public class ParcelableClassModule extends AbstractView implements IClassModule 
 	 * @param member Member to render
 	 * @param idt Indent
 	 */
-	private void renderWriteToParcel(StringBuilder sb, Namespace ns, Member member, int idt) {
+	private void renderWriteToParcel(StringBuilder sb, Namespace ns, JavaMember member, int idt) {
 		final String indent = getIndent(idt);
 		
 		if (member.isEnum()) {
@@ -106,9 +106,9 @@ public class ParcelableClassModule extends AbstractView implements IClassModule 
 			sb.append(indent).append("/* TODO enum: ").append(member.getName()).append(" */\n");
 		} else {
 			
-			final Klass klass = member.getType();
+			final JavaClass klass = member.getType();
 			if (klass.isArray()) {
-				final Klass arrayType = klass.getArrayType();
+				final JavaClass arrayType = klass.getArrayType();
 				
 				// like: parcel.writeInt(genre.size());
 				sb.append(indent).append("parcel.writeInt(");
@@ -157,7 +157,7 @@ public class ParcelableClassModule extends AbstractView implements IClassModule 
 	 * @param klass Class to render
 	 * @param idt Indent
 	 */
-	private void renderParcelConstructor(StringBuilder sb, Namespace ns, Klass klass, int idt) {
+	private void renderParcelConstructor(StringBuilder sb, Namespace ns, JavaClass klass, int idt) {
 		final String indent = getIndent(idt);
 		
 		// header
@@ -174,7 +174,7 @@ public class ParcelableClassModule extends AbstractView implements IClassModule 
 		if (klass.doesExtend()) {
 			sb.append(indent).append("	super(parcel);\n");
 		}
-		for (Member member : klass.getMembers()) {
+		for (JavaMember member : klass.getMembers()) {
 			renderParcelConstructor(sb, ns, member, idt + 1);
 		}
 		sb.append(indent).append("}\n");
@@ -187,7 +187,7 @@ public class ParcelableClassModule extends AbstractView implements IClassModule 
 	 * @param member Member to render
 	 * @param idt Indent
 	 */
-	private void renderParcelConstructor(StringBuilder sb, Namespace ns, Member member, int idt) {
+	private void renderParcelConstructor(StringBuilder sb, Namespace ns, JavaMember member, int idt) {
 		final String indent = getIndent(idt);
 		
 		if (member.isEnum()) {
@@ -196,9 +196,9 @@ public class ParcelableClassModule extends AbstractView implements IClassModule 
 			sb.append(" = null; // TODO enum\n");
 		} else {
 			
-			final Klass klass = member.getType();
+			final JavaClass klass = member.getType();
 			if (klass.isArray()) {
-				final Klass arrayType = klass.getArrayType();
+				final JavaClass arrayType = klass.getArrayType();
 				
 				// like: final int genreSize = parcel.readInt();
 				sb.append(indent).append("final int ");
@@ -243,7 +243,7 @@ public class ParcelableClassModule extends AbstractView implements IClassModule 
 	 * @param k Given type
 	 * @return
 	 */
-	private String getUnparcelStatement(Namespace ns, Klass k) {
+	private String getUnparcelStatement(Namespace ns, JavaClass k) {
 		if (k.isNative()) {
 			final String typeName = k.getName();
 			if (typeName.equals("integer")) {
@@ -276,7 +276,7 @@ public class ParcelableClassModule extends AbstractView implements IClassModule 
 	 * @param klass Class to render
 	 * @param idt Indent
 	 */
-	private void renderParcelableCreator(StringBuilder sb, Namespace ns, Klass klass, int idt) {
+	private void renderParcelableCreator(StringBuilder sb, Namespace ns, JavaClass klass, int idt) {
 		final String indent = getIndent(idt);
 		final String n = getClassName(klass);
 		

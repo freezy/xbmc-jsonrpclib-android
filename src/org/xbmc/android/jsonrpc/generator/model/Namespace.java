@@ -35,12 +35,14 @@ import java.util.TreeSet;
  */
 public class Namespace {
 
-	private static HashMap<String, Namespace> namespaces = new HashMap<String, Namespace>();
+	private static final HashMap<String, Namespace> TYPES = new HashMap<String, Namespace>();
+	private static final HashMap<String, Namespace> METHODS = new HashMap<String, Namespace>();
 
 	private final String name;
 	private final String packageName;
-	private final List<Klass> classes = new ArrayList<Klass>();
-	private final List<Enum> enums = new ArrayList<Enum>();
+	private final List<JavaMethod> methods = new ArrayList<JavaMethod>();
+	private final List<JavaClass> classes = new ArrayList<JavaClass>();
+	private final List<JavaEnum> enums = new ArrayList<JavaEnum>();
 	private final Set<String> imports = new HashSet<String>();
 
 	public Namespace(String name, String packageName) {
@@ -52,7 +54,7 @@ public class Namespace {
 	 * Retrieves imports for each module and class of the namespace.
 	 */
 	public void findModuleImports() {
-		for (Klass klass : classes) {
+		for (JavaClass klass : classes) {
 			klass.findModuleImports();
 		}
 	}
@@ -63,19 +65,23 @@ public class Namespace {
 	 * @return
 	 */
 	public Set<String> findImports() {
-		for (Klass klass : classes) {
+		for (JavaClass klass : classes) {
 			imports.addAll(klass.getImports());
 		}
 		return new TreeSet<String>(imports);
 	}
 
 
-	public void addClass(Klass klass) {
+	public void addClass(JavaClass klass) {
 		classes.add(klass);
 	}
 
-	public void addEnum(Enum e) {
+	public void addEnum(JavaEnum e) {
 		enums.add(e);
+	}
+	
+	public void addMethod(JavaMethod method) {
+		methods.add(method);
 	}
 
 	public String getName() {
@@ -86,11 +92,11 @@ public class Namespace {
 		return packageName;
 	}
 
-	public List<Klass> getClasses() {
+	public List<JavaClass> getClasses() {
 		return classes;
 	}
 
-	public List<Enum> getEnums() {
+	public List<JavaEnum> getEnums() {
 		return enums;
 	}
 	
@@ -98,19 +104,34 @@ public class Namespace {
 		imports.add(i);
 	}
 
-	public static Namespace get(String name, String packageName) {
+	public static Namespace getType(String name, String packageName) {
 		// trim suffixes if provided
 		if (name.contains(".")) {
 			name = name.substring(0, name.indexOf("."));
 		}
-		if (!namespaces.containsKey(name)) {
-			namespaces.put(name, new Namespace(name, packageName));
+		if (!TYPES.containsKey(name)) {
+			TYPES.put(name, new Namespace(name, packageName));
 		}
-		return namespaces.get(name);
+		return TYPES.get(name);
 	}
 
-	public static Collection<Namespace> getAll() {
-		return namespaces.values();
+	public static Collection<Namespace> getTypes() {
+		return TYPES.values();
+	}
+	
+	public static Namespace getMethod(String name, String packageName) {
+		// trim suffixes if provided
+		if (name.contains(".")) {
+			name = name.substring(0, name.indexOf("."));
+		}
+		if (!METHODS.containsKey(name)) {
+			METHODS.put(name, new Namespace(name, packageName));
+		}
+		return METHODS.get(name);
+	}
+	
+	public static Collection<Namespace> getMethods() {
+		return METHODS.values();
 	}
 	
 	@Override

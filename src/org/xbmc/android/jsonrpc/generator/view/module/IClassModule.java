@@ -22,7 +22,7 @@ package org.xbmc.android.jsonrpc.generator.view.module;
 
 import java.util.Set;
 
-import org.xbmc.android.jsonrpc.generator.model.Klass;
+import org.xbmc.android.jsonrpc.generator.model.JavaClass;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 
 /**
@@ -40,7 +40,7 @@ public interface IClassModule {
 	 * @param klass Class to render with
 	 * @param indent Indentation for the rendering
 	 */
-	public void render(StringBuilder sb, Namespace ns, Klass klass, int indent);
+	public void render(StringBuilder sb, Namespace ns, JavaClass klass, int indent);
 	
 	/**
 	 * Returns the necessary imports for a class.
@@ -48,5 +48,5 @@ public interface IClassModule {
 	 * @param klass Given class
 	 * @return List of imports
 	 */
-	public Set<String> getImports(Klass klass);
+	public Set<String> getImports(JavaClass klass);
 }

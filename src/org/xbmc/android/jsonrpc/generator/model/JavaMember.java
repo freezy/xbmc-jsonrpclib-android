@@ -25,14 +25,14 @@ package org.xbmc.android.jsonrpc.generator.model;
  * 
  * @author freezy <freezy@xbmc.org>
  */
-public class Member {
+public class JavaMember {
 
-	private Klass type;
+	private JavaClass type;
 	private final String name;
-	private final Enum e;
+	private final JavaEnum e;
 	private boolean required = false;
 
-	public Member(String name, Klass type) {
+	public JavaMember(String name, JavaClass type) {
 		if (name == null) {
 			throw new IllegalArgumentException("Member name cannot be null.");
 		}
@@ -44,7 +44,7 @@ public class Member {
 		this.e = null;
 	}
 	
-	public Member(String name, Enum e) {
+	public JavaMember(String name, JavaEnum e) {
 		if (name == null) {
 			throw new IllegalArgumentException("Member name cannot be null.");
 		}
@@ -76,11 +76,11 @@ public class Member {
 		return name;
 	}
 
-	public Klass getType() {
+	public JavaClass getType() {
 		return type;
 	}
 	
-	public Enum getEnum() {
+	public JavaEnum getEnum() {
 		return e;
 	}
 	
@@ -92,16 +92,16 @@ public class Member {
 		this.required = required;
 	}
 
-	public Member resolveType() {
+	public JavaMember resolveType() {
 		if (type != null) {
-			type = Klass.resolve(type);
+			type = JavaClass.resolve(type);
 		}
 		return this;
 	}
 	
 	@Override
 	public boolean equals(Object obj) {
-		return ((Member)obj).getName().equals(name);
+		return ((JavaMember)obj).getName().equals(name);
 	}
 
 }

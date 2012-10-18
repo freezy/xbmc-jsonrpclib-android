@@ -20,7 +20,7 @@
  */
 package org.xbmc.android.jsonrpc.generator.view;
 
-import org.xbmc.android.jsonrpc.generator.model.Member;
+import org.xbmc.android.jsonrpc.generator.model.JavaMember;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 
 /**
@@ -30,9 +30,9 @@ import org.xbmc.android.jsonrpc.generator.model.Namespace;
  */
 public class MemberView extends AbstractView {
 	
-	private final Member member;
+	private final JavaMember member;
 	
-	public MemberView(Member member) {
+	public MemberView(JavaMember member) {
 		this.member = member.resolveType();
 	}
 	

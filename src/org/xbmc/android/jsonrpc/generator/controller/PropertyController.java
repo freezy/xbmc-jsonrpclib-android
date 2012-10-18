@@ -31,14 +31,14 @@ import org.xbmc.android.jsonrpc.generator.introspect.Param;
 import org.xbmc.android.jsonrpc.generator.introspect.Property;
 import org.xbmc.android.jsonrpc.generator.introspect.Type;
 import org.xbmc.android.jsonrpc.generator.introspect.wrapper.ExtendsWrapper;
-import org.xbmc.android.jsonrpc.generator.model.Constructor;
-import org.xbmc.android.jsonrpc.generator.model.Enum;
-import org.xbmc.android.jsonrpc.generator.model.Klass;
-import org.xbmc.android.jsonrpc.generator.model.Member;
+import org.xbmc.android.jsonrpc.generator.model.JavaConstructor;
+import org.xbmc.android.jsonrpc.generator.model.JavaEnum;
+import org.xbmc.android.jsonrpc.generator.model.JavaClass;
+import org.xbmc.android.jsonrpc.generator.model.JavaMember;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 
 /**
- * Produces a {@link Klass} or {@link Enum} for a given {@link Property}.
+ * Produces a {@link JavaClass} or {@link JavaEnum} for a given {@link Property}.
  * 
  * @author freezy <freezy@xbmc.org>
  */
@@ -104,7 +104,7 @@ public class PropertyController {
 //			return;
 //		}
 		
-		final Namespace ns = Namespace.get(name, packageName);
+		final Namespace ns = Namespace.getType(name, packageName);
 		
 		if (!(property instanceof Type)) {
 			throw new IllegalArgumentException("Only global types can be registered.");
@@ -139,14 +139,14 @@ public class PropertyController {
 	}
 	
 	/**
-	 * Creates the agnostic {@link Klass} object.
+	 * Creates the agnostic {@link JavaClass} object.
 	 * 
 	 * @param className Name of the class (retrieved from parent key)
 	 * @return Class object
 	 */
-	public Klass getClass(Namespace namespace, String className, Klass outerType) {
+	public JavaClass getClass(Namespace namespace, String className, JavaClass outerType) {
 		
-		final Klass klass;
+		final JavaClass klass;
 		
 		// some basic tests
 		if (property.hasProperties()) {
@@ -163,9 +163,9 @@ public class PropertyController {
 		if (property.isNative()) {
 			
 			if (isGlobal()) { // new class
-				klass = new Klass(namespace, property.getType().getName(), apiType);
+				klass = new JavaClass(namespace, property.getType().getName(), apiType);
 			} else {
-				klass = new Klass(namespace, property.getType().getName());
+				klass = new JavaClass(namespace, property.getType().getName());
 			}
 			klass.setNative(true);
 			
@@ -173,9 +173,9 @@ public class PropertyController {
 		} else if (property.isMultitype()) {
 			
 			if (isGlobal()) { // new class
-				klass = new Klass(namespace, className, apiType);
+				klass = new JavaClass(namespace, className, apiType);
 			} else {
-				klass = new Klass(namespace, className);
+				klass = new JavaClass(namespace, className);
 				klass.setInner(true);
 			}
 			klass.setMultiType(true);
@@ -187,7 +187,7 @@ public class PropertyController {
 				klass.addMember(mc.getMember(namespace, klass));
 				if (t.isObjectDefinition()) {
 					final PropertyController pc = new PropertyController(multiTypeName, t);
-					final Klass typeClass = pc.getClass(namespace, multiTypeName, klass);
+					final JavaClass typeClass = pc.getClass(namespace, multiTypeName, klass);
 					if (!t.isRef()) {
 						typeClass.setInner(true);
 						klass.linkInnerType(typeClass);
@@ -199,15 +199,15 @@ public class PropertyController {
 		} else if (property.isArray()) {
 			
 			if (isGlobal()) { // new class
-				klass = new Klass(namespace, null, apiType);
+				klass = new JavaClass(namespace, null, apiType);
 			} else {
-				klass = new Klass(namespace);
+				klass = new JavaClass(namespace);
 			}
 			klass.setArray(true);
 			
 			// get array type
 			final PropertyController pc = new PropertyController(null, property.getItems());
-			final Klass arrayType = pc.getClass(namespace, className, klass);
+			final JavaClass arrayType = pc.getClass(namespace, className, klass);
 			if (!property.getItems().isRef() && !property.getItems().isNative()) {
 				arrayType.setInner(true);
 			}
@@ -228,7 +228,7 @@ public class PropertyController {
 			
 		// create class from reference
 		} else if (property.isRef()) {
-			klass = new Klass(property.getRef());
+			klass = new JavaClass(property.getRef());
 			
 		// create class from global type
 		} else if (property instanceof Type) {
@@ -236,15 +236,15 @@ public class PropertyController {
 			
 			// TODO check why the fuck ID would be null.
 			if (type.getId() == null) {
-				klass = new Klass(namespace, className);
+				klass = new JavaClass(namespace, className);
 			} else {
-				klass = new Klass(namespace, findName(apiType), name);
+				klass = new JavaClass(namespace, findName(apiType), name);
 				klass.setGlobal(true); // TODO adopt accordingly, see above.
 			}
 		
 		// create class from object	
 		} else if (property.hasProperties() ) {
-			klass = new Klass(namespace, className);
+			klass = new JavaClass(namespace, className);
 			klass.setInner(true);
 			
 		// wtf!
@@ -258,7 +258,7 @@ public class PropertyController {
 				final Property prop = property.getProperties().get(propertyName);
 				
 				final MemberController mc = new MemberController(propertyName, prop);
-				final Member member = mc.getMember(namespace, klass);
+				final JavaMember member = mc.getMember(namespace, klass);
 				
 				// if type is inner or enum, reference here so it can properly rendered
 				if (member.isInner()) {
@@ -269,7 +269,7 @@ public class PropertyController {
 				}
 				
 				if (member.isArray()) {
-					final Klass arrayType = member.getType().getArrayType();
+					final JavaClass arrayType = member.getType().getArrayType();
 					if (!arrayType.isNative() && !arrayType.isGlobal()) {
 						klass.linkInnerType(arrayType);
 					}
@@ -291,14 +291,14 @@ public class PropertyController {
 			if (ew.isList()) {
 				// TODO
 			} else {
-				klass.setParentClass(new Klass(property.getExtends().getName()));
+				klass.setParentClass(new JavaClass(property.getExtends().getName()));
 			}
 		}
 		
 		// create constructor(s)
 		if (!klass.isUnresolved()) { 
 			final ConstructorController cc = new ConstructorController(klass);
-			for (Constructor c : cc.getConstructors()) {
+			for (JavaConstructor c : cc.getConstructors()) {
 				klass.addConstructor(c);
 			}
 		}
@@ -360,13 +360,13 @@ public class PropertyController {
 	}
 	
 	/**
-	 * Creates the agnostic {@link Enum} object.
+	 * Creates the agnostic {@link JavaEnum} object.
 	 * 
 	 * @param enumName Name of the enum (retrieved from parent key)
 	 * @return Enum object
 	 */
-	public Enum getEnum(String enumName) {
-		final Enum e = new Enum(enumName, name);
+	public JavaEnum getEnum(String enumName) {
+		final JavaEnum e = new JavaEnum(enumName, name);
 		for (String enumValue : property.getEnums()) {
 			e.addValue(enumValue);
 		}

@@ -20,7 +20,7 @@
  */
 package org.xbmc.android.jsonrpc.generator.view;
 
-import org.xbmc.android.jsonrpc.generator.model.Enum;
+import org.xbmc.android.jsonrpc.generator.model.JavaEnum;
 
 /**
  * Renders a Java enum.
@@ -31,9 +31,9 @@ public class EnumView extends AbstractView {
 	
 	public final static String DISPLAY_ONLY = "";
 	
-	private final Enum e;
+	private final JavaEnum e;
 	
-	public EnumView(Enum e) {
+	public EnumView(JavaEnum e) {
 		this.e = e;
 	}
 	

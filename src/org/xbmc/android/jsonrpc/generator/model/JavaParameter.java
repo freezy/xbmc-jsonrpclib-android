@@ -20,58 +20,60 @@
  */
 package org.xbmc.android.jsonrpc.generator.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * Defines an enum in an agnostic way.
+ * Defines a method parameter in an agnostic way.
  * 
  * @author freezy <freezy@xbmc.org>
  */
-public class Enum {
+public class JavaParameter {
 
+	private JavaClass type;
 	private final String name;
-	private final String apiType;
-	private final List<String> values = new ArrayList<String>();
+	private final JavaEnum e;
 
-	private boolean isInner = false;
-	private Klass outerType = null; // set if isInner == true
+	private String description;
 
-	public Enum(String name, String apiType) {
+	public JavaParameter(String name, JavaClass type) {
 		this.name = name;
-		this.apiType = apiType;
+		this.type = type;
+		this.e = null;
 	}
 
-	public void addValue(String value) {
-		values.add(value);
+	public JavaParameter(String name, JavaEnum e) {
+		this.name = name;
+		this.type = null;
+		this.e = e;
+	}
+	
+	public JavaParameter resolve() {
+		if (type != null) {
+			type = JavaClass.resolve(type);
+		}
+		return this;
+	}
+	
+	public boolean isEnum() {
+		return e != null;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	public String getName() {
 		return name;
 	}
 
-	public String getApiType() {
-		return apiType;
+	public JavaClass getType() {
+		return type;
 	}
 
-	public List<String> getValues() {
-		return values;
+	public JavaEnum getEnum() {
+		return e;
 	}
-
-	public boolean isInner() {
-		return isInner;
-	}
-
-	public void setInner(boolean isInner) {
-		this.isInner = isInner;
-	}
-
-	public Klass getOuterType() {
-		return outerType;
-	}
-
-	public void setOuterType(Klass outerType) {
-		this.outerType = outerType;
-	}
-
+	
 }

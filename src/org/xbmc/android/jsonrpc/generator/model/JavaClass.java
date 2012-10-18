@@ -37,7 +37,7 @@ import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
  * 
  * @author freezy <freezy@xbmc.org>
  */
-public class Klass {
+public class JavaClass {
 
 	private final String name;
 	private final String apiType;
@@ -55,27 +55,27 @@ public class Klass {
 	 */
 	private final boolean unresolved;
 
-	private final List<Constructor> constructors = new ArrayList<Constructor>();
-	private final List<Member> members = new ArrayList<Member>();
-	private final List<Klass> innerTypes = new ArrayList<Klass>();
-	private final List<Enum> innerEnums = new ArrayList<Enum>();
+	private final List<JavaConstructor> constructors = new ArrayList<JavaConstructor>();
+	private final List<JavaMember> members = new ArrayList<JavaMember>();
+	private final List<JavaClass> innerTypes = new ArrayList<JavaClass>();
+	private final List<JavaEnum> innerEnums = new ArrayList<JavaEnum>();
 
 	private final Set<String> imports = new HashSet<String>();
-	private final static Map<String, Klass> GLOBALS = new HashMap<String, Klass>();
+	private final static Map<String, JavaClass> GLOBALS = new HashMap<String, JavaClass>();
 
-	private Klass parentClass = null; // set if "extends" 
-	private Klass arrayType = null;
-	private Klass outerType = null; // set if isInner == true.
+	private JavaClass parentClass = null; // set if "extends" 
+	private JavaClass arrayType = null;
+	private JavaClass outerType = null; // set if isInner == true.
 
 	/**
 	 * New class by reference.
 	 * 
 	 * Only the "id" of the global type is provided. When rendering the class
-	 * later, it must be resolved by using {@link #resolve(Klass)}.
+	 * later, it must be resolved by using {@link #resolve(JavaClass)}.
 	 * 
 	 * @param apiType Name of the global type ("id" attribute under "types").
 	 */
-	public Klass(String apiType) {
+	public JavaClass(String apiType) {
 		if (apiType == null) {
 			throw new IllegalArgumentException("API type must not be null when creating unresolved class references.");
 		}
@@ -94,7 +94,7 @@ public class Klass {
 	 * 
 	 * @param namespace Namespace reference
 	 */
-	public Klass(Namespace namespace) {
+	public JavaClass(Namespace namespace) {
 		this(namespace, null, null);
 	}
 
@@ -109,7 +109,7 @@ public class Klass {
 	 * @param name Best guess of name (will be transformed later depending on
 	 *            type)
 	 */
-	public Klass(Namespace namespace, String name) {
+	public JavaClass(Namespace namespace, String name) {
 		this(namespace, name, null);
 	}
 
@@ -123,7 +123,7 @@ public class Klass {
 	 * @param name Best guess of name (will be ignored later)
 	 * @param apiType Name of global type
 	 */
-	public Klass(Namespace namespace, String name, String apiType) {
+	public JavaClass(Namespace namespace, String name, String apiType) {
 		this.namespace = namespace;
 		this.name = name;
 		this.apiType = apiType;
@@ -139,14 +139,14 @@ public class Klass {
 	 * 
 	 * If this class had only a reference to a global type, it was marked as
 	 * unresolved. Later, when all global types are transformed into
-	 * {@link Klass} objects (e.g. when rendering), the reference can be
+	 * {@link JavaClass} objects (e.g. when rendering), the reference can be
 	 * returned via this method.
 	 * 
 	 * @param klass
 	 * @return
 	 */
-	public static Klass resolve(Klass klass) {
-		final Klass resolvedKlass;
+	public static JavaClass resolve(JavaClass klass) {
+		final JavaClass resolvedKlass;
 		
 		// resolve class itself
 		if (klass.isUnresolved()) {
@@ -177,7 +177,7 @@ public class Klass {
 	 * 
 	 * @param klass
 	 */
-	public void linkInnerType(Klass klass) {
+	public void linkInnerType(JavaClass klass) {
 		if (unresolved) {
 			throw new RuntimeException("Unresolved.");
 		}
@@ -185,7 +185,7 @@ public class Klass {
 		klass.setOuterType(this);
 	}
 	
-	public void linkInnerEnum(Enum e) {
+	public void linkInnerEnum(JavaEnum e) {
 		if (unresolved) {
 			throw new RuntimeException("Unresolved.");
 		}
@@ -199,20 +199,20 @@ public class Klass {
 	public void findModuleImports() {
 		for (IClassModule module : Introspect.getClassModules()) {
 			imports.addAll(module.getImports(this));
-			for (Klass klass : innerTypes) {
+			for (JavaClass klass : innerTypes) {
 				klass.findModuleImports();
 			}
 		}
 	}
 
-	public void addConstructor(Constructor c) {
+	public void addConstructor(JavaConstructor c) {
 		if (unresolved) {
 			throw new RuntimeException("Unresolved.");
 		}
 		constructors.add(c);
 	}
 
-	public void addMember(Member member) {
+	public void addMember(JavaMember member) {
 		if (unresolved) {
 			throw new RuntimeException("Unresolved.");
 		}
@@ -287,7 +287,7 @@ public class Klass {
 		this.isArray = isArray;
 	}
 
-	public Klass getArrayType() {
+	public JavaClass getArrayType() {
 		if (unresolved) {
 			throw new RuntimeException("Unresolved.");
 		}
@@ -305,7 +305,7 @@ public class Klass {
 		this.isGlobal = isGlobal;
 	}
 
-	public void setArrayType(Klass arrayType) {
+	public void setArrayType(JavaClass arrayType) {
 		if (unresolved) {
 			throw new RuntimeException("Unresolved.");
 		}
@@ -333,35 +333,35 @@ public class Klass {
 		return apiType;
 	}
 
-	public List<Constructor> getConstructors() {
+	public List<JavaConstructor> getConstructors() {
 		if (unresolved) {
 			throw new RuntimeException("Unresolved.");
 		}
 		return constructors;
 	}
 
-	public List<Member> getMembers() {
+	public List<JavaMember> getMembers() {
 		if (unresolved) {
 			throw new RuntimeException("Unresolved.");
 		}
 		// sort before return.
-		Collections.sort(members, new Comparator<Member>() {
+		Collections.sort(members, new Comparator<JavaMember>() {
 			@Override
-			public int compare(Member o1, Member o2) {
+			public int compare(JavaMember o1, JavaMember o2) {
 				return o1.getName().compareTo(o2.getName());
 			}
 		});
 		return members;
 	}
 
-	public List<Klass> getInnerTypes() {
+	public List<JavaClass> getInnerTypes() {
 		if (unresolved) {
 			throw new RuntimeException("Unresolved.");
 		}
 		return innerTypes;
 	}
 
-	public List<Enum> getInnerEnums() {
+	public List<JavaEnum> getInnerEnums() {
 		if (unresolved) {
 			throw new RuntimeException("Unresolved.");
 		}
@@ -372,19 +372,19 @@ public class Klass {
 		return unresolved;
 	}
 
-	public Klass getOuterType() {
+	public JavaClass getOuterType() {
 		return outerType;
 	}
 
-	public void setOuterType(Klass outerType) {
+	public void setOuterType(JavaClass outerType) {
 		this.outerType = outerType;
 	}
 
-	public Klass getParentClass() {
+	public JavaClass getParentClass() {
 		return parentClass;
 	}
 
-	public void setParentClass(Klass parentClass) {
+	public void setParentClass(JavaClass parentClass) {
 		this.parentClass = parentClass;
 	}
 	
@@ -396,13 +396,13 @@ public class Klass {
 		final Set<String> imports = new HashSet<String>();
 
 		imports.addAll(this.imports);
-		for (Member m : members) {
+		for (JavaMember m : members) {
 			if (m.getType() != null) {
 				imports.addAll(m.getType().getImports());
 			}
 		}
 		
-		for (Klass klass : innerTypes) {
+		for (JavaClass klass : innerTypes) {
 			imports.addAll(klass.getImports());
 		}
 		return imports;

@@ -18,34 +18,14 @@
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
-package org.xbmc.android.jsonrpc.generator.view.module;
+package org.xbmc.android.jsonrpc.generator.model;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import org.xbmc.android.jsonrpc.generator.model.JavaClass;
-import org.xbmc.android.jsonrpc.generator.model.Namespace;
-import org.xbmc.android.jsonrpc.generator.view.AbstractView;
 
 /**
- * Only takes care of necessary imports.
+ * Defines a method in an agnostic way.
  * 
  * @author freezy <freezy@xbmc.org>
  */
-public class GeneralImportsClassModule extends AbstractView implements IClassModule {
-
-	@Override
-	public void render(StringBuilder sb, Namespace ns, JavaClass klass, int indent) {
-		// do nothing.
-	}
-
-	@Override
-	public Set<String> getImports(JavaClass klass) {
-		final Set<String> imports = new HashSet<String>();
-		if (!klass.doesExtend()) {
-			imports.add("org.xbmc.android.jsonrpc.api.AbstractModel");
-		}
-		return imports;
-	}
+public class JavaMethod {
 
 }

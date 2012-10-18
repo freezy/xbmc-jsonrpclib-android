@@ -21,10 +21,10 @@
 package org.xbmc.android.jsonrpc.generator.view;
 
 import org.xbmc.android.jsonrpc.generator.Introspect;
-import org.xbmc.android.jsonrpc.generator.model.Constructor;
-import org.xbmc.android.jsonrpc.generator.model.Enum;
-import org.xbmc.android.jsonrpc.generator.model.Klass;
-import org.xbmc.android.jsonrpc.generator.model.Member;
+import org.xbmc.android.jsonrpc.generator.model.JavaConstructor;
+import org.xbmc.android.jsonrpc.generator.model.JavaEnum;
+import org.xbmc.android.jsonrpc.generator.model.JavaClass;
+import org.xbmc.android.jsonrpc.generator.model.JavaMember;
 import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
 
 /**
@@ -37,10 +37,10 @@ public class ClassView extends AbstractView {
 	//public final static String DISPLAY_ONLY = "Filter.Albums";
 	public final static String DISPLAY_ONLY = "";
 
-	private final Klass klass;
+	private final JavaClass klass;
 
-	public ClassView(Klass klass) {
-		this.klass = Klass.resolve(klass);
+	public ClassView(JavaClass klass) {
+		this.klass = JavaClass.resolve(klass);
 	}
 
 	public void renderDeclaration(StringBuilder sb, int indent, boolean force) {
@@ -74,7 +74,7 @@ public class ClassView extends AbstractView {
 		// field name constants
 		if (!klass.isMultiType()) {
 			sb.append("\n").append(prefix).append("\t// field names\n");
-			for (Member member : klass.getMembers()) {
+			for (JavaMember member : klass.getMembers()) {
 				final MemberView memberView = new MemberView(member);
 				sb.append(memberView.renderFieldDeclaration(indent + 1));
 			}
@@ -82,7 +82,7 @@ public class ClassView extends AbstractView {
 
 		// members
 		sb.append("\n").append(prefix).append("\t// class members\n");
-		for (Member member : klass.getMembers()) {
+		for (JavaMember member : klass.getMembers()) {
 			final MemberView memberView = new MemberView(member);
 			memberView.renderDeclaration(sb, klass.getNamespace(), indent + 1);
 		}
@@ -94,7 +94,7 @@ public class ClassView extends AbstractView {
 		
 		// constructors
 		if (!klass.doesExtend()) {
-			for (Constructor c : klass.getConstructors()) {
+			for (JavaConstructor c : klass.getConstructors()) {
 				final ConstructorView constructorView = new ConstructorView(c);
 				constructorView.renderDeclaration(sb, klass.getNamespace(), indent + 1);
 			}
@@ -102,7 +102,7 @@ public class ClassView extends AbstractView {
 
 		// inner classes
 		if (klass.hasInnerTypes()) {
-			for (Klass innerClass : klass.getInnerTypes()) {
+			for (JavaClass innerClass : klass.getInnerTypes()) {
 				final ClassView classView = new ClassView(innerClass);
 				classView.renderDeclaration(sb, indent + 1, true);
 			}
@@ -110,7 +110,7 @@ public class ClassView extends AbstractView {
 
 		// inner enums
 		if (klass.hasInnerEnums()) {
-			for (Enum e : klass.getInnerEnums()) {
+			for (JavaEnum e : klass.getInnerEnums()) {
 				final EnumView enumView = new EnumView(e);
 				enumView.render(sb, indent + 1, true);
 			}

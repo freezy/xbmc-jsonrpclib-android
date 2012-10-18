@@ -23,35 +23,35 @@ package org.xbmc.android.jsonrpc.generator.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.xbmc.android.jsonrpc.generator.model.Constructor;
-import org.xbmc.android.jsonrpc.generator.model.Klass;
-import org.xbmc.android.jsonrpc.generator.model.Member;
-import org.xbmc.android.jsonrpc.generator.model.Parameter;
+import org.xbmc.android.jsonrpc.generator.model.JavaConstructor;
+import org.xbmc.android.jsonrpc.generator.model.JavaClass;
+import org.xbmc.android.jsonrpc.generator.model.JavaMember;
+import org.xbmc.android.jsonrpc.generator.model.JavaParameter;
 
 /**
- * Produces a list of {@link Constructor}s for a given {@link Klass}.
+ * Produces a list of {@link JavaConstructor}s for a given {@link JavaClass}.
  *  
  * @author freezy <freezy@xbmc.org>
  */
 public class ConstructorController {
 
-	private final Klass type;
+	private final JavaClass type;
 	
-	public ConstructorController(Klass type) {
+	public ConstructorController(JavaClass type) {
 		this.type = type;
 	}
 	
-	public List<Constructor> getConstructors() {
-		final List<Constructor> constructors = new ArrayList<Constructor>();
+	public List<JavaConstructor> getConstructors() {
+		final List<JavaConstructor> constructors = new ArrayList<JavaConstructor>();
 		
 		// for non-multitype, just create one constructor with all properties
 		if (!type.isMultiType()) {
-			final Constructor c = new Constructor(type);
-			for (Member m : type.getMembers()) {
+			final JavaConstructor c = new JavaConstructor(type);
+			for (JavaMember m : type.getMembers()) {
 				if (m.isEnum()) {
-					c.addParameter(new Parameter(m.getName(), m.getEnum()));
+					c.addParameter(new JavaParameter(m.getName(), m.getEnum()));
 				} else {
-					c.addParameter(new Parameter(m.getName(), m.getType()));
+					c.addParameter(new JavaParameter(m.getName(), m.getType()));
 				}
 			}
 			constructors.add(c);
@@ -59,12 +59,12 @@ public class ConstructorController {
 		// for multitypes, we need a constructor per type (member)	
 		} else {
 			
-			for (Member m : type.getMembers()) {
-				final Constructor c = new Constructor(type);
+			for (JavaMember m : type.getMembers()) {
+				final JavaConstructor c = new JavaConstructor(type);
 				if (m.isEnum()) {
-					c.addParameter(new Parameter(m.getName(), m.getEnum()));
+					c.addParameter(new JavaParameter(m.getName(), m.getEnum()));
 				} else {
-					c.addParameter(new Parameter(m.getName(), m.getType()));
+					c.addParameter(new JavaParameter(m.getName(), m.getType()));
 				}
 				constructors.add(c);
 			}

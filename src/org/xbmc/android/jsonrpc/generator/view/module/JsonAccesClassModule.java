@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.xbmc.android.jsonrpc.generator.model.Klass;
-import org.xbmc.android.jsonrpc.generator.model.Member;
+import org.xbmc.android.jsonrpc.generator.model.JavaClass;
+import org.xbmc.android.jsonrpc.generator.model.JavaMember;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 import org.xbmc.android.jsonrpc.generator.view.AbstractView;
 
@@ -60,7 +60,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 	}
 	
 	@Override
-	public void render(StringBuilder sb, Namespace ns, Klass klass, int idt) {
+	public void render(StringBuilder sb, Namespace ns, JavaClass klass, int idt) {
 
 		// 1. render class constructor
 		renderNodeConstructor(sb, ns, klass, idt);
@@ -73,7 +73,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 	}
 
 	@Override
-	public Set<String> getImports(Klass klass) {
+	public Set<String> getImports(JavaClass klass) {
 		final Set<String> imports = new HashSet<String>();
 		imports.add("org.codehaus.jackson.node.ArrayNode");
 		imports.add("org.codehaus.jackson.node.ObjectNode");
@@ -89,7 +89,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 	 * @param idt
 	 * @param klass
 	 */
-	private void renderNodeConstructor(StringBuilder sb, Namespace ns, Klass klass, int idt) {
+	private void renderNodeConstructor(StringBuilder sb, Namespace ns, JavaClass klass, int idt) {
 		
 		final String indent = getIndent(idt);
 		
@@ -114,7 +114,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 		// parse members
 //		sb.append(indent).append("	mType = API_TYPE;\n");
 		boolean isFirst = true;
-		for (Member member : klass.getMembers()) {
+		for (JavaMember member : klass.getMembers()) {
 			if (klass.isMultiType()) {
 				renderMultiTypeLine(sb, member, klass.getMembers(), idt + 1, isFirst);
 			} else {
@@ -136,7 +136,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 		sb.append(indent).append("}\n");
 	}
 	
-	private void renderToObjectNode(StringBuilder sb, Klass klass, Namespace ns, int idt) {
+	private void renderToObjectNode(StringBuilder sb, JavaClass klass, Namespace ns, int idt) {
 		final String indent = getIndent(idt);
 		
 		// comment
@@ -146,7 +146,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 		if (!klass.isMultiType()) {
 			
 			sb.append(indent).append("	final ObjectNode node = OM.createObjectNode();\n");
-			for (Member member : klass.getMembers()) {
+			for (JavaMember member : klass.getMembers()) {
 				renderPutLine(sb, member, ns, idt + 1);
 			}
 			sb.append(indent).append("	return node;\n");
@@ -159,14 +159,14 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 		sb.append(indent).append("}\n");
 	}
 	
-	private void renderPutLine(StringBuilder sb, Member member, Namespace ns, int idt) {
+	private void renderPutLine(StringBuilder sb, JavaMember member, Namespace ns, int idt) {
 		final String indent = getIndent(idt);
 		
 		if (member.isEnum()) {
 			// TODO
 			sb.append(indent).append("/* TODO enum for").append(member.getName()).append(" */\n");
 		} else {
-			final Klass klass = member.getType();
+			final JavaClass klass = member.getType();
 			if (klass.isNative()) {
 				
 				sb.append(indent);
@@ -221,12 +221,12 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 	 * @param sb
 	 * @param member
 	 */
-	private void renderParseLine(StringBuilder sb, Member member, Namespace ns) {
+	private void renderParseLine(StringBuilder sb, JavaMember member, Namespace ns) {
 		if (member.isEnum()) {
 			// TODO
 			sb.append("null; /* TODO enum */\n");
 		} else {
-			final Klass klass = member.getType();
+			final JavaClass klass = member.getType();
 			
 			if (klass.isNative() && member.isRequired()) {
 				renderRequiredNativeNodeGetter(sb, member.getName(), NATIVE_REQUIRED_NODE_GETTER.get(klass.getName()));
@@ -235,7 +235,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 				renderOptionalNativeNodeGetter(sb, member.getName(), NATIVE_OPTIONAL_NODE_GETTER.get(klass.getName()));
 				
 			} else if (klass.isArray()) { // native arrays
-				final Klass arrayType = klass.getArrayType();
+				final JavaClass arrayType = klass.getArrayType();
 				if (arrayType.isNative()) {
 					
 					// like: getStringArray(node, MOOD);
@@ -280,10 +280,10 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 	 * @param idt
 	 * @param isFirst
 	 */
-	private void renderMultiTypeLine(StringBuilder sb, Member member, List<Member> allMembers, int idt, boolean isFirst) {
+	private void renderMultiTypeLine(StringBuilder sb, JavaMember member, List<JavaMember> allMembers, int idt, boolean isFirst) {
 		final String indent = getIndent(idt);
 		if (!member.isEnum()) {
-			final Klass klass = member.getType();
+			final JavaClass klass = member.getType();
 			
 			sb.append(indent);
 			if (!isFirst) {
@@ -305,7 +305,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 				sb.append(" = node.");
 				sb.append(NATIVE_REQUIRED_NODE_GETTER.get(klass.getName()));
 				sb.append("();\n");
-				for (Member m : allMembers) {
+				for (JavaMember m : allMembers) {
 					if (m != member) {
 						sb.append(indent).append("\t");
 						sb.append(m.getName());
@@ -315,7 +315,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 			} else {
 				// TODO
 				sb.append("if (node.isObject()) { // TODO - check what's returned and see if we can match by name rather than type.\n");
-				for (Member m : allMembers) {
+				for (JavaMember m : allMembers) {
 					sb.append(indent).append("\t");
 					sb.append(m.getName());
 					sb.append(" = null;\n");
@@ -325,7 +325,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 		}
 	}
 	
-	private void renderListGetter(StringBuilder sb, Klass klass, Namespace ns, int idt) {
+	private void renderListGetter(StringBuilder sb, JavaClass klass, Namespace ns, int idt) {
 		final String indent = getIndent(idt);
 		final String name = getClassReference(ns, klass);
 
@@ -393,7 +393,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 	 * @param name
 	 * @param method
 	 */
-	private void renderObjectNodeGetter(StringBuilder sb, Namespace ns, Klass klass, String name) {
+	private void renderObjectNodeGetter(StringBuilder sb, Namespace ns, JavaClass klass, String name) {
 		sb.append("new ");
 		sb.append(getClassReference(ns, klass));
 		sb.append("((ObjectNode)node.get(");
@@ -407,7 +407,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 	 * @param sb
 	 * @param member
 	 */
-	private void renderNodeSetter(StringBuilder sb, Member member, String value) {
+	private void renderNodeSetter(StringBuilder sb, JavaMember member, String value) {
 		sb.append("node.put(");
 		sb.append(member.getName().toUpperCase());
 		sb.append(", ");

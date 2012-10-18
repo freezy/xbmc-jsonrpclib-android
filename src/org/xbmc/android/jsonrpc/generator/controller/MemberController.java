@@ -22,13 +22,13 @@ package org.xbmc.android.jsonrpc.generator.controller;
 
 import org.xbmc.android.jsonrpc.generator.Introspect;
 import org.xbmc.android.jsonrpc.generator.introspect.Property;
-import org.xbmc.android.jsonrpc.generator.model.Enum;
-import org.xbmc.android.jsonrpc.generator.model.Klass;
-import org.xbmc.android.jsonrpc.generator.model.Member;
+import org.xbmc.android.jsonrpc.generator.model.JavaEnum;
+import org.xbmc.android.jsonrpc.generator.model.JavaClass;
+import org.xbmc.android.jsonrpc.generator.model.JavaMember;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 
 /**
- * Produces a {@link Member} for a given {@link Property}.
+ * Produces a {@link JavaMember} for a given {@link Property}.
  * 
  * @author freezy <freezy@xbmc.org>
  */
@@ -42,20 +42,20 @@ public class MemberController {
 		this.name = name;
 	}
 	
-	public Member getMember(Namespace namespace, Klass parentType) {
+	public JavaMember getMember(Namespace namespace, JavaClass parentType) {
 		
 		final Property prop = Introspect.find(property);
-		final Member member;
+		final JavaMember member;
 		if (prop.isEnum()) {
 			final PropertyController pc = new PropertyController(name, prop);
-			final Enum e = pc.getEnum(name);
+			final JavaEnum e = pc.getEnum(name);
 			e.setInner(true);
-			member = new Member(name, e);
+			member = new JavaMember(name, e);
 			
 		} else {
 			
 			final PropertyController pc = new PropertyController(name, property);
-			final Klass klass = pc.getClass(namespace, name, parentType);
+			final JavaClass klass = pc.getClass(namespace, name, parentType);
 			
 			// check if the prop is another object definition (=> inner type)
 			if (property.hasProperties()) {
@@ -63,7 +63,7 @@ public class MemberController {
 				klass.setOuterType(parentType);
 			}
 			
-			member = new Member(name, klass);
+			member = new JavaMember(name, klass);
 		}
 		
 		if (prop.getRequired() != null) {

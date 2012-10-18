@@ -23,8 +23,8 @@ package org.xbmc.android.jsonrpc.generator.view;
 import java.util.Calendar;
 import java.util.Set;
 
-import org.xbmc.android.jsonrpc.generator.model.Enum;
-import org.xbmc.android.jsonrpc.generator.model.Klass;
+import org.xbmc.android.jsonrpc.generator.model.JavaEnum;
+import org.xbmc.android.jsonrpc.generator.model.JavaClass;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 
 /**
@@ -74,7 +74,7 @@ public class NamespaceView extends AbstractView {
 		sb.append(" {\n");
 		
 		// classes
-		for (Klass klass : namespace.getClasses()) {
+		for (JavaClass klass : namespace.getClasses()) {
 			final ClassView classView;
 			boolean doRender = true;
 			if (klass.isArray()) {
@@ -95,7 +95,7 @@ public class NamespaceView extends AbstractView {
 		}
 		
 		// enum
-		for (Enum e : namespace.getEnums()) {
+		for (JavaEnum e : namespace.getEnums()) {
 			final EnumView enumView = new EnumView(e);
 			enumView.render(sb, 1, false);
 		}

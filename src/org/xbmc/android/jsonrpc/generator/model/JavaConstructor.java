@@ -28,12 +28,12 @@ import java.util.List;
  * 
  * @author freezy <freezy@xbmc.org>
  */
-public class Constructor {
+public class JavaConstructor {
 
-	private final Klass type;
-	private final List<Parameter> parameters = new ArrayList<Parameter>();
+	private final JavaClass type;
+	private final List<JavaParameter> parameters = new ArrayList<JavaParameter>();
 
-	public Constructor(Klass type) {
+	public JavaConstructor(JavaClass type) {
 		this.type = type;
 	}
 	
@@ -41,15 +41,15 @@ public class Constructor {
 		return !parameters.isEmpty();
 	}
 
-	public void addParameter(Parameter parameter) {
+	public void addParameter(JavaParameter parameter) {
 		parameters.add(parameter);
 	}
 
-	public List<Parameter> getParameters() {
+	public List<JavaParameter> getParameters() {
 		return parameters;
 	}
 
-	public Klass getType() {
+	public JavaClass getType() {
 		return type;
 	}
 

@@ -35,6 +35,7 @@ import org.codehaus.jackson.Version;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.module.SimpleModule;
+import org.xbmc.android.jsonrpc.generator.controller.MethodController;
 import org.xbmc.android.jsonrpc.generator.controller.PropertyController;
 import org.xbmc.android.jsonrpc.generator.introspect.Property;
 import org.xbmc.android.jsonrpc.generator.introspect.Response;
@@ -82,7 +83,7 @@ public class Introspect {
 	private static Result RESULT;
 	
 	private final static String MODEL_PACKAGE = "org.xbmc.android.jsonrpc.api.model";
-//	private final static String CALL_PACKAGE = "org.xbmc.android.jsonrpc.api.call";
+	private final static String CALL_PACKAGE = "org.xbmc.android.jsonrpc.api.call";
 	
 	private final static String OUTPUT_FOLDER = "D:/dev/xbmc-jsonrpclib-android-test";
 //	private final static String OUTPUT_FOLDER = "S:/Development/xbmc-jsonrpclib-android-output";
@@ -113,19 +114,26 @@ public class Introspect {
 		    RESULT = response.getResult();
 			
 		    // register types
-		    final SortedSet<String> names = new TreeSet<String>(RESULT.getTypes().keySet());
-		    for (String name : names) {
+		    final SortedSet<String> typeNames = new TreeSet<String>(RESULT.getTypes().keySet());
+		    for (String name : typeNames) {
 		    	final PropertyController controller = new PropertyController(name, RESULT.getTypes().get(name));
 		    	controller.register(MODEL_PACKAGE);
 		    }
 		    
+		    // register methods
+		    final SortedSet<String> methodNames = new TreeSet<String>(RESULT.getMethods().keySet());
+		    for (String name : methodNames) {
+		    	final MethodController controller = new MethodController(name, RESULT.getMethods().get(name));
+		    	controller.register(CALL_PACKAGE);
+		    }
+		    
 		    // pre-fetch imports
-		    for (Namespace ns : Namespace.getAll()) {
+		    for (Namespace ns : Namespace.getTypes()) {
 		    	ns.findModuleImports();
 		    }
 		    
 		    // render types
-		    for (Namespace ns : Namespace.getAll()) {
+		    for (Namespace ns : Namespace.getTypes()) {
 		    	final StringBuilder sb = new StringBuilder();
 		    	final NamespaceView view = new NamespaceView(ns);
 		    	final File out = getFile(ns);
