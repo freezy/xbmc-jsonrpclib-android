@@ -224,7 +224,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 	private void renderParseLine(StringBuilder sb, Member member, Namespace ns) {
 		if (member.isEnum()) {
 			// TODO
-			sb.append("null; /* enum */\n");
+			sb.append("null; /* TODO enum */\n");
 		} else {
 			final Klass klass = member.getType();
 			
