@@ -44,6 +44,10 @@ public class JavaMethod implements IClassContainer {
 		this.name = name.replace(".", "");
 		this.description = description;
 	}
+	
+	public void addParameter(JavaParameter param) {
+		this.params.add(param);
+	}
 
 	public JavaClass getReturns() {
 		return returns;

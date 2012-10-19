@@ -25,6 +25,7 @@ import org.xbmc.android.jsonrpc.generator.introspect.Param;
 import org.xbmc.android.jsonrpc.generator.introspect.wrapper.TypeWrapper;
 import org.xbmc.android.jsonrpc.generator.model.JavaClass;
 import org.xbmc.android.jsonrpc.generator.model.JavaMethod;
+import org.xbmc.android.jsonrpc.generator.model.JavaParameter;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 
 /**
@@ -75,7 +76,33 @@ public class MethodController {
 		
 		// parameters
 		for (Param p : method.getParams()) {
-//			final JavaParameter param = new JavaParameter(p.getName(), p.getType());
+			if (!p.isEnum()) {
+				
+				final PropertyController pc = new PropertyController(name, p);
+				final JavaClass klass = pc.getClass(namespace, name, m);
+				m.addParameter(new JavaParameter(p.getName(), klass));
+				
+/*				final TypeWrapper tr = p.getType();
+				if (tr.isNative()) {
+
+					final PropertyController pc = new PropertyController(name, p);
+					final JavaClass klass = pc.getClass(namespace, name, m);
+					m.addParameter(new JavaParameter(p.getName(), klass));
+				} else if (tr.isObject()) {
+					final PropertyController pc = new PropertyController(name, tr.getObj());
+					final JavaClass klass = pc.getClass(namespace, name, m);
+					m.addParameter(new JavaParameter(p.getName(), klass));
+				
+				} else {
+					final List<JavaClass> types = new ArrayList<JavaClass>(tr.getList().size());
+					for (Type type : tr.getList()) {
+						final PropertyController pc = new PropertyController(name, type);
+						types.add(pc.getClass(namespace, name, m));
+					}
+					m.addParameter(new JavaParameter(p.getName(), types));
+				}
+*/
+			}
 		}
 		
 

@@ -20,6 +20,9 @@
  */
 package org.xbmc.android.jsonrpc.generator.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Defines a method parameter in an agnostic way.
  * 
@@ -32,6 +35,8 @@ public class JavaParameter {
 	private final JavaEnum e;
 
 	private String description;
+	
+	private final List<JavaClass> multitypes = new ArrayList<JavaClass>();
 
 	public JavaParameter(String name, JavaClass type) {
 		this.name = name;
@@ -45,11 +50,22 @@ public class JavaParameter {
 		this.e = e;
 	}
 	
+	public JavaParameter(String name, List<JavaClass> multitypes) {
+		this.name = name;
+		this.e = null;
+		this.type = null;
+		this.multitypes.addAll(multitypes);
+	}
+	
 	public JavaParameter resolve() {
 		if (type != null) {
 			type = JavaClass.resolve(type);
 		}
 		return this;
+	}
+	
+	public boolean isMultitype() {
+		return !multitypes.isEmpty();
 	}
 	
 	public boolean isEnum() {
