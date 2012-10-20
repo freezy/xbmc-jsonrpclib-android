@@ -42,19 +42,22 @@ public class Namespace {
 	private static final HashMap<String, Namespace> TYPES = new HashMap<String, Namespace>();
 	private static final HashMap<String, Namespace> METHODS = new HashMap<String, Namespace>();
 	
-	public final Map<String, IClassModule> classModules = new HashMap<String, IClassModule>();
-	public final Map<String, IParentModule> parentModules = new HashMap<String, IParentModule>();
+	private final Map<String, IClassModule> classModules = new HashMap<String, IClassModule>();
+	private IParentModule parentModule = null;
 
 	private final String name;
 	private final String packageName;
+	private final String classSuffix;
+	
 	private final List<JavaMethod> methods = new ArrayList<JavaMethod>();
 	private final List<JavaClass> classes = new ArrayList<JavaClass>();
 	private final List<JavaEnum> enums = new ArrayList<JavaEnum>();
 	private final Set<String> imports = new HashSet<String>();
 
-	public Namespace(String name, String packageName) {
+	public Namespace(String name, String packageName, String classSuffix) {
 		this.name = name;
 		this.packageName = packageName;
+		this.classSuffix = classSuffix;
 	}
 	
 	/**
@@ -87,8 +90,8 @@ public class Namespace {
 		}
 	}
 	
-	public void addParentModule(IParentModule... parentModules) {
-		//this.parentModules.addAll(Arrays.asList(parentModules));
+	public void setParentModule(IParentModule parentModule) {
+		this.parentModule = parentModule;
 	}
 
 	public void addClass(JavaClass klass) {
@@ -104,7 +107,7 @@ public class Namespace {
 	}
 
 	public String getName() {
-		return name + "Model";
+		return name + classSuffix;
 	}
 
 	public String getPackageName() {
@@ -124,21 +127,21 @@ public class Namespace {
 		return classModules.values();
 	}
 
-	public Collection<IParentModule> getParentModules() {
-		return parentModules.values();
+	public IParentModule getParentModule() {
+		return parentModule;
 	}
 
 	public void addImport(String i) {
 		imports.add(i);
 	}
 
-	public static Namespace getType(String name, String packageName) {
+	public static Namespace getType(String name, String packageName, String classSuffix) {
 		// trim suffixes if provided
 		if (name.contains(".")) {
 			name = name.substring(0, name.indexOf("."));
 		}
 		if (!TYPES.containsKey(name)) {
-			TYPES.put(name, new Namespace(name, packageName));
+			TYPES.put(name, new Namespace(name, packageName, classSuffix));
 		}
 		return TYPES.get(name);
 	}
@@ -147,13 +150,13 @@ public class Namespace {
 		return TYPES.values();
 	}
 	
-	public static Namespace getMethod(String name, String packageName) {
+	public static Namespace getMethod(String name, String packageName, String classSuffix) {
 		// trim suffixes if provided
 		if (name.contains(".")) {
 			name = name.substring(0, name.indexOf("."));
 		}
 		if (!METHODS.containsKey(name)) {
-			METHODS.put(name, new Namespace(name, packageName));
+			METHODS.put(name, new Namespace(name, packageName, classSuffix));
 		}
 		return METHODS.get(name);
 	}

@@ -100,14 +100,14 @@ public class PropertyController {
 	 * Registers a global type or enum that is declared in the 
 	 * model package.
 	 */
-	public Namespace register(String packageName) {
+	public Namespace register(String packageName, String classSuffix) {
 		
 		// return directly if ignored type.
 //		if (name != null && (IGNORED_TYPES.contains(name) || REPLACED_TYPES.containsKey(name))) {
 //			return;
 //		}
 		
-		final Namespace ns = Namespace.getType(name, packageName);
+		final Namespace ns = Namespace.getType(name, packageName, classSuffix);
 		
 		if (!(property instanceof Type)) {
 			throw new IllegalArgumentException("Only global types can be registered.");

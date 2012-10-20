@@ -30,7 +30,7 @@ import org.xbmc.android.jsonrpc.generator.model.JavaClass;
  */
 public interface IParentModule {
 	
-	public String getExtends(JavaClass klass);
+	public void renderExtends(StringBuilder sb, JavaClass klass);
 	
 	@Override
 	public int hashCode();

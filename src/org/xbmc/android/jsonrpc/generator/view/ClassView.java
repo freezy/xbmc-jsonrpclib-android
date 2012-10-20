@@ -55,11 +55,8 @@ public class ClassView extends AbstractView {
 		sb.append("\n");
 		sb.append(prefix).append("public static class ");
 		sb.append(getClassName(klass));
-		sb.append(" extends ");
-		if (klass.doesExtend()) {
-			sb.append(getClassReference(klass.getNamespace(), klass.getParentClass()));
-		} else {
-			sb.append("AbstractModel");
+		if (klass.getNamespace().getParentModule() != null) {
+			klass.getNamespace().getParentModule().renderExtends(sb, klass);
 		}
 		sb.append(" {\n");
 		

@@ -22,18 +22,15 @@ package org.xbmc.android.jsonrpc.generator.controller;
 
 import org.xbmc.android.jsonrpc.generator.introspect.Method;
 import org.xbmc.android.jsonrpc.generator.introspect.Param;
-import org.xbmc.android.jsonrpc.generator.introspect.wrapper.TypeWrapper;
 import org.xbmc.android.jsonrpc.generator.model.JavaClass;
-import org.xbmc.android.jsonrpc.generator.model.JavaMethod;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 
 /**
- * Produces a {@link JavaMethod} for a given {@link Method}.
+ * Produces a {@link JavaClass} for a given {@link Method}.
  * 
  * @author freezy <freezy@xbmc.org>
  */
 public class MethodController {
-
 
 	private final String name;
 	private final String apiType;
@@ -57,10 +54,12 @@ public class MethodController {
 	 * Registers a method.
 	 * @param packageName 
 	 */
-	public void register(String packageName) {
+	public Namespace register(String packageName, String classSuffix) {
 		
-		final Namespace ns = Namespace.getMethod(apiType, packageName);
-		ns.addMethod(getMethod(ns, name));
+		final Namespace ns = Namespace.getMethod(apiType, packageName, classSuffix);
+		ns.addClass(getClass(ns, name));
+		
+		return ns;
 	}
 	
 	/**
@@ -69,9 +68,10 @@ public class MethodController {
 	 * @param className Name of the class (retrieved from parent key)
 	 * @return Class object
 	 */
-	public JavaMethod getMethod(Namespace namespace, String methodName) {
+	public JavaClass getClass(Namespace namespace, String methodName) {
 		
-		final JavaMethod m = new JavaMethod(name, method.getDescription());
+		final JavaClass klass = new JavaClass(namespace, name, apiType);
+		
 		
 		// parameters
 		for (Param p : method.getParams()) {
@@ -104,7 +104,7 @@ public class MethodController {
 			}
 		}
 		
-
+/*
 		// return type
 		final TypeWrapper returnType = method.getReturns();
 		if (returnType.isObject()) {
@@ -115,8 +115,8 @@ public class MethodController {
 		} else {
 			// TODO
 		}
+*/		
 		
-		
-		return m;
+		return klass;
 	}
 }

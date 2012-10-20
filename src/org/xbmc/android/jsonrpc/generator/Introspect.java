@@ -51,6 +51,8 @@ import org.xbmc.android.jsonrpc.generator.view.NamespaceView;
 import org.xbmc.android.jsonrpc.generator.view.module.classmodule.GeneralImportsClassModule;
 import org.xbmc.android.jsonrpc.generator.view.module.classmodule.JsonAccesClassModule;
 import org.xbmc.android.jsonrpc.generator.view.module.classmodule.ParcelableClassModule;
+import org.xbmc.android.jsonrpc.generator.view.module.parentmodule.ClassParentModule;
+import org.xbmc.android.jsonrpc.generator.view.module.parentmodule.MethodParentModule;
 
 /**
  * Main program. To make this work, update:
@@ -80,6 +82,9 @@ public class Introspect {
 	
 	private final static String MODEL_PACKAGE = "org.xbmc.android.jsonrpc.api.model";
 	private final static String CALL_PACKAGE = "org.xbmc.android.jsonrpc.api.call";
+	
+	private final static String MODEL_CLASS_SUFFIX = "Model";
+	private final static String CALL_CLASS_SUFFIX  = "Call";
 	
 	private final static String OUTPUT_FOLDER = "D:/dev/xbmc-jsonrpclib-android-test";
 //	private final static String OUTPUT_FOLDER = "S:/Development/xbmc-jsonrpclib-android-output";
@@ -112,36 +117,40 @@ public class Introspect {
 		    final SortedSet<String> typeNames = new TreeSet<String>(RESULT.getTypes().keySet());
 		    for (String name : typeNames) {
 		    	final PropertyController controller = new PropertyController(name, RESULT.getTypes().get(name));
-		    	final Namespace ns = controller.register(MODEL_PACKAGE);
+		    	final Namespace ns = controller.register(MODEL_PACKAGE, MODEL_CLASS_SUFFIX);
 		    	ns.addClassModule(
 		    			new JsonAccesClassModule(),
 		    			new ParcelableClassModule(),
 		    			new GeneralImportsClassModule()
 		    		);
+		    	ns.setParentModule(new ClassParentModule());
 		    }
 		    
 		    // register methods
 		    final SortedSet<String> methodNames = new TreeSet<String>(RESULT.getMethods().keySet());
 		    for (String name : methodNames) {
 		    	final MethodController controller = new MethodController(name, RESULT.getMethods().get(name));
-		    	controller.register(CALL_PACKAGE);
+		    	final Namespace ns = controller.register(CALL_PACKAGE, CALL_CLASS_SUFFIX);
+		    	ns.addClassModule(new ParcelableClassModule());
+		    	ns.setParentModule(new MethodParentModule());
 		    }
 	    
 		    // pre-fetch imports
 		    for (Namespace ns : Namespace.getTypes()) {
 		    	ns.findModuleImports();
 		    }
+		    for (Namespace ns : Namespace.getMethods()) {
+		    	ns.findModuleImports();
+		    }
 		    
 		    // render types
 		    for (Namespace ns : Namespace.getTypes()) {
-		    	final StringBuilder sb = new StringBuilder();
-		    	final NamespaceView view = new NamespaceView(ns);
-		    	final File out = getFile(ns);
-		    	view.render(sb);
-		    	if (sb.length() > 0) {
-		    		writeFile(out, sb.toString());
-//		    		System.out.print(sb.toString());
-		    	}
+		    	render(ns);
+		    }
+		    
+		    // render methods
+		    for (Namespace ns : Namespace.getMethods()) {
+		    	render(ns);
 		    }
 		    
 		    // copy static classes
@@ -182,6 +191,16 @@ public class Introspect {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private static void render(Namespace ns) {
+		final StringBuilder sb = new StringBuilder();
+    	final NamespaceView view = new NamespaceView(ns);
+    	final File out = getFile(ns);
+    	view.render(sb);
+    	if (sb.length() > 0) {
+    		writeFile(out, sb.toString());
+    	}
 	}
 	
 	/**
