@@ -33,6 +33,10 @@ public class AdditionalPropertiesWrapper {
 	private final Boolean available;
 	private final TypeWrapper type;
 	
+	public boolean isSet() {
+		return type != null;
+	}
+	
 	public AdditionalPropertiesWrapper(Boolean available) {
 		this.available = available;
 		this.type = null;

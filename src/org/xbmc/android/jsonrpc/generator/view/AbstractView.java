@@ -20,11 +20,11 @@
  */
 package org.xbmc.android.jsonrpc.generator.view;
 
-import org.xbmc.android.jsonrpc.generator.model.JavaEnum;
 import org.xbmc.android.jsonrpc.generator.model.JavaClass;
+import org.xbmc.android.jsonrpc.generator.model.JavaEnum;
 import org.xbmc.android.jsonrpc.generator.model.JavaMember;
-import org.xbmc.android.jsonrpc.generator.model.Namespace;
 import org.xbmc.android.jsonrpc.generator.model.JavaParameter;
+import org.xbmc.android.jsonrpc.generator.model.Namespace;
 
 /**
  * Base class for all views. Contains useful stuff.
@@ -46,11 +46,17 @@ public abstract class AbstractView {
 	 * @return Java class name
 	 */
 	private String getClassName(Namespace ns, JavaClass klass) {
+		if (klass == null) {
+			throw new IllegalArgumentException("Provided class cannot be null.");
+		}
 		if (klass.isNative()) {
 			return getNativeType(klass);
 		} else if (klass.isArray()) {
 			return getArrayType(ns, klass);
 		} else if (klass.isInner()) {
+			if (klass.getOuterType() == null) {
+				throw new IllegalStateException("Outer class of " + klass.getName() + " cannot be null.");
+			}
 			return getInnerType(klass.getName(), klass.getOuterType().getName());
 		} else {
 			return getGlobalType(klass);
@@ -137,6 +143,8 @@ public abstract class AbstractView {
 			return "Integer";
 		} else if (typeName.equals("string")) {
 			return "String";
+		} else if (typeName.equals("any")) {
+			return "BaseJsonNode";
 		} else {
 			throw new IllegalArgumentException("Unknown native type \"" + typeName + "\".");
 		}
@@ -248,9 +256,9 @@ public abstract class AbstractView {
 		return "get" + klass.getNamespace().getName() + getClassName(klass) + "List";
 	}
 	
-	protected String getIndent(int indent) {
+	protected String getIndent(int idt) {
 		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < indent; i++) {
+		for (int i = 0; i < idt; i++) {
 			sb.append("\t");
 		}
 		return sb.toString();

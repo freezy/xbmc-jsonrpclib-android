@@ -109,6 +109,10 @@ public class Namespace {
 	public String getName() {
 		return name + classSuffix;
 	}
+	
+	public String getApiName() {
+		return name;
+	}
 
 	public String getPackageName() {
 		return packageName;
@@ -133,6 +137,10 @@ public class Namespace {
 
 	public void addImport(String i) {
 		imports.add(i);
+	}
+	
+	public boolean isEmpty() {
+		return classes.isEmpty() && enums.isEmpty();
 	}
 
 	public static Namespace getType(String name, String packageName, String classSuffix) {

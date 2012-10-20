@@ -307,9 +307,4 @@ public class ParcelableClassModule extends AbstractView implements IClassModule 
 		sb.append(indent).append("}\n");
 	}
 	
-	@Override
-	public int hashCode() {
-		return 2;
-	}
-
 }

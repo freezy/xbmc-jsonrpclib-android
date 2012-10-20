@@ -29,29 +29,44 @@ import org.xbmc.android.jsonrpc.generator.view.AbstractView;
 import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
 
 /**
- * Only takes care of necessary imports.
+ * Provides Parcelable-serialization via Android.
  * 
  * @author freezy <freezy@xbmc.org>
  */
-public class GeneralImportsClassModule extends AbstractView implements IClassModule {
+public class MethodAPIClassModule extends AbstractView implements IClassModule {
 
+	
 	@Override
-	public void render(StringBuilder sb, Namespace ns, JavaClass klass, int indent) {
-		// do nothing.
+	public void render(StringBuilder sb, Namespace ns, JavaClass klass, int idt) {
+		
+		renderStaticStuff(sb, klass, idt);
+		
 	}
+	
+	
+	private void renderStaticStuff(StringBuilder sb, JavaClass klass, int idt) {
+		final String indent = getIndent(idt);
+		
+		sb.append(indent).append("@Override\n");
+		sb.append(indent).append("public String getName() {\n");
+		sb.append(indent).append("	return API_TYPE;\n");
+		sb.append(indent).append("}\n");
+		sb.append(indent).append("@Override\n");
+		sb.append(indent).append("protected boolean returnsList() {\n");
+		sb.append(indent).append("	return false;\n");
+//		sb.append(indent).append("	return ").append(klass.).append(";\n");
+		sb.append(indent).append("}");
+		
+		
+	}
+	
+	
 
 	@Override
 	public Set<String> getImports(JavaClass klass) {
 		final Set<String> imports = new HashSet<String>();
-		if (!klass.doesExtend()) {
-			imports.add("org.xbmc.android.jsonrpc.api.AbstractModel");
-		}
+		imports.add("android.os.Parcel");
+		imports.add("android.os.Parcelable");
 		return imports;
 	}
-	
-	@Override
-	public int hashCode() {
-		return 1;
-	}
-
 }

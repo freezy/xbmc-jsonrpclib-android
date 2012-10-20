@@ -23,8 +23,8 @@ package org.xbmc.android.jsonrpc.generator.view;
 import java.util.Calendar;
 import java.util.Set;
 
-import org.xbmc.android.jsonrpc.generator.model.JavaEnum;
 import org.xbmc.android.jsonrpc.generator.model.JavaClass;
+import org.xbmc.android.jsonrpc.generator.model.JavaEnum;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 
 /**
@@ -72,6 +72,10 @@ public class NamespaceView extends AbstractView {
 		sb.append("public final class ");
 		sb.append(namespace.getName());
 		sb.append(" {\n");
+		
+		// name field
+//		sb.append("\n");
+//		sb.append("	protected final static String PREFIX = \"").append(namespace.getApiName()).append(".\";\n");
 		
 		// classes
 		for (JavaClass klass : namespace.getClasses()) {

@@ -286,6 +286,10 @@ public class Property {
 	public boolean hasProperties() {
 		return properties != null && !properties.isEmpty();
 	}
+	
+	public boolean hasAdditionalProperties() {
+		return additionalProperties != null && additionalProperties.isSet();
+	}
 
 	public HashMap<String, Property> getProperties() {
 		return properties;

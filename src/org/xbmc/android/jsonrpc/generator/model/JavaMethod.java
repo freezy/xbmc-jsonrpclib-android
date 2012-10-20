@@ -20,53 +20,38 @@
  */
 package org.xbmc.android.jsonrpc.generator.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * Defines a method modelized in Java.
+ * Since methods are modelized with classes, this is a subclass of
+ * {@link JavaClass}.
  * 
  * @author freezy <freezy@xbmc.org>
  */
-public class JavaMethod implements IClassContainer {
+public class JavaMethod extends JavaClass {
 
-	private final String name;
-	private final String description;
-
-	private final List<JavaParameter> params = new ArrayList<JavaParameter>();
-	private JavaClass returns;
-
-	public JavaMethod(String name) {
-		this(name, null);
+	private JavaClass returnType;
+	
+	public JavaMethod(Namespace namespace, String name, String apiType) {
+		super(namespace, name, apiType);
 	}
 
-	public JavaMethod(String name, String description) {
-		this.name = name.replace(".", "");
-		this.description = description;
+	public JavaClass getReturnType() {
+		return returnType;
+	}
+
+	public void setReturnType(JavaClass returnType) {
+		this.returnType = returnType;
 	}
 	
-	public void addParameter(JavaParameter param) {
-		this.params.add(param);
+	@Override
+	public boolean isGlobal() {
+		return true;
 	}
 
-	public JavaClass getReturns() {
-		return returns;
+	@Override
+	protected void resolve() {
+		super.resolve();
+		if (returnType != null) {
+			returnType = resolve(returnType);
+		}
 	}
-
-	public void setReturns(JavaClass returns) {
-		this.returns = returns;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public List<JavaParameter> getParams() {
-		return params;
-	}
-
 }

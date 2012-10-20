@@ -140,6 +140,9 @@ public class JavaClass implements IClassContainer {
 	 * unresolved. Later, when all global types are transformed into
 	 * {@link JavaClass} objects (e.g. when rendering), the reference can be
 	 * returned via this method.
+	 * </p>
+	 * Note that this also resolves all the sub types of the class, like the
+	 * array type and the parent type.
 	 * 
 	 * @param klass
 	 * @return
@@ -157,17 +160,23 @@ public class JavaClass implements IClassContainer {
 			resolvedClass = klass;
 		}
 		
-		// also resolve parent class
-		if (resolvedClass.doesExtend()) {
-			resolvedClass.parentClass = resolve(resolvedClass.parentClass);
+		// resolve referenced classes
+		resolvedClass.resolve();
+		
+		return resolvedClass;
+	}
+	
+	protected void resolve() {
+		
+		// resolve parent class
+		if (parentClass != null) {
+			parentClass = resolve(this.parentClass);
 		}
 		
 		// ..and array type
-		if (resolvedClass.isArray()) {
-			resolvedClass.arrayType = resolve(resolvedClass.arrayType);
-		}
-		
-		return resolvedClass;
+		if (arrayType != null) {
+			arrayType = resolve(arrayType);
+		}		
 	}
 
 	/**
@@ -201,6 +210,9 @@ public class JavaClass implements IClassContainer {
 			for (JavaClass klass : innerTypes) {
 				klass.findModuleImports();
 			}
+		}
+		if (namespace.getParentModule() != null) {
+			imports.addAll(namespace.getParentModule().getImports(this));
 		}
 	}
 

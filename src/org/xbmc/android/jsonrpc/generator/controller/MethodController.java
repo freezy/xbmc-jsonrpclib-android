@@ -20,9 +20,16 @@
  */
 package org.xbmc.android.jsonrpc.generator.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.xbmc.android.jsonrpc.generator.introspect.Method;
 import org.xbmc.android.jsonrpc.generator.introspect.Param;
+import org.xbmc.android.jsonrpc.generator.introspect.Property;
+import org.xbmc.android.jsonrpc.generator.introspect.Type;
+import org.xbmc.android.jsonrpc.generator.introspect.wrapper.TypeWrapper;
 import org.xbmc.android.jsonrpc.generator.model.JavaClass;
+import org.xbmc.android.jsonrpc.generator.model.JavaMethod;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 
 /**
@@ -35,6 +42,13 @@ public class MethodController {
 	private final String name;
 	private final String apiType;
 	private final Method method;
+	
+	private final static String RESULT_CLASS_SUFFIX = "Result";
+	private final static List<String> META_RETURN_PROPS = new ArrayList<String>();
+	
+	static {
+		META_RETURN_PROPS.add("limits");
+	}
 	
 	/**
 	 * Creates a new method controller.
@@ -68,9 +82,9 @@ public class MethodController {
 	 * @param className Name of the class (retrieved from parent key)
 	 * @return Class object
 	 */
-	public JavaClass getClass(Namespace namespace, String methodName) {
+	public JavaMethod getClass(Namespace namespace, String methodName) {
 		
-		final JavaClass klass = new JavaClass(namespace, name, apiType);
+		final JavaMethod klass = new JavaMethod(namespace, name, apiType);
 		
 		
 		// parameters
@@ -104,18 +118,109 @@ public class MethodController {
 			}
 		}
 		
-/*
+
 		// return type
-		final TypeWrapper returnType = method.getReturns();
-		if (returnType.isObject()) {
+		final TypeWrapper tw = method.getReturns();
+		if (tw.isObject()) {
 			
-			final PropertyController returnTypeController = new PropertyController(null, method.getReturns().getObj());
-			m.setReturns(returnTypeController.getClass(namespace, name + "ReturnType", m));
+			final Type type = tw.getObj();
+			
+			// result type is either native, array, a type reference...
+			if (type.isNative() || type.isRef() || type.isArray()) {
+				
+				final String name = klass.getName() + RESULT_CLASS_SUFFIX;
+				final PropertyController returnTypeController = new PropertyController(null, method.getReturns().getObj());
+				final JavaClass returnType = returnTypeController.getClass(namespace, name, klass);
+				
+				if (returnType.isArray()) {
+					returnType.getArrayType().setOuterType(klass);
+				}
+				
+				klass.setReturnType(returnType);
+
+			// ...or an object	
+			} else if (type.isObjectDefinition()) {
+				/* 
+				 * In case of an object, there are two scenarios. Either the
+				 * the object is a "meta" object, meaning it contains meta data
+				 * such as the limits of the result. In this case there is
+				 * one non-meta property where the data is stored. Example:
+				 *  "returns" : {
+				 *  	"properties" : {
+				 *  		"limits" : { "$ref" : "List.LimitsReturned", "required" : true },
+				 *  		"sources" : { "$ref" : "List.Items.Sources", "required" : true }
+				 *  	},
+				 *  	"type" : "object"
+				 *  }
+				 *  If there is more than one "non-meta" property, we assume
+				 *  it's a full-fledged object definition which will result in
+				 *  an inner class:
+				 *   "returns" : {
+				 *   	"properties" : {
+				 *   		"details" : { "description" : "Tran...", "required" : true, "type" : "any" },
+				 *   		"mode" : { "description" : "Dir...", "enums" : ["redirect", "direct"], "required" : true, "type" : "string" },
+				 *   		"protocol" : { "enums" : ["http"], "required" : true, "type" : "string" }
+				 *   	},
+				 *   	"type" : "object"
+				 *   }
+				 */
+				if (!type.hasProperties() && !type.hasAdditionalProperties()) {
+					throw new IllegalStateException("Definition is object but no props defined. That's seriously weird.");
+				}
+				
+				if (type.hasProperties()) {
+					
+					// go through props and compare and count.
+					String potentialResultPropName = null; // the non-meta prop in case there is only one.
+					int nonMetaProps = 0;
+					for (String propName : type.getProperties().keySet()) {
+						if (!META_RETURN_PROPS.contains(propName)) {
+							potentialResultPropName = propName;
+							nonMetaProps++;
+						}
+					}
+					
+					// first case described above: data is wrapped into a meta object.
+					if (nonMetaProps == 1) {
+						final Property prop = type.getProperties().get(potentialResultPropName);
+						if (!prop.isRef() && !prop.isNative() && !prop.isArray()) {
+							throw new IllegalStateException("Return type is expected to be either reference, native or array");
+						}
+						
+						final PropertyController returnTypeController = new PropertyController(null, prop);
+						klass.setReturnType(returnTypeController.getClass(namespace, null, klass));
+					
+					// second case: full object definition. we suffix the class name with RESULT_CLASS_SUFFIX	
+					} else {
+						final String name = klass.getName() + RESULT_CLASS_SUFFIX;
+						final PropertyController returnTypeController = new PropertyController(null, type);
+						klass.setReturnType(returnTypeController.getClass(namespace, name, klass));
+					}
+				} else {
+					throw new UnsupportedOperationException("Naked objects with only additional attributes are not yet supported.");
+				}
+				
+			} else {
+				throw new IllegalStateException("Result type is expected to be a reference, native or an object.");
+			}
+			
+
+			
+			
+			
+/*			final PropertyController returnTypeController = new PropertyController(null, method.getReturns().getObj());
+			
+			final JavaClass t = returnTypeController.getClass(namespace, name + "ReturnType", klass);
+			klass.setReturnType(t);
+			if (t.isArray()) {
+				t.getArrayType().setOuterType(klass);
+			}*/
+//			klass.getInnerTypes().add(t);
 			
 		} else {
-			// TODO
+			throw new RuntimeException("Expected return type is an object with properties.");
 		}
-*/		
+		
 		
 		return klass;
 	}

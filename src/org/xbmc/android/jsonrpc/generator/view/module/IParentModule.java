@@ -20,6 +20,8 @@
  */
 package org.xbmc.android.jsonrpc.generator.view.module;
 
+import java.util.Set;
+
 import org.xbmc.android.jsonrpc.generator.model.JavaClass;
 
 
@@ -32,8 +34,12 @@ public interface IParentModule {
 	
 	public void renderExtends(StringBuilder sb, JavaClass klass);
 	
-	@Override
-	public int hashCode();
-	@Override
-	public boolean equals(Object obj);
+	
+	/**
+	 * Returns the necessary imports for a class.
+	 * 
+	 * @param klass Given class
+	 * @return List of imports
+	 */
+	public Set<String> getImports(JavaClass klass);
 }

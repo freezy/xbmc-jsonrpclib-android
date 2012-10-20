@@ -24,6 +24,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -48,8 +50,8 @@ import org.xbmc.android.jsonrpc.generator.model.Namespace;
 import org.xbmc.android.jsonrpc.generator.view.ClassView;
 import org.xbmc.android.jsonrpc.generator.view.EnumView;
 import org.xbmc.android.jsonrpc.generator.view.NamespaceView;
-import org.xbmc.android.jsonrpc.generator.view.module.classmodule.GeneralImportsClassModule;
 import org.xbmc.android.jsonrpc.generator.view.module.classmodule.JsonAccesClassModule;
+import org.xbmc.android.jsonrpc.generator.view.module.classmodule.MethodAPIClassModule;
 import org.xbmc.android.jsonrpc.generator.view.module.classmodule.ParcelableClassModule;
 import org.xbmc.android.jsonrpc.generator.view.module.parentmodule.ClassParentModule;
 import org.xbmc.android.jsonrpc.generator.view.module.parentmodule.MethodParentModule;
@@ -84,11 +86,12 @@ public class Introspect {
 	private final static String CALL_PACKAGE = "org.xbmc.android.jsonrpc.api.call";
 	
 	private final static String MODEL_CLASS_SUFFIX = "Model";
-	private final static String CALL_CLASS_SUFFIX  = "Call";
+	private final static String CALL_CLASS_SUFFIX  = "";
 	
 	private final static String OUTPUT_FOLDER = "D:/dev/xbmc-jsonrpclib-android-test";
 //	private final static String OUTPUT_FOLDER = "S:/Development/xbmc-jsonrpclib-android-output";
 
+	private final static List<String> IGNORED_METHODS = new ArrayList<String>();
 	
 	static {
 		final SimpleModule module = new SimpleModule("xbmc-json-rpc", Version.unknownVersion());
@@ -97,6 +100,9 @@ public class Introspect {
 		module.addDeserializer(AdditionalPropertiesWrapper.class, new AdditionalPropertiesDeserializer());
 		
 		OBJECT_MAPPER.registerModule(module);
+		IGNORED_METHODS.add("JSONRPC.Introspect"); // don't care. also, there is no return type definition.
+		IGNORED_METHODS.add("XBMC.GetInfoBooleans"); // temporarily until fixed
+		IGNORED_METHODS.add("XBMC.GetInfoLabels");   // temporarily until fixed
 	}
 	
 	/**
@@ -120,8 +126,7 @@ public class Introspect {
 		    	final Namespace ns = controller.register(MODEL_PACKAGE, MODEL_CLASS_SUFFIX);
 		    	ns.addClassModule(
 		    			new JsonAccesClassModule(),
-		    			new ParcelableClassModule(),
-		    			new GeneralImportsClassModule()
+		    			new ParcelableClassModule()
 		    		);
 		    	ns.setParentModule(new ClassParentModule());
 		    }
@@ -129,10 +134,15 @@ public class Introspect {
 		    // register methods
 		    final SortedSet<String> methodNames = new TreeSet<String>(RESULT.getMethods().keySet());
 		    for (String name : methodNames) {
-		    	final MethodController controller = new MethodController(name, RESULT.getMethods().get(name));
-		    	final Namespace ns = controller.register(CALL_PACKAGE, CALL_CLASS_SUFFIX);
-		    	ns.addClassModule(new ParcelableClassModule());
-		    	ns.setParentModule(new MethodParentModule());
+		    	if (!IGNORED_METHODS.contains(name)) {
+		    		final MethodController controller = new MethodController(name, RESULT.getMethods().get(name));
+		    		final Namespace ns = controller.register(CALL_PACKAGE, CALL_CLASS_SUFFIX);
+		    		ns.addClassModule(
+		    				new MethodAPIClassModule(),
+		    				new ParcelableClassModule()
+		    				);
+		    		ns.setParentModule(new MethodParentModule());
+		    	}
 		    }
 	    
 		    // pre-fetch imports
@@ -143,14 +153,12 @@ public class Introspect {
 		    	ns.findModuleImports();
 		    }
 		    
-		    // render types
+		    // render
 		    for (Namespace ns : Namespace.getTypes()) {
-		    	render(ns);
+	    		render(ns);
 		    }
-		    
-		    // render methods
 		    for (Namespace ns : Namespace.getMethods()) {
-		    	render(ns);
+	    		render(ns);
 		    }
 		    
 		    // copy static classes
@@ -194,6 +202,12 @@ public class Introspect {
 	}
 	
 	private static void render(Namespace ns) {
+		
+		// do nothing if no classes or enums to render.
+		if (ns.isEmpty()) {
+			return;
+		}
+		
 		final StringBuilder sb = new StringBuilder();
     	final NamespaceView view = new NamespaceView(ns);
     	final File out = getFile(ns);
