@@ -250,7 +250,7 @@ public class ParcelableClassModule extends AbstractView implements IClassModule 
 			if (typeName.equals("integer")) {
 				return "readInt()";
 				
-			} else if (typeName.equals("string")) {
+			} else if (typeName.equals("string") || typeName.equals("any")) {
 				return "readString()";
 				
 			} else if (typeName.equals("boolean")) {
@@ -258,6 +258,7 @@ public class ParcelableClassModule extends AbstractView implements IClassModule 
 
 			} else if (typeName.equals("number")) {
 				return "readDouble()";
+				
 			}
 				
 		} else {

@@ -50,6 +50,7 @@ import org.xbmc.android.jsonrpc.generator.model.Namespace;
 import org.xbmc.android.jsonrpc.generator.view.ClassView;
 import org.xbmc.android.jsonrpc.generator.view.EnumView;
 import org.xbmc.android.jsonrpc.generator.view.NamespaceView;
+import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
 import org.xbmc.android.jsonrpc.generator.view.module.classmodule.JsonAccesClassModule;
 import org.xbmc.android.jsonrpc.generator.view.module.classmodule.MethodAPIClassModule;
 import org.xbmc.android.jsonrpc.generator.view.module.classmodule.ParcelableClassModule;
@@ -119,16 +120,20 @@ public class Introspect {
 		    final Response response = OBJECT_MAPPER.readValue(new File("introspect.json"), Response.class);
 		    RESULT = response.getResult();
 			
+		    final IClassModule[] typeClassModules = { 
+		    		new JsonAccesClassModule(), 
+		    		new ParcelableClassModule() 
+		    };
+		    
 		    // register types
 		    final SortedSet<String> typeNames = new TreeSet<String>(RESULT.getTypes().keySet());
 		    for (String name : typeNames) {
 		    	final PropertyController controller = new PropertyController(name, RESULT.getTypes().get(name));
 		    	final Namespace ns = controller.register(MODEL_PACKAGE, MODEL_CLASS_SUFFIX);
-		    	ns.addClassModule(
-		    			new JsonAccesClassModule(),
-		    			new ParcelableClassModule()
-		    		);
+		    	ns.addClassModule(typeClassModules);
+		    	ns.addInnerClassModule(typeClassModules);
 		    	ns.setParentModule(new ClassParentModule());
+		    	ns.setInnerParentModule(new ClassParentModule());
 		    }
 		    
 		    // register methods
@@ -140,24 +145,24 @@ public class Introspect {
 		    		ns.addClassModule(
 		    				new MethodAPIClassModule(),
 		    				new ParcelableClassModule()
-		    				);
+		    			);
+		    		ns.addInnerClassModule(typeClassModules);
 		    		ns.setParentModule(new MethodParentModule());
+		    		ns.setInnerParentModule(new ClassParentModule());
 		    	}
+		    }
+		    
+		    // resolve
+		    for (Namespace ns : Namespace.getAll()) {
+		    	ns.resolveClasses();
 		    }
 	    
 		    // pre-fetch imports
-		    for (Namespace ns : Namespace.getTypes()) {
+		    for (Namespace ns : Namespace.getAll()) {
 		    	ns.findModuleImports();
 		    }
-		    for (Namespace ns : Namespace.getMethods()) {
-		    	ns.findModuleImports();
-		    }
-		    
 		    // render
-		    for (Namespace ns : Namespace.getTypes()) {
-	    		render(ns);
-		    }
-		    for (Namespace ns : Namespace.getMethods()) {
+		    for (Namespace ns : Namespace.getAll()) {
 	    		render(ns);
 		    }
 		    

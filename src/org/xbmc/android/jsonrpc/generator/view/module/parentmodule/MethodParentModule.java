@@ -29,12 +29,30 @@ public class MethodParentModule extends AbstractView implements IParentModule {
 	public Set<String> getImports(JavaClass klass) {
 		final Set<String> imports = new HashSet<String>();
 		imports.add("org.xbmc.android.jsonrpc.api.AbstractCall");
+		
+		final JavaMethod m = getMethod(klass);
+		final JavaClass returnType = m.getReturnType();
+		if (returnType.isArray()) {
+			if (!returnType.getArrayType().getNamespace().equals(klass.getNamespace())) {
+				imports.add("org.xbmc.android.jsonrpc.api.model." + returnType.getArrayType().getNamespace().getName());
+			}
+		} else {
+			if (!returnType.getNamespace().equals(klass.getNamespace())) {
+				imports.add("org.xbmc.android.jsonrpc.api.model." + returnType.getNamespace().getName());
+			}
+		}
+		
 		return imports;
 	}
 	
+	/**
+	 * Casts a class to method and asserts stuff.
+	 * @param klass
+	 * @return
+	 */
 	private JavaMethod getMethod(JavaClass klass) {
 		if (!(klass instanceof JavaMethod)) {
-			throw new IllegalArgumentException("Superclass for method can only be found with a JavaMethod object.");
+			throw new IllegalArgumentException("Cannot apply parent module for methods to normal classes.");
 		}
 		final JavaMethod m = (JavaMethod)klass;
 		if (m.getReturnType() == null) {

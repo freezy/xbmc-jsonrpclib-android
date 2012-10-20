@@ -194,7 +194,11 @@ public class MethodController {
 					} else {
 						final String name = klass.getName() + RESULT_CLASS_SUFFIX;
 						final PropertyController returnTypeController = new PropertyController(null, type);
-						klass.setReturnType(returnTypeController.getClass(namespace, name, klass));
+						final JavaClass returnType = returnTypeController.getClass(namespace, name, klass);
+						returnType.setOuterType(klass);
+						returnType.setInner(true);
+						klass.setReturnType(returnType);
+						klass.getInnerTypes().add(returnType);
 					}
 				} else {
 					throw new UnsupportedOperationException("Naked objects with only additional attributes are not yet supported.");

@@ -21,6 +21,7 @@
 package org.xbmc.android.jsonrpc.generator.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -30,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
+import org.xbmc.android.jsonrpc.generator.view.module.IParentModule;
 
 /**
  * Defines a class in an agnostic way.
@@ -204,15 +206,17 @@ public class JavaClass implements IClassContainer {
 	/**
 	 * Retrieves imports for each module of this class.
 	 */
-	public void findModuleImports() {
-		for (IClassModule module : namespace.getClassModules()) {
+	public void findModuleImports(Collection<IClassModule> modules, IParentModule parentModule) {
+		// class render modules
+		for (IClassModule module : modules) {
 			imports.addAll(module.getImports(this));
 			for (JavaClass klass : innerTypes) {
-				klass.findModuleImports();
+				klass.findModuleImports(namespace.getInnerClassModules(), namespace.getInnerParentModule());
 			}
 		}
-		if (namespace.getParentModule() != null) {
-			imports.addAll(namespace.getParentModule().getImports(this));
+		// superclass render module if available
+		if (parentModule != null) {
+			imports.addAll(parentModule.getImports(this));
 		}
 	}
 
@@ -397,6 +401,14 @@ public class JavaClass implements IClassContainer {
 
 	public void setParentClass(JavaClass parentClass) {
 		this.parentClass = parentClass;
+	}
+	
+	public IParentModule getParentModule() {
+		return isInner ? namespace.getInnerParentModule() : namespace.getParentModule();
+	}
+	
+	public Collection<IClassModule> getClassModules() {
+		return isInner ? namespace.getClassModules() : namespace.getInnerClassModules();
 	}
 	
 	public boolean doesExtend() {

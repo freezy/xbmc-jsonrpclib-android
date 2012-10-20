@@ -55,8 +55,8 @@ public class ClassView extends AbstractView {
 		sb.append("\n");
 		sb.append(prefix).append("public static class ");
 		sb.append(getClassName(klass));
-		if (klass.getNamespace().getParentModule() != null) {
-			klass.getNamespace().getParentModule().renderExtends(sb, klass);
+		if (klass.getParentModule() != null) {
+			klass.getParentModule().renderExtends(sb, klass);
 		}
 		sb.append(" {\n");
 		
@@ -84,7 +84,7 @@ public class ClassView extends AbstractView {
 		}
 		
 		// render additional modules
-		for (IClassModule module : klass.getNamespace().getClassModules()) {
+		for (IClassModule module : klass.getClassModules()) {
 			module.render(sb, klass.getNamespace(), klass, indent + 1);
 		}
 		
