@@ -21,12 +21,16 @@
 package org.xbmc.android.jsonrpc.generator.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+
+import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
+import org.xbmc.android.jsonrpc.generator.view.module.IParentModule;
 
 /**
  * Defines the "outer" class, where the classes sit.
@@ -37,6 +41,9 @@ public class Namespace {
 
 	private static final HashMap<String, Namespace> TYPES = new HashMap<String, Namespace>();
 	private static final HashMap<String, Namespace> METHODS = new HashMap<String, Namespace>();
+	
+	public final Set<IClassModule> classModules = new HashSet<IClassModule>();
+	public final Set<IParentModule> parentModules = new HashSet<IParentModule>();
 
 	private final String name;
 	private final String packageName;
@@ -70,7 +77,14 @@ public class Namespace {
 		}
 		return new TreeSet<String>(imports);
 	}
-
+	
+	public void addClassModule(IClassModule... classModules) {
+		this.classModules.addAll(Arrays.asList(classModules));
+	}
+	
+	public void addParentModule(IParentModule... parentModules) {
+		this.parentModules.addAll(Arrays.asList(parentModules));
+	}
 
 	public void addClass(JavaClass klass) {
 		classes.add(klass);
@@ -100,6 +114,15 @@ public class Namespace {
 		return enums;
 	}
 	
+	
+	public Set<IClassModule> getClassModules() {
+		return classModules;
+	}
+
+	public Set<IParentModule> getParentModules() {
+		return parentModules;
+	}
+
 	public void addImport(String i) {
 		imports.add(i);
 	}

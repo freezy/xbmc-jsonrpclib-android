@@ -25,7 +25,6 @@ import org.xbmc.android.jsonrpc.generator.introspect.Param;
 import org.xbmc.android.jsonrpc.generator.introspect.wrapper.TypeWrapper;
 import org.xbmc.android.jsonrpc.generator.model.JavaClass;
 import org.xbmc.android.jsonrpc.generator.model.JavaMethod;
-import org.xbmc.android.jsonrpc.generator.model.JavaParameter;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 
 /**
@@ -77,12 +76,12 @@ public class MethodController {
 		// parameters
 		for (Param p : method.getParams()) {
 			if (!p.isEnum()) {
-				
+/*				
 				final PropertyController pc = new PropertyController(name, p);
 				final JavaClass klass = pc.getClass(namespace, name, m);
 				m.addParameter(new JavaParameter(p.getName(), klass));
 				
-/*				final TypeWrapper tr = p.getType();
+				final TypeWrapper tr = p.getType();
 				if (tr.isNative()) {
 
 					final PropertyController pc = new PropertyController(name, p);

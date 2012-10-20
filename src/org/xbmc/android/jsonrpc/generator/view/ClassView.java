@@ -20,10 +20,9 @@
  */
 package org.xbmc.android.jsonrpc.generator.view;
 
-import org.xbmc.android.jsonrpc.generator.Introspect;
+import org.xbmc.android.jsonrpc.generator.model.JavaClass;
 import org.xbmc.android.jsonrpc.generator.model.JavaConstructor;
 import org.xbmc.android.jsonrpc.generator.model.JavaEnum;
-import org.xbmc.android.jsonrpc.generator.model.JavaClass;
 import org.xbmc.android.jsonrpc.generator.model.JavaMember;
 import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
 
@@ -88,7 +87,7 @@ public class ClassView extends AbstractView {
 		}
 		
 		// render additional modules
-		for (IClassModule module : Introspect.getClassModules()) {
+		for (IClassModule module : klass.getNamespace().getClassModules()) {
 			module.render(sb, klass.getNamespace(), klass, indent + 1);
 		}
 		

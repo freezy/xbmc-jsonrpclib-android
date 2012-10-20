@@ -24,8 +24,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -50,10 +48,9 @@ import org.xbmc.android.jsonrpc.generator.model.Namespace;
 import org.xbmc.android.jsonrpc.generator.view.ClassView;
 import org.xbmc.android.jsonrpc.generator.view.EnumView;
 import org.xbmc.android.jsonrpc.generator.view.NamespaceView;
-import org.xbmc.android.jsonrpc.generator.view.module.GeneralImportsClassModule;
-import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
-import org.xbmc.android.jsonrpc.generator.view.module.JsonAccesClassModule;
-import org.xbmc.android.jsonrpc.generator.view.module.ParcelableClassModule;
+import org.xbmc.android.jsonrpc.generator.view.module.classmodule.GeneralImportsClassModule;
+import org.xbmc.android.jsonrpc.generator.view.module.classmodule.JsonAccesClassModule;
+import org.xbmc.android.jsonrpc.generator.view.module.classmodule.ParcelableClassModule;
 
 /**
  * Main program. To make this work, update:
@@ -78,15 +75,14 @@ import org.xbmc.android.jsonrpc.generator.view.module.ParcelableClassModule;
 public class Introspect {
 	
 	public final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-	public final static Set<IClassModule> CLASS_RENDER_MODULES = new HashSet<IClassModule>();
 	
 	private static Result RESULT;
 	
 	private final static String MODEL_PACKAGE = "org.xbmc.android.jsonrpc.api.model";
 	private final static String CALL_PACKAGE = "org.xbmc.android.jsonrpc.api.call";
 	
-//	private final static String OUTPUT_FOLDER = "D:/dev/xbmc-jsonrpclib-android-test";
-	private final static String OUTPUT_FOLDER = "S:/Development/xbmc-jsonrpclib-android-output";
+	private final static String OUTPUT_FOLDER = "D:/dev/xbmc-jsonrpclib-android-test";
+//	private final static String OUTPUT_FOLDER = "S:/Development/xbmc-jsonrpclib-android-output";
 
 	
 	static {
@@ -97,9 +93,6 @@ public class Introspect {
 		
 		OBJECT_MAPPER.registerModule(module);
 		
-		CLASS_RENDER_MODULES.add(new JsonAccesClassModule());
-		CLASS_RENDER_MODULES.add(new ParcelableClassModule());
-		CLASS_RENDER_MODULES.add(new GeneralImportsClassModule());
 	}
 	
 	/**
@@ -107,6 +100,9 @@ public class Introspect {
 	 * @param args none
 	 */
 	public static void main(String[] args) {
+		
+		final long started = System.currentTimeMillis();
+		
 		try {
 			
 			// parse from json
@@ -117,7 +113,12 @@ public class Introspect {
 		    final SortedSet<String> typeNames = new TreeSet<String>(RESULT.getTypes().keySet());
 		    for (String name : typeNames) {
 		    	final PropertyController controller = new PropertyController(name, RESULT.getTypes().get(name));
-		    	controller.register(MODEL_PACKAGE);
+		    	final Namespace ns = controller.register(MODEL_PACKAGE);
+		    	ns.addClassModule(
+		    			new JsonAccesClassModule(),
+		    			new ParcelableClassModule(),
+		    			new GeneralImportsClassModule()
+		    		);
 		    }
 		    
 		    // register methods
@@ -126,7 +127,7 @@ public class Introspect {
 		    	final MethodController controller = new MethodController(name, RESULT.getMethods().get(name));
 		    	controller.register(CALL_PACKAGE);
 		    }
-		    
+	    
 		    // pre-fetch imports
 		    for (Namespace ns : Namespace.getTypes()) {
 		    	ns.findModuleImports();
@@ -140,7 +141,7 @@ public class Introspect {
 		    	view.render(sb);
 		    	if (sb.length() > 0) {
 		    		writeFile(out, sb.toString());
-		    		System.out.print(sb.toString());
+//		    		System.out.print(sb.toString());
 		    	}
 		    }
 		    
@@ -173,7 +174,7 @@ public class Introspect {
 		    FileUtils.copyFile(new File("libs/jackson-core-asl-1.8.8.jar"), new File(OUTPUT_FOLDER + "/libs/jackson-core-asl-1.8.8.jar"));
 		    FileUtils.copyFile(new File("libs/jackson-mapper-asl-1.8.8.jar"), new File(OUTPUT_FOLDER + "/libs/jackson-mapper-asl-1.8.8.jar"));
 		    
-		    System.out.println("Done!");
+		    System.out.println("Done in " + (System.currentTimeMillis() - started) + "ms.");
 			
 		} catch (JsonParseException e) {
 			e.printStackTrace();
@@ -249,9 +250,5 @@ public class Introspect {
 		} else {
 			return property;
 		}
-	}
-	
-	public static Set<IClassModule> getClassModules() {
-		return CLASS_RENDER_MODULES;
 	}
 }

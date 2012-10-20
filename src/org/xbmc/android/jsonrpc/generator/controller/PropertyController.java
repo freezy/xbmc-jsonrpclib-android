@@ -100,7 +100,7 @@ public class PropertyController {
 	 * Registers a global type or enum that is declared in the 
 	 * model package.
 	 */
-	public void register(String packageName) {
+	public Namespace register(String packageName) {
 		
 		// return directly if ignored type.
 //		if (name != null && (IGNORED_TYPES.contains(name) || REPLACED_TYPES.containsKey(name))) {
@@ -139,6 +139,7 @@ public class PropertyController {
 		} else {
 			ns.addClass(getClass(ns, strippedName, null));
 		}
+		return ns;
 	}
 	
 	/**

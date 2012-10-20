@@ -18,7 +18,7 @@
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
-package org.xbmc.android.jsonrpc.generator.view.module;
+package org.xbmc.android.jsonrpc.generator.view.module.classmodule;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -27,6 +27,7 @@ import org.xbmc.android.jsonrpc.generator.model.JavaClass;
 import org.xbmc.android.jsonrpc.generator.model.JavaMember;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 import org.xbmc.android.jsonrpc.generator.view.AbstractView;
+import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
 
 /**
  * Provides Parcelable-serialization via Android.

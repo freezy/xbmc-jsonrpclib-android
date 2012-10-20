@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.xbmc.android.jsonrpc.generator.Introspect;
 import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
 
 /**
@@ -197,7 +196,7 @@ public class JavaClass implements IClassContainer {
 	 * Retrieves imports for each module of this class.
 	 */
 	public void findModuleImports() {
-		for (IClassModule module : Introspect.getClassModules()) {
+		for (IClassModule module : namespace.getClassModules()) {
 			imports.addAll(module.getImports(this));
 			for (JavaClass klass : innerTypes) {
 				klass.findModuleImports();

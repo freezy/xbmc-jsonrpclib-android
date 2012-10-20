@@ -18,7 +18,7 @@
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
-package org.xbmc.android.jsonrpc.generator.view.module;
+package org.xbmc.android.jsonrpc.generator.view.module.classmodule;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,6 +30,7 @@ import org.xbmc.android.jsonrpc.generator.model.JavaClass;
 import org.xbmc.android.jsonrpc.generator.model.JavaMember;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 import org.xbmc.android.jsonrpc.generator.view.AbstractView;
+import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
 
 /**
  * Provides JSON-serialization via the Jackson library.
