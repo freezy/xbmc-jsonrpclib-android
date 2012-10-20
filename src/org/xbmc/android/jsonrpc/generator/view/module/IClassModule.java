@@ -49,4 +49,5 @@ public interface IClassModule {
 	 * @return List of imports
 	 */
 	public Set<String> getImports(JavaClass klass);
+	
 }

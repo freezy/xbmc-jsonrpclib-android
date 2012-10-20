@@ -415,4 +415,10 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 		sb.append(value);
 		sb.append(")");
 	}
+	
+	@Override
+	public int hashCode() {
+		return 2;
+	}
+
 }

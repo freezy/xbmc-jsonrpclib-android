@@ -48,5 +48,10 @@ public class GeneralImportsClassModule extends AbstractView implements IClassMod
 		}
 		return imports;
 	}
+	
+	@Override
+	public int hashCode() {
+		return 1;
+	}
 
 }

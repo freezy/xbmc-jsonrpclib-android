@@ -21,11 +21,11 @@
 package org.xbmc.android.jsonrpc.generator.model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -42,8 +42,8 @@ public class Namespace {
 	private static final HashMap<String, Namespace> TYPES = new HashMap<String, Namespace>();
 	private static final HashMap<String, Namespace> METHODS = new HashMap<String, Namespace>();
 	
-	public final Set<IClassModule> classModules = new HashSet<IClassModule>();
-	public final Set<IParentModule> parentModules = new HashSet<IParentModule>();
+	public final Map<String, IClassModule> classModules = new HashMap<String, IClassModule>();
+	public final Map<String, IParentModule> parentModules = new HashMap<String, IParentModule>();
 
 	private final String name;
 	private final String packageName;
@@ -79,11 +79,16 @@ public class Namespace {
 	}
 	
 	public void addClassModule(IClassModule... classModules) {
-		this.classModules.addAll(Arrays.asList(classModules));
+		for (int i = 0; i < classModules.length; i++) {
+			final IClassModule cm = classModules[i];
+			if (!this.classModules.containsKey(cm.getClass().getName())) {
+				this.classModules.put(cm.getClass().getName(), cm);
+			}
+		}
 	}
 	
 	public void addParentModule(IParentModule... parentModules) {
-		this.parentModules.addAll(Arrays.asList(parentModules));
+		//this.parentModules.addAll(Arrays.asList(parentModules));
 	}
 
 	public void addClass(JavaClass klass) {
@@ -115,12 +120,12 @@ public class Namespace {
 	}
 	
 	
-	public Set<IClassModule> getClassModules() {
-		return classModules;
+	public Collection<IClassModule> getClassModules() {
+		return classModules.values();
 	}
 
-	public Set<IParentModule> getParentModules() {
-		return parentModules;
+	public Collection<IParentModule> getParentModules() {
+		return parentModules.values();
 	}
 
 	public void addImport(String i) {

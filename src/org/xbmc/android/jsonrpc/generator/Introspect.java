@@ -92,7 +92,6 @@ public class Introspect {
 		module.addDeserializer(AdditionalPropertiesWrapper.class, new AdditionalPropertiesDeserializer());
 		
 		OBJECT_MAPPER.registerModule(module);
-		
 	}
 	
 	/**
