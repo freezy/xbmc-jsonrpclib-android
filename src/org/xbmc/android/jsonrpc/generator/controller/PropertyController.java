@@ -173,8 +173,7 @@ public class PropertyController {
 				klass = new JavaClass(namespace, className, apiType);
 			} else {
 				klass = new JavaClass(namespace, className);
-				klass.setInner();
-				klass.setOuterType(outerType);
+				klass.setInner(outerType);
 			}
 			klass.setMultiType();
 			
@@ -200,11 +199,10 @@ public class PropertyController {
 			} else {
 				klass = new JavaClass(namespace);
 			}
-			klass.setArray();
 			
 			// get array type
 			final PropertyController pc = new PropertyController(null, property.getItems());
-			klass.setArrayType(pc.getClass(namespace, className, klass));
+			klass.setArray(pc.getClass(namespace, className, klass));
 			
 			// arrays can also be defined as globals (List.Items.Sources)
 			if (isGlobal()) {
@@ -223,18 +221,16 @@ public class PropertyController {
 			// if id not set it's an inner type.
 			if (type.getId() == null) {
 				klass = new JavaClass(namespace, className);
-				klass.setInner();
-				klass.setOuterType(outerType);
+				klass.setInner(outerType);
 			} else {
 				klass = new JavaClass(namespace, findName(apiType), name);
-				klass.setGlobal(); // TODO adopt accordingly, see above.
+				klass.setGlobal();
 			}
 		
 		// create class from (non-global) object	
 		} else if (property.hasProperties() ) {
 			klass = new JavaClass(namespace, className);
-			klass.setInner();
-			klass.setOuterType(outerType);
+			klass.setInner(outerType);
 			
 		// wtf!
 		} else {

@@ -47,7 +47,7 @@ public class JavaClass {
 
 	private boolean isInner = false; // = !isGlobal
 	private Nature nature = null;
-	
+
 	public enum Nature {
 		NATIVE, MULTITYPE, ARRAY;
 	}
@@ -55,7 +55,7 @@ public class JavaClass {
 	/**
 	 * Parent class, set if property "extends" something.
 	 */
-	private JavaClass parentClass = null; 
+	private JavaClass parentClass = null;
 	/**
 	 * If this is an array, the type is set here.
 	 */
@@ -64,15 +64,15 @@ public class JavaClass {
 	 * If this is an inner class, the outer class is set here.
 	 */
 	private JavaClass outerType = null; // set if isInner == true.
-	
+
 	/**
 	 * If true, this is just a place holder and the "real" object has yet to be
 	 * fetched.
 	 */
 	private final boolean unresolved;
 	/**
-	 * In order to avoid stack overflow due to circular references, once a 
-	 * class is resolved, mark it as such.
+	 * In order to avoid stack overflow due to circular references, once a class
+	 * is resolved, mark it as such.
 	 */
 	private boolean resolved = false;
 
@@ -83,7 +83,6 @@ public class JavaClass {
 
 	private final Set<String> imports = new HashSet<String>();
 
-	
 	/**
 	 * Contains all global classes for resolving purpose.
 	 */
@@ -162,22 +161,20 @@ public class JavaClass {
 	 * If this class had only a reference to a global type, it was marked as
 	 * unresolved. Later, when all global types are transformed into
 	 * {@link JavaClass} objects (e.g. when rendering), the reference can be
-	 * returned via this method.
-	 * </p>
-	 * Note that this also resolves all the sub types of the class, like the
-	 * array type and the parent type.
+	 * returned via this method. </p> Note that this also resolves all the sub
+	 * types of the class, like the array type and the parent type.
 	 * 
 	 * @param klass
 	 * @return
 	 */
 	public static JavaClass resolve(JavaClass klass) {
-		
+
 		if (klass.resolved) {
 			return klass;
 		}
-		
+
 		final JavaClass resolvedClass;
-		
+
 		// resolve class itself
 		if (klass.isUnresolved()) {
 			if (!GLOBALS.containsKey(klass.apiType)) {
@@ -187,27 +184,30 @@ public class JavaClass {
 		} else {
 			resolvedClass = klass;
 		}
-		
+
 		// resolve referenced classes
 		resolvedClass.resolve();
-		
+
 		return resolvedClass;
 	}
-	
+
+	/**
+	 * Resolves classes attached to this class.
+	 */
 	protected void resolve() {
 		resolved = true;
-		
+
 		// resolve parent class
 		if (parentClass != null) {
 			parentClass = resolve(this.parentClass);
 		}
-		
+
 		// ..and array type
 		if (arrayType != null) {
 			arrayType = resolve(arrayType);
 		}
-		
-		// inner classes 
+
+		// inner classes
 		final ListIterator<JavaClass> iterator = innerTypes.listIterator();
 		while (iterator.hasNext()) {
 			iterator.set(JavaClass.resolve(iterator.next()));
@@ -217,12 +217,74 @@ public class JavaClass {
 		for (JavaMember m : members) {
 			m.resolveType();
 		}
-		
+
 	}
 
 	/**
-	 * Adds type to inner types and updates the reference back
-	 * to this instance.
+	 * Returns true if the class extends another one, in which case
+	 * {@link #getParentClass()} doesn't return null;
+	 * 
+	 * @see #getParentClass()
+	 * @return True if extends, false otherwise.
+	 */
+	public boolean doesExtend() {
+		return parentClass != null;
+	}
+
+	/**
+	 * Returns true if the class is of a native type.
+	 * 
+	 * @return True if native, false otherwise.
+	 */
+	public boolean isNative() {
+		return nature == Nature.NATIVE;
+	}
+
+	/**
+	 * Returnes true if the class is an array. In this case,
+	 * {@link #getArrayType()} will return an object.
+	 * 
+	 * @see #getArrayType()
+	 * @return True if array, false otherwise.
+	 */
+	public boolean isArray() {
+		return nature == Nature.ARRAY;
+	}
+
+	/**
+	 * Returns true if the class is a non-global inner class. In this case,
+	 * {@link #getOuterType()} returns an object. Note that {@link #isInner()}
+	 * == (!{@link #isGlobal()}).
+	 * 
+	 * @see #getOuterType()
+	 * @return True if inner, false if global.
+	 */
+	public boolean isInner() {
+		return isInner;
+	}
+
+	/**
+	 * Returns true if the class is a global class. Note that {@link #isInner()}
+	 * == (!{@link #isGlobal()}).
+	 * 
+	 * @return True if global, false if inner.
+	 */
+	public boolean isGlobal() {
+		return !isInner;
+	}
+
+	/**
+	 * Returns true if this class is unresolved.
+	 * 
+	 * @return True if unresolved, false if resolved.
+	 * @see #resolve(JavaClass)
+	 */
+	public boolean isUnresolved() {
+		return unresolved;
+	}
+
+	/**
+	 * Adds type to inner types and updates the reference back to this instance.
 	 * 
 	 * @param klass
 	 */
@@ -230,11 +292,23 @@ public class JavaClass {
 		if (unresolved) {
 			throw new RuntimeException("Unresolved.");
 		}
-		klass.setInner();
-		klass.setOuterType(this);
+		klass.setInner(this);
 		innerTypes.add(klass);
 	}
-	
+
+	/**
+	 * Marks the class as an inner class.
+	 * 
+	 * @param outerType Outer type that contains the class.
+	 */
+	public void setInner(JavaClass outerType) {
+		if (unresolved) {
+			throw new RuntimeException("Unresolved.");
+		}
+		this.isInner = true;
+		this.outerType = outerType;
+	}
+
 	public void linkInnerEnum(JavaEnum e) {
 		if (unresolved) {
 			throw new RuntimeException("Unresolved.");
@@ -242,11 +316,346 @@ public class JavaClass {
 		innerEnums.add(e);
 		e.setOuterType(this);
 	}
-	
+
 	/**
-	 * Retrieves imports for each module of this class.
+	 * Returns if the class should be rendered or not. Basically native types
+	 * and array of native types are not.
+	 * 
+	 * @return
+	 */
+	public boolean isVisible() {
+		if (unresolved) {
+			throw new RuntimeException("Unresolved.");
+		}
+		return !(isNative() || (isArray() && !arrayType.isVisible()));
+	}
+
+	/**
+	 * Adds a new class constructor to this class.
+	 * 
+	 * @param c New class constructor
+	 */
+	public void addConstructor(JavaConstructor c) {
+		if (unresolved) {
+			throw new RuntimeException("Unresolved.");
+		}
+		constructors.add(c);
+	}
+
+	/**
+	 * Adds a new class member to this class.
+	 * 
+	 * @param member New class member
+	 */
+	public void addMember(JavaMember member) {
+		if (unresolved) {
+			throw new RuntimeException("Unresolved.");
+		}
+		members.add(member);
+	}
+
+	/**
+	 * Adds a new import to this class.
+	 * 
+	 * @param i New import
+	 */
+	public void addImport(String i) {
+		if (unresolved) {
+			throw new RuntimeException("Unresolved.");
+		}
+		this.imports.add(i);
+	}
+
+	/**
+	 * Returns true if any inner types are available.
+	 * 
+	 * @return True if inner types available, false otherwise.
+	 */
+	public boolean hasInnerTypes() {
+		if (unresolved) {
+			throw new RuntimeException("Unresolved.");
+		}
+		return !innerTypes.isEmpty();
+	}
+
+	/**
+	 * Returns true if any inner enums are available.
+	 * 
+	 * @return True if inner enums available, false otherwise.
+	 */
+	public boolean hasInnerEnums() {
+		if (unresolved) {
+			throw new RuntimeException("Unresolved.");
+		}
+		return !innerEnums.isEmpty();
+	}
+
+	/**
+	 * Marks the class as a native class.
+	 */
+	public void setNative() {
+		if (unresolved) {
+			throw new RuntimeException("Unresolved.");
+		}
+		if (nature != null) {
+			throw new IllegalStateException("Cannot set nature if already set.");
+		}
+		nature = Nature.NATIVE;
+	}
+
+	/**
+	 * Marks the class as multi-type class.
+	 */
+	public void setMultiType() {
+		if (unresolved) {
+			throw new RuntimeException("Unresolved.");
+		}
+		if (nature != null) {
+			throw new IllegalStateException("Cannot set nature if already set.");
+		}
+		nature = Nature.MULTITYPE;
+	}
+
+	/**
+	 * Marks the class as an array.
+	 * 
+	 * @param arrayType Type of the array
+	 */
+	public void setArray(JavaClass arrayType) {
+		if (unresolved) {
+			throw new RuntimeException("Unresolved.");
+		}
+		if (nature != null) {
+			throw new IllegalStateException("Cannot set nature if already set.");
+		}
+		this.nature = Nature.ARRAY;
+		this.arrayType = arrayType;
+	}
+
+	/**
+	 * Marks the class as a global class.
+	 */
+	public void setGlobal() {
+		if (unresolved) {
+			throw new RuntimeException("Unresolved.");
+		}
+		isInner = false;
+	}
+
+	/**
+	 * Returns true if the class is a multi-type class.
+	 * 
+	 * @return True if multi-type, false otherwise.
+	 */
+	public boolean isMultiType() {
+		if (unresolved) {
+			throw new RuntimeException("Unresolved.");
+		}
+		return nature == Nature.MULTITYPE;
+	}
+
+	/**
+	 * Returns the array type. This only returns an non-null object if
+	 * {@link #isArray()} is true.
+	 * 
+	 * @see #isArray()
+	 * @return Array type of this class.
+	 */
+	public JavaClass getArrayType() {
+		if (unresolved) {
+			throw new RuntimeException("Unresolved.");
+		}
+		return arrayType;
+	}
+
+	/**
+	 * Returns the name of the class.
+	 * <ul><li>If the class is native, this is the name of the native type (e.g. <tt>boolean</tt>, <tt>string</tt>)</li>
+	 *     <li>If the class is global, this is the ID of type (e.g. <tt>Addon.Details</tt>, <tt>Video.Details.Episode</tt>)</li>
+	 *     <li>If the class is a multitype, then this is the name of its parameter (e.g. <tt>Broken</tt>, <tt>And</tt>)</li>
+	 *  </ul>
+	 * @return
+	 */
+	public String getName() {
+		if (unresolved) {
+			throw new RuntimeException("Unresolved.");
+		}
+		return name;
+	}
+
+	/**
+	 * Returns the namespace the class is attached to.
+	 * @return Namespace of the class
+	 */
+	public Namespace getNamespace() {
+		if (unresolved) {
+			throw new RuntimeException("Unresolved.");
+		}
+		return namespace;
+	}
+
+	/**
+	 * Returns the API type of the class, which is the ID under types objects (e.g.
+	 * <tt>List.Filter.Albums</tt>, <tt>Audio.Details.Album</tt>)
+	 * @return API name
+	 */
+	public String getApiType() {
+		if (unresolved) {
+			throw new RuntimeException("Unresolved.");
+		}
+		return apiType;
+	}
+
+	/**
+	 * Returns all added constructors of this class.
+	 * @return All class constructors
+	 */
+	public List<JavaConstructor> getConstructors() {
+		if (unresolved) {
+			throw new RuntimeException("Unresolved.");
+		}
+		return constructors;
+	}
+
+	/**
+	 * Returns all added members of this class.
+	 * @return All class members
+	 */
+	public List<JavaMember> getMembers() {
+		if (unresolved) {
+			throw new RuntimeException("Unresolved.");
+		}
+		// sort before return.
+		Collections.sort(members, new Comparator<JavaMember>() {
+			@Override
+			public int compare(JavaMember o1, JavaMember o2) {
+				return o1.getName().compareTo(o2.getName());
+			}
+		});
+		return members;
+	}
+
+	/**
+	 * Returns all added inner types of this class.
+	 * @return All inner types
+	 */
+	public List<JavaClass> getInnerTypes() {
+		if (unresolved) {
+			throw new RuntimeException("Unresolved.");
+		}
+		return innerTypes;
+	}
+
+	/**
+	 * Returns all added inner enums of this class.
+	 * @return All inner enums
+	 */
+	public List<JavaEnum> getInnerEnums() {
+		if (unresolved) {
+			throw new RuntimeException("Unresolved.");
+		}
+		return innerEnums;
+	}
+
+	/**
+	 * Returns the outer type. This only returns a non-null object if the class
+	 * is an inner class.
+	 * 
+	 * @see #isInner()
+	 * @returns Outer class if available, null otherwise.
+	 */
+	public JavaClass getOuterType() {
+		if (unresolved) {
+			throw new RuntimeException("Unresolved.");
+		}
+		return outerType;
+	}
+
+	/**
+	 * Returns the super class. This only returns a non-null object if the
+	 * class extends another class.
+	 * 
+	 * @see #doesExtend()
+	 * @return Parent class if available, null otherwise.
+	 */
+	public JavaClass getParentClass() {
+		if (unresolved) {
+			throw new RuntimeException("Unresolved.");
+		}
+		return parentClass;
+	}
+
+	/**
+	 * Marks the class a child class by setting its parent class.
+	 * 
+	 * @param parentClass Parent class
+	 */
+	public void setParentClass(JavaClass parentClass) {
+		if (unresolved) {
+			throw new RuntimeException("Unresolved.");
+		}
+		if (this.parentClass != null) {
+			throw new IllegalStateException("Cannot re-attach an class to a different parent.");
+		}
+		this.parentClass = parentClass;
+	}
+
+	/**
+	 * Returns true if the class has a registered render module for rendering
+	 * the super class.
+	 * @return True if parent render module defined, false otherwise.
+	 */
+	public boolean hasParentModule() {
+		if (unresolved) {
+			throw new RuntimeException("Unresolved.");
+		}
+		return getParentModule() != null;
+	}
+
+	/**
+	 * Returns the appropriate parent render module if available. Note that two
+	 * types of parent render modules can be defined: One for the class and
+	 * one for inner types.
+	 * @return Parent render module
+	 */
+	public IParentModule getParentModule() {
+		if (unresolved) {
+			throw new RuntimeException("Unresolved.");
+		}
+		return isInner ? namespace.getInnerParentModule() : namespace.getParentModule();
+	}
+
+	/**
+	 * Returns the appropriate class render modules. Note that two types of
+	 * class render modules can be defined: For class and inner types.
+	 * @return List of class render modules
+	 */
+	public Collection<IClassModule> getClassModules() {
+		if (unresolved) {
+			throw new RuntimeException("Unresolved.");
+		}
+		return isInner ? namespace.getInnerClassModules() : namespace.getClassModules();
+	}
+
+	/**
+	 * Applies the import routine of a list of modules to this class and its
+	 * inner types.
+	 * 
+	 * This basically goes through all modules and applies 
+	 * {@link IClassModule#getImports(JavaClass)} / {@link IParentModule#getImports(JavaClass)}
+	 * to this class and all its inner types. These can then be retrieved by
+	 * {@link #getImports()}.
+	 * 
+	 * @see #getImports()
+	 * @see IClassModule#getImports(JavaClass)
+	 * @see IParentModule#getImports(JavaClass)
+	 * @param modules Class render modules
+	 * @param parentModule Parent render module
 	 */
 	public void findModuleImports(Collection<IClassModule> modules, IParentModule parentModule) {
+		if (unresolved) {
+			throw new RuntimeException("Unresolved.");
+		}
 		if (isVisible()) {
 			// class render modules
 			for (IClassModule module : modules) {
@@ -263,238 +672,35 @@ public class JavaClass {
 	}
 	
 	/**
-	 * Returns if the class should be rendered or not.
-	 * Basically native types and array of native types are not.
-	 * @return
+	 * Recursively retrieves all imports from this class and its members,
+	 * inner types and enums.
+	 * @return All imports of this and all contained classes.
 	 */
-	public boolean isVisible() {
-		return !(isNative() || (isArray() && !arrayType.isVisible()));
-	}
-
-	public void addConstructor(JavaConstructor c) {
-		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
-		}
-		constructors.add(c);
-	}
-
-	public void addMember(JavaMember member) {
-		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
-		}
-		members.add(member);
-	}
-
-	public void addImport(String i) {
-		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
-		}
-		this.imports.add(i);
-	}
-
-	public boolean hasInnerTypes() {
-		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
-		}
-		return !innerTypes.isEmpty();
-	}
-
-	public boolean hasInnerEnums() {
-		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
-		}
-		return !innerEnums.isEmpty();
-	}
-
-	public boolean isNative() {
-		return nature == Nature.NATIVE;
-	}
-
-	public void setNative() {
-		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
-		}
-		nature = Nature.NATIVE;
-	}
-
-	public boolean isInner() {
-		return isInner;
-	}
-
-	public void setInner() {
-		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
-		}
-		isInner = true;
-	}
-
-	public boolean isMultiType() {
-		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
-		}
-		return nature == Nature.MULTITYPE;
-	}
-
-	public void setMultiType() {
-		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
-		}
-		nature = Nature.MULTITYPE;
-	}
-
-	public boolean isArray() {
-		return nature == Nature.ARRAY;
-	}
-
-	public void setArray() {
-		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
-		}
-		nature = Nature.ARRAY;
-	}
-
-	public JavaClass getArrayType() {
-		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
-		}
-		return arrayType;
-	}
-
-	public boolean isGlobal() {
-		return !isInner;
-	}
-
-	public void setGlobal() {
-		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
-		}
-		isInner = false;
-	}
-
-	public void setArrayType(JavaClass arrayType) {
-		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
-		}
-		this.arrayType = arrayType;
-	}
-
-	public String getName() {
-		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
-		}
-		return name;
-	}
-
-	public Namespace getNamespace() {
-		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
-		}
-		return namespace;
-	}
-
-	public String getApiType() {
-		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
-		}
-		return apiType;
-	}
-
-	public List<JavaConstructor> getConstructors() {
-		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
-		}
-		return constructors;
-	}
-
-	public List<JavaMember> getMembers() {
-		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
-		}
-		// sort before return.
-		Collections.sort(members, new Comparator<JavaMember>() {
-			@Override
-			public int compare(JavaMember o1, JavaMember o2) {
-				return o1.getName().compareTo(o2.getName());
-			}
-		});
-		return members;
-	}
-
-	public List<JavaClass> getInnerTypes() {
-		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
-		}
-		return innerTypes;
-	}
-
-	public List<JavaEnum> getInnerEnums() {
-		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
-		}
-		return innerEnums;
-	}
-
-	public boolean isUnresolved() {
-		return unresolved;
-	}
-
-	public JavaClass getOuterType() {
-		return outerType;
-	}
-
-	public void setOuterType(JavaClass outerType) {
-		this.outerType = outerType;
-	}
-
-	public JavaClass getParentClass() {
-		return parentClass;
-	}
-
-	public void setParentClass(JavaClass parentClass) {
-		this.parentClass = parentClass;
-	}
-	
-	public boolean hasParentModule() {
-		return getParentModule() != null;
-	}
-	
-	public IParentModule getParentModule() {
-		return isInner ? namespace.getInnerParentModule() : namespace.getParentModule();
-	}
-	
-	public Collection<IClassModule> getClassModules() {
-		return isInner ? namespace.getInnerClassModules() : namespace.getClassModules();
-	}
-	
-	public boolean doesExtend() {
-		return parentClass != null;
-	}
-
 	public Set<String> getImports() {
+		if (unresolved) {
+			throw new RuntimeException("Unresolved.");
+		}
 		final Set<String> imports = new HashSet<String>();
 
+		// own imports
 		imports.addAll(this.imports);
+		// members
 		for (JavaMember m : members) {
 			if (!m.isEnum()) {
 				imports.addAll(m.getType().getImports());
 			}
 		}
-		
+		// inner types
 		for (JavaClass klass : innerTypes) {
 			imports.addAll(klass.getImports());
 		}
-		
+		// enums
 		if (!innerEnums.isEmpty()) {
 			imports.add("java.util.HashSet");
 			imports.add("java.util.Set");
 			imports.add("java.util.Arrays");
 		}
 		return imports;
-	}
-	
-	@Override
-	public boolean equals(Object obj) {
-		return apiType != null && apiType.equals(((JavaClass)obj).apiType);
 	}
 
 }

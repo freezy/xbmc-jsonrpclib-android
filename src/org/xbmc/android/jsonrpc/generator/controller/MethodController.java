@@ -133,8 +133,7 @@ public class MethodController {
 				final JavaClass returnType = returnTypeController.getClass(namespace, name, klass);
 				
 				if (returnType.isArray()) {
-					returnType.getArrayType().setOuterType(klass);
-					klass.getInnerTypes().add(returnType.getArrayType());
+					klass.linkInnerType(returnType.getArrayType());
 				}
 				
 				klass.setReturnType(returnType);
