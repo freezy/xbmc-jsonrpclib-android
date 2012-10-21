@@ -32,7 +32,6 @@ import org.xbmc.android.jsonrpc.generator.introspect.Param;
 import org.xbmc.android.jsonrpc.generator.introspect.Property;
 import org.xbmc.android.jsonrpc.generator.introspect.Type;
 import org.xbmc.android.jsonrpc.generator.introspect.wrapper.ExtendsWrapper;
-import org.xbmc.android.jsonrpc.generator.model.IClassContainer;
 import org.xbmc.android.jsonrpc.generator.model.JavaClass;
 import org.xbmc.android.jsonrpc.generator.model.JavaConstructor;
 import org.xbmc.android.jsonrpc.generator.model.JavaEnum;
@@ -143,7 +142,7 @@ public class PropertyController {
 	 * @param className Name of the class (retrieved from parent key)
 	 * @return Class object
 	 */
-	public JavaClass getClass(Namespace namespace, String className, IClassContainer outerType) {
+	public JavaClass getClass(Namespace namespace, String className, JavaClass outerType) {
 		
 		final JavaClass klass;
 		

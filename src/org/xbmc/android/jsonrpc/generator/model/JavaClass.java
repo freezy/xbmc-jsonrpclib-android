@@ -39,7 +39,7 @@ import org.xbmc.android.jsonrpc.generator.view.module.IParentModule;
  * 
  * @author freezy <freezy@xbmc.org>
  */
-public class JavaClass implements IClassContainer {
+public class JavaClass {
 
 	private final String name;
 	private final String apiType;
@@ -48,14 +48,22 @@ public class JavaClass implements IClassContainer {
 	private boolean isInner = false; // = !isGlobal
 	private Nature nature = null;
 	
-//	private boolean isNative = false;
-//	private boolean isMultiType = false;
-//	private boolean isArray = false;
-//	private boolean isGlobal = false;
-	
 	public enum Nature {
 		NATIVE, MULTITYPE, ARRAY;
 	}
+
+	/**
+	 * Parent class, set if property "extends" something.
+	 */
+	private JavaClass parentClass = null; 
+	/**
+	 * If this is an array, the type is set here.
+	 */
+	private JavaClass arrayType = null;
+	/**
+	 * If this is an inner class, the outer class is set here.
+	 */
+	private JavaClass outerType = null; // set if isInner == true.
 	
 	/**
 	 * If true, this is just a place holder and the "real" object has yet to be
@@ -74,11 +82,12 @@ public class JavaClass implements IClassContainer {
 	private final List<JavaEnum> innerEnums = new ArrayList<JavaEnum>();
 
 	private final Set<String> imports = new HashSet<String>();
-	private final static Map<String, JavaClass> GLOBALS = new HashMap<String, JavaClass>();
 
-	private JavaClass parentClass = null; // set if "extends" 
-	private JavaClass arrayType = null;
-	private IClassContainer outerType = null; // set if isInner == true.
+	
+	/**
+	 * Contains all global classes for resolving purpose.
+	 */
+	private final static Map<String, JavaClass> GLOBALS = new HashMap<String, JavaClass>();
 
 	/**
 	 * New class by reference.
@@ -428,11 +437,11 @@ public class JavaClass implements IClassContainer {
 		return unresolved;
 	}
 
-	public IClassContainer getOuterType() {
+	public JavaClass getOuterType() {
 		return outerType;
 	}
 
-	public void setOuterType(IClassContainer outerType) {
+	public void setOuterType(JavaClass outerType) {
 		this.outerType = outerType;
 	}
 
