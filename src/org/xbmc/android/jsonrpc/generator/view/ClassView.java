@@ -33,9 +33,6 @@ import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
  */
 public class ClassView extends AbstractView {
 
-	//public final static String DISPLAY_ONLY = "Filter.Albums";
-	public final static String DISPLAY_ONLY = "";
-
 	private final JavaClass klass;
 
 	public ClassView(JavaClass klass) {
@@ -44,18 +41,13 @@ public class ClassView extends AbstractView {
 
 	public void renderDeclaration(StringBuilder sb, int indent, boolean force) {
 
-		// debug
-		if (!force && !DISPLAY_ONLY.isEmpty() && !klass.getApiType().equals(DISPLAY_ONLY)) {
-			return;
-		}
-
 		final String prefix = getIndent(indent);
 
 		// signature
 		sb.append("\n");
 		sb.append(prefix).append("public static class ");
 		sb.append(getClassName(klass));
-		if (klass.getParentModule() != null) {
+		if (klass.hasParentModule()) {
 			klass.getParentModule().renderExtends(sb, klass);
 		}
 		sb.append(" {\n");

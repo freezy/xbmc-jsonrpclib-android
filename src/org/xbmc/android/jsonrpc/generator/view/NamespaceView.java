@@ -34,9 +34,6 @@ import org.xbmc.android.jsonrpc.generator.model.Namespace;
  */
 public class NamespaceView extends AbstractView {
 	
-	//public final static String DISPLAY_ONLY = "List";
-	public final static String DISPLAY_ONLY = "";
-	
 	private final Namespace namespace;
 	
 	public NamespaceView(Namespace namespace) {
@@ -44,11 +41,6 @@ public class NamespaceView extends AbstractView {
 	}
 	
 	public void render(StringBuilder sb) {
-		
-		// debug
-		if (!DISPLAY_ONLY.isEmpty() && !namespace.getName().equals(DISPLAY_ONLY)) {
-			return;
-		}
 		
 		// init
 		sb.append(GPL_HEADER);
@@ -80,20 +72,13 @@ public class NamespaceView extends AbstractView {
 		// classes
 		for (JavaClass klass : namespace.getClasses()) {
 			final ClassView classView;
-			boolean doRender = true;
 			if (klass.isArray()) {
 				classView = new ClassView(klass.getArrayType());
-				if (klass.getArrayType().isNative()) {
-					doRender = false;
-				}
 			} else {
 				classView = new ClassView(klass);
-				if (klass.isNative()) {
-					doRender = false;
-				}
 			}
 			
-			if (doRender) {
+			if (klass.isVisible()) {
 				classView.renderDeclaration(sb, 1, false);
 			}
 		}

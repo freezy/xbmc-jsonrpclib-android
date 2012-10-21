@@ -5,6 +5,7 @@ import java.util.Set;
 
 import org.xbmc.android.jsonrpc.generator.model.JavaClass;
 import org.xbmc.android.jsonrpc.generator.model.JavaMethod;
+import org.xbmc.android.jsonrpc.generator.model.Namespace;
 import org.xbmc.android.jsonrpc.generator.view.AbstractView;
 import org.xbmc.android.jsonrpc.generator.view.module.IParentModule;
 
@@ -45,14 +46,10 @@ public class MethodParentModule extends AbstractView implements IParentModule {
 		
 		final JavaMethod m = getMethod(klass);
 		final JavaClass returnType = m.getReturnType();
-		if (returnType.isArray()) {
-			if (!returnType.getArrayType().getNamespace().equals(klass.getNamespace())) {
-				imports.add("org.xbmc.android.jsonrpc.api.model." + returnType.getArrayType().getNamespace().getName());
-			}
-		} else {
-			if (!returnType.getNamespace().equals(klass.getNamespace())) {
-				imports.add("org.xbmc.android.jsonrpc.api.model." + returnType.getNamespace().getName());
-			}
+		final Namespace ns = returnType.isArray() ? returnType.getArrayType().getNamespace() : returnType.getNamespace();
+		
+		if (!ns.equals(klass.getNamespace())) {
+			imports.add(ns.getPackageName() + "." + ns.getName());
 		}
 		
 		return imports;

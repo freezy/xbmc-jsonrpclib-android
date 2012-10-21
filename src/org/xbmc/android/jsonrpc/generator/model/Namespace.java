@@ -79,7 +79,9 @@ public class Namespace {
 	 */
 	public Set<String> findImports() {
 		for (JavaClass klass : classes) {
-			imports.addAll(klass.getImports());
+			if (klass.isVisible()) {
+				imports.addAll(klass.getImports());
+			}
 		}
 		if (!enums.isEmpty()) {
 			imports.add("java.util.HashSet");
@@ -174,7 +176,12 @@ public class Namespace {
 	}
 	
 	public boolean isEmpty() {
-		return classes.isEmpty() && enums.isEmpty();
+		for (JavaClass klass : classes) {
+			if (klass.isVisible()) {
+				return false;
+			}
+		}
+		return enums.isEmpty();
 	}
 
 	public static Namespace getType(String name, String packageName, String classSuffix) {

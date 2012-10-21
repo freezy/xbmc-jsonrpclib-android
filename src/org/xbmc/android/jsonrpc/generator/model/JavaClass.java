@@ -227,17 +227,28 @@ public class JavaClass implements IClassContainer {
 	 * Retrieves imports for each module of this class.
 	 */
 	public void findModuleImports(Collection<IClassModule> modules, IParentModule parentModule) {
-		// class render modules
-		for (IClassModule module : modules) {
-			imports.addAll(module.getImports(this));
-			for (JavaClass klass : innerTypes) {
-				klass.findModuleImports(namespace.getInnerClassModules(), namespace.getInnerParentModule());
+		if (isVisible()) {
+			// class render modules
+			for (IClassModule module : modules) {
+				imports.addAll(module.getImports(this));
+				for (JavaClass klass : innerTypes) {
+					klass.findModuleImports(namespace.getInnerClassModules(), namespace.getInnerParentModule());
+				}
+			}
+			// superclass render module if available
+			if (parentModule != null) {
+				imports.addAll(parentModule.getImports(this));
 			}
 		}
-		// superclass render module if available
-		if (parentModule != null) {
-			imports.addAll(parentModule.getImports(this));
-		}
+	}
+	
+	/**
+	 * Returns if the class should be rendered or not.
+	 * Basically native types and array of native types are not.
+	 * @return
+	 */
+	public boolean isVisible() {
+		return !(isNative || (isArray && !arrayType.isVisible()));
 	}
 
 	public void addConstructor(JavaConstructor c) {
@@ -421,6 +432,10 @@ public class JavaClass implements IClassContainer {
 
 	public void setParentClass(JavaClass parentClass) {
 		this.parentClass = parentClass;
+	}
+	
+	public boolean hasParentModule() {
+		return getParentModule() != null;
 	}
 	
 	public IParentModule getParentModule() {
