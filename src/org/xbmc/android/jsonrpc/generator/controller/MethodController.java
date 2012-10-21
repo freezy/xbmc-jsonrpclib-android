@@ -133,7 +133,6 @@ public class MethodController {
 				final JavaClass returnType = returnTypeController.getClass(namespace, name, klass);
 				
 				if (returnType.isArray()) {
-					returnType.setInner(true);
 					returnType.getArrayType().setOuterType(klass);
 					klass.getInnerTypes().add(returnType.getArrayType());
 				}
@@ -197,8 +196,6 @@ public class MethodController {
 						final String name = klass.getName() + RESULT_CLASS_SUFFIX;
 						final PropertyController returnTypeController = new PropertyController(null, type);
 						final JavaClass returnType = returnTypeController.getClass(namespace, name, klass);
-						returnType.setOuterType(klass);
-						returnType.setInner(true);
 						klass.setReturnType(returnType);
 						klass.getInnerTypes().add(returnType);
 					}

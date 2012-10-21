@@ -156,7 +156,6 @@ public class PropertyController {
 			throw new IllegalArgumentException("Outer type must be set for non-global classes.");
 		}
 		
-		
 		// create class from native type
 		if (property.isNative()) {
 			
@@ -174,7 +173,8 @@ public class PropertyController {
 				klass = new JavaClass(namespace, className, apiType);
 			} else {
 				klass = new JavaClass(namespace, className);
-				klass.setInner(true);
+				klass.setInner();
+				klass.setOuterType(outerType);
 			}
 			klass.setMultiType();
 			
@@ -187,7 +187,6 @@ public class PropertyController {
 					final PropertyController pc = new PropertyController(multiTypeName, t);
 					final JavaClass typeClass = pc.getClass(namespace, multiTypeName, klass);
 					if (!t.isRef()) {
-						typeClass.setInner(true);
 						klass.linkInnerType(typeClass);
 					}
 				}
@@ -205,16 +204,7 @@ public class PropertyController {
 			
 			// get array type
 			final PropertyController pc = new PropertyController(null, property.getItems());
-			final JavaClass arrayType = pc.getClass(namespace, className, klass);
-			if (!property.getItems().isRef() && !property.getItems().isNative()) {
-				arrayType.setInner(true);
-			}
-			klass.setArrayType(arrayType);
-			
-			// rendering will skip native arrays, so dont add import if that's the case.
-			if (!arrayType.isNative()) {
-				klass.addImport("java.util.List");
-			}
+			klass.setArrayType(pc.getClass(namespace, className, klass));
 			
 			// arrays can also be defined as globals (List.Items.Sources)
 			if (isGlobal()) {
@@ -230,18 +220,21 @@ public class PropertyController {
 		} else if (property instanceof Type) {
 			final Type type = (Type)property;
 			
-			// TODO check why the fuck ID would be null.
+			// if id not set it's an inner type.
 			if (type.getId() == null) {
 				klass = new JavaClass(namespace, className);
+				klass.setInner();
+				klass.setOuterType(outerType);
 			} else {
 				klass = new JavaClass(namespace, findName(apiType), name);
 				klass.setGlobal(); // TODO adopt accordingly, see above.
 			}
 		
-		// create class from object	
+		// create class from (non-global) object	
 		} else if (property.hasProperties() ) {
 			klass = new JavaClass(namespace, className);
-			klass.setInner(true);
+			klass.setInner();
+			klass.setOuterType(outerType);
 			
 		// wtf!
 		} else {

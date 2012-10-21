@@ -230,8 +230,9 @@ public class JavaClass {
 		if (unresolved) {
 			throw new RuntimeException("Unresolved.");
 		}
-		innerTypes.add(klass);
+		klass.setInner();
 		klass.setOuterType(this);
+		innerTypes.add(klass);
 	}
 	
 	public void linkInnerEnum(JavaEnum e) {
@@ -320,11 +321,11 @@ public class JavaClass {
 		return isInner;
 	}
 
-	public void setInner(boolean isInner) {
+	public void setInner() {
 		if (unresolved) {
 			throw new RuntimeException("Unresolved.");
 		}
-		this.isInner = isInner;
+		isInner = true;
 	}
 
 	public boolean isMultiType() {

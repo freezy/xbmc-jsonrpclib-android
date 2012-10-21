@@ -36,14 +36,14 @@ public class MemberController {
 
 	private final Property property;
 	private final String name;
-	
+
 	public MemberController(String name, Property property) {
 		this.property = property;
 		this.name = name;
 	}
-	
+
 	public JavaMember getMember(Namespace namespace, JavaClass parentType) {
-		
+
 		final Property prop = Introspect.find(property);
 		final JavaMember member;
 		if (prop.isEnum()) {
@@ -51,25 +51,19 @@ public class MemberController {
 			final JavaEnum e = pc.getEnum(name);
 			e.setInner(true);
 			member = new JavaMember(name, e);
-			
+
 		} else {
-			
+
 			final PropertyController pc = new PropertyController(name, property);
 			final JavaClass klass = pc.getClass(namespace, name, parentType);
-			
-			// check if the prop is another object definition (=> inner type)
-			if (property.hasProperties()) {
-				klass.setInner(true);
-				klass.setOuterType(parentType);
-			}
-			
+
 			member = new JavaMember(name, klass);
 		}
-		
+
 		if (prop.getRequired() != null) {
 			member.setRequired(prop.getRequired());
 		}
-		
+
 		return member;
 	}
 
