@@ -26,10 +26,10 @@ import java.util.Set;
 
 import org.xbmc.android.jsonrpc.generator.model.JavaClass;
 import org.xbmc.android.jsonrpc.generator.model.JavaMember;
+import org.xbmc.android.jsonrpc.generator.model.JavaMethod;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 import org.xbmc.android.jsonrpc.generator.view.AbstractView;
 import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
-
 
 /**
  * Provides Parcelable-serialization via Android.
@@ -41,13 +41,16 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 	
 	@Override
 	public void render(StringBuilder sb, Namespace ns, JavaClass klass, int idt) {
+		if (!(klass instanceof JavaMethod)) {
+			throw new IllegalArgumentException("When rendering method API class modules, passed class must be of type JavaMethod.");
+		}
+		final JavaMethod method = (JavaMethod)klass;
 		
-		renderStaticStuff(sb, klass, idt);
-		
+		renderStaticStuff(sb, method, idt);
 	}
 	
 	
-	private void renderStaticStuff(StringBuilder sb, JavaClass klass, int idt) {
+	private void renderStaticStuff(StringBuilder sb, JavaMethod method, int idt) {
 		final String indent = getIndent(idt);
 		
 		sb.append(indent).append("@Override\n");
@@ -56,12 +59,9 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 		sb.append(indent).append("}\n");
 		sb.append(indent).append("@Override\n");
 		sb.append(indent).append("protected boolean returnsList() {\n");
-		sb.append(indent).append("	return false;\n");
-//		sb.append(indent).append("	return ").append(klass.).append(";\n");
+		sb.append(indent).append("	return ").append(method.getReturnType().isArray() ? "true" : "false").append(";\n");
 		sb.append(indent).append("}\n");
 	}
-	
-	
 
 	@Override
 	public Set<String> getImports(JavaClass klass) {
@@ -77,7 +77,12 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 		return imports;
 	}
 	
-	public Set<String> getInternalImports(JavaClass klass) {
+	/**
+	 * Computes imports that refer to the API's global types.
+	 * @param klass
+	 * @return
+	 */
+	private Set<String> getInternalImports(JavaClass klass) {
 		final Set<String> imports = new HashSet<String>();
 		for (JavaMember member : klass.getMembers()) {
 			if (!member.isEnum()) {
