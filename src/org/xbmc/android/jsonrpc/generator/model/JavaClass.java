@@ -286,14 +286,14 @@ public class JavaClass {
 	/**
 	 * Adds type to inner types and updates the reference back to this instance.
 	 * 
-	 * @param klass
+	 * @param innerType The inner type linked to this class
 	 */
-	public void linkInnerType(JavaClass klass) {
+	public void linkInnerType(JavaClass innerType) {
 		if (unresolved) {
 			throw new RuntimeException("Unresolved.");
 		}
-		klass.setInner(this);
-		innerTypes.add(klass);
+		innerType.setInner(this);
+		innerTypes.add(innerType);
 	}
 
 	/**

@@ -20,11 +20,7 @@
  */
 package org.xbmc.android.jsonrpc.generator.controller;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.xbmc.android.jsonrpc.generator.Introspect;
 import org.xbmc.android.jsonrpc.generator.introspect.Method;
@@ -45,19 +41,6 @@ import org.xbmc.android.jsonrpc.generator.model.Namespace;
  */
 public class PropertyController {
 	
-	private final static Set<String> IGNORED_TYPES = new HashSet<String>();
-	private final static Map<String, String> REPLACED_TYPES = new HashMap<String, String>();
-	
-	static {
-		IGNORED_TYPES.add("Array.Integer");
-		IGNORED_TYPES.add("Array.String");
-		
-		REPLACED_TYPES.put("Item.Fields.Base", "List<String>");
-		REPLACED_TYPES.put("Optional.Integer", "Integer");
-		REPLACED_TYPES.put("Optional.Number", "Double");
-		REPLACED_TYPES.put("Optional.String", "String");
-	}
-
 	/**
 	 * Name of the property.<p/>
 	 * 
@@ -100,11 +83,6 @@ public class PropertyController {
 	 * model package.
 	 */
 	public Namespace register(String packageName, String classSuffix) {
-		
-		// return directly if ignored type.
-//		if (name != null && (IGNORED_TYPES.contains(name) || REPLACED_TYPES.containsKey(name))) {
-//			return;
-//		}
 		
 		final Namespace ns = Namespace.getType(name, packageName, classSuffix);
 		
