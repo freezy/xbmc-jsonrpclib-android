@@ -45,17 +45,27 @@ public class JavaClass implements IClassContainer {
 	private final String apiType;
 	private final Namespace namespace;
 
-	private boolean isNative = false;
-	private boolean isInner = false;
-	private boolean isMultiType = false;
-	private boolean isArray = false;
-	private boolean isGlobal = false;
+	private boolean isInner = false; // = !isGlobal
+	private Nature nature = null;
+	
+//	private boolean isNative = false;
+//	private boolean isMultiType = false;
+//	private boolean isArray = false;
+//	private boolean isGlobal = false;
+	
+	public enum Nature {
+		NATIVE, MULTITYPE, ARRAY;
+	}
 	
 	/**
 	 * If true, this is just a place holder and the "real" object has yet to be
 	 * fetched.
 	 */
 	private final boolean unresolved;
+	/**
+	 * In order to avoid stack overflow due to circular references, once a 
+	 * class is resolved, mark it as such.
+	 */
 	private boolean resolved = false;
 
 	private final List<JavaConstructor> constructors = new ArrayList<JavaConstructor>();
@@ -85,8 +95,8 @@ public class JavaClass implements IClassContainer {
 		this.namespace = null;
 		this.name = null;
 		this.apiType = apiType;
-		this.isGlobal = true;
 		this.unresolved = true;
+		this.isInner = false;
 	}
 
 	/**
@@ -248,7 +258,7 @@ public class JavaClass implements IClassContainer {
 	 * @return
 	 */
 	public boolean isVisible() {
-		return !(isNative || (isArray && !arrayType.isVisible()));
+		return !(isNative() || (isArray() && !arrayType.isVisible()));
 	}
 
 	public void addConstructor(JavaConstructor c) {
@@ -287,14 +297,14 @@ public class JavaClass implements IClassContainer {
 	}
 
 	public boolean isNative() {
-		return isNative;
+		return nature == Nature.NATIVE;
 	}
 
-	public void setNative(boolean isNative) {
+	public void setNative() {
 		if (unresolved) {
 			throw new RuntimeException("Unresolved.");
 		}
-		this.isNative = isNative;
+		nature = Nature.NATIVE;
 	}
 
 	public boolean isInner() {
@@ -312,25 +322,25 @@ public class JavaClass implements IClassContainer {
 		if (unresolved) {
 			throw new RuntimeException("Unresolved.");
 		}
-		return isMultiType;
+		return nature == Nature.MULTITYPE;
 	}
 
-	public void setMultiType(boolean isMultiType) {
+	public void setMultiType() {
 		if (unresolved) {
 			throw new RuntimeException("Unresolved.");
 		}
-		this.isMultiType = isMultiType;
+		nature = Nature.MULTITYPE;
 	}
 
 	public boolean isArray() {
-		return isArray;
+		return nature == Nature.ARRAY;
 	}
 
-	public void setArray(boolean isArray) {
+	public void setArray() {
 		if (unresolved) {
 			throw new RuntimeException("Unresolved.");
 		}
-		this.isArray = isArray;
+		nature = Nature.ARRAY;
 	}
 
 	public JavaClass getArrayType() {
@@ -341,14 +351,14 @@ public class JavaClass implements IClassContainer {
 	}
 
 	public boolean isGlobal() {
-		return isGlobal;
+		return !isInner;
 	}
 
-	public void setGlobal(boolean isGlobal) {
+	public void setGlobal() {
 		if (unresolved) {
 			throw new RuntimeException("Unresolved.");
 		}
-		this.isGlobal = isGlobal;
+		isInner = false;
 	}
 
 	public void setArrayType(JavaClass arrayType) {

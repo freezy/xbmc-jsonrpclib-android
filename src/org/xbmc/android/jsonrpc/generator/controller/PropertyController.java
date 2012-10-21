@@ -166,7 +166,7 @@ public class PropertyController {
 			} else {
 				klass = new JavaClass(namespace, property.getType().getName());
 			}
-			klass.setNative(true);
+			klass.setNative();
 			
 		// create class from multiple values
 		} else if (property.isMultitype()) {
@@ -177,7 +177,7 @@ public class PropertyController {
 				klass = new JavaClass(namespace, className);
 				klass.setInner(true);
 			}
-			klass.setMultiType(true);
+			klass.setMultiType();
 			
 			final List<Type> types = property.getType().getList();
 			for (Type t : types) {
@@ -202,7 +202,7 @@ public class PropertyController {
 			} else {
 				klass = new JavaClass(namespace);
 			}
-			klass.setArray(true);
+			klass.setArray();
 			
 			// get array type
 			final PropertyController pc = new PropertyController(null, property.getItems());
@@ -219,10 +219,8 @@ public class PropertyController {
 			
 			// arrays can also be defined as globals (List.Items.Sources)
 			if (isGlobal()) {
-				klass.setInner(false);
-				klass.setGlobal(true);
-				klass.getArrayType().setInner(false);
-				klass.getArrayType().setGlobal(true);
+				klass.setGlobal();
+				klass.getArrayType().setGlobal();
 			}
 			
 		// create class from reference
@@ -238,7 +236,7 @@ public class PropertyController {
 				klass = new JavaClass(namespace, className);
 			} else {
 				klass = new JavaClass(namespace, findName(apiType), name);
-				klass.setGlobal(true); // TODO adopt accordingly, see above.
+				klass.setGlobal(); // TODO adopt accordingly, see above.
 			}
 		
 		// create class from object	
