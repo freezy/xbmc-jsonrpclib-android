@@ -81,6 +81,11 @@ public class Namespace {
 		for (JavaClass klass : classes) {
 			imports.addAll(klass.getImports());
 		}
+		if (!enums.isEmpty()) {
+			imports.add("java.util.HashSet");
+			imports.add("java.util.Set");
+			imports.add("java.util.Arrays");
+		}
 		return new TreeSet<String>(imports);
 	}
 	

@@ -14,15 +14,28 @@ public class MethodParentModule extends AbstractView implements IParentModule {
 	public void renderExtends(StringBuilder sb, JavaClass klass) {
 		
 		final JavaMethod m = getMethod(klass);
-		final JavaClass returnType = m.getReturnType();
+		final JavaClass returnType = m.getReturnType().isArray() ? m.getReturnType().getArrayType() : m.getReturnType();
 		
 		sb.append(" extends AbstractCall<");
-		if (returnType.isArray()) {
-			sb.append(getClassReference(klass.getNamespace(), returnType.getArrayType()));
+		
+		if (returnType.isInner()) {
+			sb.append(getInnerClassReference(klass, returnType));
 		} else {
 			sb.append(getClassReference(klass.getNamespace(), returnType));
 		}
 		sb.append(">");
+	}
+
+	private Object getInnerClassReference(JavaClass parent, JavaClass klass) {
+		final StringBuilder sb = new StringBuilder();
+
+		final String className = getClassName(parent.getNamespace(), klass);
+		if (!klass.isNative() && !className.startsWith("List")) {
+			sb.append(parent.getName());
+			sb.append(".");
+		}
+		sb.append(className);
+		return sb.toString();	
 	}
 
 	@Override

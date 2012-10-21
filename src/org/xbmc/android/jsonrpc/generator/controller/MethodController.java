@@ -133,7 +133,9 @@ public class MethodController {
 				final JavaClass returnType = returnTypeController.getClass(namespace, name, klass);
 				
 				if (returnType.isArray()) {
+					returnType.setInner(true);
 					returnType.getArrayType().setOuterType(klass);
+					klass.getInnerTypes().add(returnType.getArrayType());
 				}
 				
 				klass.setReturnType(returnType);
@@ -207,19 +209,6 @@ public class MethodController {
 			} else {
 				throw new IllegalStateException("Result type is expected to be a reference, native or an object.");
 			}
-			
-
-			
-			
-			
-/*			final PropertyController returnTypeController = new PropertyController(null, method.getReturns().getObj());
-			
-			final JavaClass t = returnTypeController.getClass(namespace, name + "ReturnType", klass);
-			klass.setReturnType(t);
-			if (t.isArray()) {
-				t.getArrayType().setOuterType(klass);
-			}*/
-//			klass.getInnerTypes().add(t);
 			
 		} else {
 			throw new RuntimeException("Expected return type is an object with properties.");

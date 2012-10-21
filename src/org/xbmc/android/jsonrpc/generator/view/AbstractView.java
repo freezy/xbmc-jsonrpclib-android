@@ -45,7 +45,7 @@ public abstract class AbstractView {
 	 * @param klass Given class
 	 * @return Java class name
 	 */
-	private String getClassName(Namespace ns, JavaClass klass) {
+	protected String getClassName(Namespace ns, JavaClass klass) {
 		if (klass == null) {
 			throw new IllegalArgumentException("Provided class cannot be null.");
 		}
@@ -74,7 +74,8 @@ public abstract class AbstractView {
 	 * <li>In a list, it renders <tt>List&lt;VideoModel.Cast&gt;</tt></li>
 	 * </ul>
 	 * 
-	 * @param klass
+	 * @param ns Namespace where class is being referenced to.
+	 * @param klass Class being referenced 
 	 * @return
 	 */
 	protected String getClassReference(Namespace ns, JavaClass klass) {
@@ -144,7 +145,7 @@ public abstract class AbstractView {
 		} else if (typeName.equals("string")) {
 			return "String";
 		} else if (typeName.equals("any")) {
-			return "BaseJsonNode";
+			return "String";
 		} else {
 			throw new IllegalArgumentException("Unknown native type \"" + typeName + "\".");
 		}

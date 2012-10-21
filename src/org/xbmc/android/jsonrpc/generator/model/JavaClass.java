@@ -408,7 +408,7 @@ public class JavaClass implements IClassContainer {
 	}
 	
 	public Collection<IClassModule> getClassModules() {
-		return isInner ? namespace.getClassModules() : namespace.getInnerClassModules();
+		return isInner ? namespace.getInnerClassModules() : namespace.getClassModules();
 	}
 	
 	public boolean doesExtend() {
@@ -427,6 +427,12 @@ public class JavaClass implements IClassContainer {
 		
 		for (JavaClass klass : innerTypes) {
 			imports.addAll(klass.getImports());
+		}
+		
+		if (!innerEnums.isEmpty()) {
+			imports.add("java.util.HashSet");
+			imports.add("java.util.Set");
+			imports.add("java.util.Arrays");
 		}
 		return imports;
 	}

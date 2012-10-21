@@ -48,6 +48,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 		NATIVE_REQUIRED_NODE_GETTER.put("string", "getTextValue");
 		NATIVE_REQUIRED_NODE_GETTER.put("boolean", "getBooleanValue");
 		NATIVE_REQUIRED_NODE_GETTER.put("number", "getDoubleValue");
+		NATIVE_REQUIRED_NODE_GETTER.put("any", "getTextValue");
 
 		NATIVE_OPTIONAL_NODE_GETTER.put("integer", "parseInt");
 		NATIVE_OPTIONAL_NODE_GETTER.put("string", "parseString");
