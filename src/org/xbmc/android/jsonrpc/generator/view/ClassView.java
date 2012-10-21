@@ -39,7 +39,7 @@ public class ClassView extends AbstractView {
 	private final JavaClass klass;
 
 	public ClassView(JavaClass klass) {
-		this.klass = JavaClass.resolve(klass);
+		this.klass = klass;
 	}
 
 	public void renderDeclaration(StringBuilder sb, int indent, boolean force) {

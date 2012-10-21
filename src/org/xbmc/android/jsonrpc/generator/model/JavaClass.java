@@ -196,9 +196,7 @@ public class JavaClass implements IClassContainer {
 
 		// ..and members
 		for (JavaMember m : members) {
-			if (!m.isEnum() && !m.getType().equals(this)) {
-				m.resolveType();
-			}
+			m.resolveType();
 		}
 		
 	}

@@ -58,7 +58,7 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 		sb.append(indent).append("protected boolean returnsList() {\n");
 		sb.append(indent).append("	return false;\n");
 //		sb.append(indent).append("	return ").append(klass.).append(";\n");
-		sb.append(indent).append("}");
+		sb.append(indent).append("}\n");
 	}
 	
 	

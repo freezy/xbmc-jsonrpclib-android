@@ -152,7 +152,7 @@ public abstract class AbstractView {
 	}
 
 	protected String getArrayType(Namespace ns, JavaClass klass) {
-		return "List<" + getClassReference(ns, JavaClass.resolve(klass.getArrayType())) + ">";
+		return "List<" + getClassReference(ns, klass.getArrayType()) + ">";
 	}
 
 	/**
