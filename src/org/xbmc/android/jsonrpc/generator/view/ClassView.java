@@ -23,7 +23,6 @@ package org.xbmc.android.jsonrpc.generator.view;
 import org.xbmc.android.jsonrpc.generator.model.JavaClass;
 import org.xbmc.android.jsonrpc.generator.model.JavaConstructor;
 import org.xbmc.android.jsonrpc.generator.model.JavaEnum;
-import org.xbmc.android.jsonrpc.generator.model.JavaMember;
 import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
 
 /**
@@ -39,13 +38,13 @@ public class ClassView extends AbstractView {
 		this.klass = klass;
 	}
 
-	public void renderDeclaration(StringBuilder sb, int indent, boolean force) {
+	public void renderDeclaration(StringBuilder sb, int idt, boolean force) {
 
-		final String prefix = getIndent(indent);
+		final String indent = getIndent(idt);
 
 		// signature
 		sb.append("\n");
-		sb.append(prefix).append("public static class ");
+		sb.append(indent).append("public static class ");
 		sb.append(getClassName(klass));
 		if (klass.hasParentModule()) {
 			klass.getParentModule().renderExtends(sb, klass);
@@ -54,37 +53,21 @@ public class ClassView extends AbstractView {
 		
 		// api type
 		if (klass.getApiType() != null) {
-			sb.append(prefix).append("	public final static String API_TYPE = \"");
+			sb.append(indent).append("	public final static String API_TYPE = \"");
 			sb.append(klass.getApiType());
 			sb.append("\";\n");
 		}
-
-		// field name constants
-		if (!klass.isMultiType()) {
-			sb.append("\n").append(prefix).append("\t// field names\n");
-			for (JavaMember member : klass.getMembers()) {
-				final MemberView memberView = new MemberView(member);
-				sb.append(memberView.renderFieldDeclaration(indent + 1));
-			}
-		}
-
-		// members
-		sb.append("\n").append(prefix).append("\t// class members\n");
-		for (JavaMember member : klass.getMembers()) {
-			final MemberView memberView = new MemberView(member);
-			memberView.renderDeclaration(sb, klass.getNamespace(), indent + 1);
-		}
 		
-		// render additional modules
+		// render modules
 		for (IClassModule module : klass.getClassModules()) {
-			module.render(sb, klass.getNamespace(), klass, indent + 1);
+			module.render(sb, klass.getNamespace(), klass, idt + 1);
 		}
 		
 		// constructors
 		if (!klass.doesExtend()) {
 			for (JavaConstructor c : klass.getConstructors()) {
 				final ConstructorView constructorView = new ConstructorView(c);
-				constructorView.renderDeclaration(sb, klass.getNamespace(), indent + 1);
+				constructorView.renderDeclaration(sb, klass.getNamespace(), idt + 1);
 			}
 		}
 
@@ -92,7 +75,7 @@ public class ClassView extends AbstractView {
 		if (klass.hasInnerTypes()) {
 			for (JavaClass innerClass : klass.getInnerTypes()) {
 				final ClassView classView = new ClassView(innerClass);
-				classView.renderDeclaration(sb, indent + 1, true);
+				classView.renderDeclaration(sb, idt + 1, true);
 			}
 		}
 
@@ -100,11 +83,11 @@ public class ClassView extends AbstractView {
 		if (klass.hasInnerEnums()) {
 			for (JavaEnum e : klass.getInnerEnums()) {
 				final EnumView enumView = new EnumView(e);
-				enumView.render(sb, indent + 1, true);
+				enumView.render(sb, idt + 1, true);
 			}
 		}
 		
-		sb.append(prefix).append("}\n");
+		sb.append(indent).append("}\n");
 	}
 
 

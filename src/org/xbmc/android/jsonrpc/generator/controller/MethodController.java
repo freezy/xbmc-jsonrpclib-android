@@ -86,7 +86,6 @@ public class MethodController {
 		
 		final JavaMethod klass = new JavaMethod(namespace, name, apiType);
 		
-		
 		// parameters
 		for (Param p : method.getParams()) {
 			if (!p.isEnum()) {
@@ -189,6 +188,7 @@ public class MethodController {
 						
 						final PropertyController returnTypeController = new PropertyController(null, prop);
 						klass.setReturnType(returnTypeController.getClass(namespace, null, klass));
+						klass.setReturnProperty(potentialResultPropName);
 					
 					// second case: full object definition. we suffix the class name with RESULT_CLASS_SUFFIX	
 					} else {

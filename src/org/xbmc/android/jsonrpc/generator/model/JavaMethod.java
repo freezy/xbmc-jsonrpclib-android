@@ -29,6 +29,7 @@ package org.xbmc.android.jsonrpc.generator.model;
 public class JavaMethod extends JavaClass {
 
 	private JavaClass returnType;
+	private String returnProperty = null;
 	
 	public JavaMethod(Namespace namespace, String name, String apiType) {
 		super(namespace, name, apiType);
@@ -42,6 +43,18 @@ public class JavaMethod extends JavaClass {
 		this.returnType = returnType;
 	}
 	
+	public boolean hasReturnProperty() {
+		return returnProperty != null;
+	}
+	
+	public String getReturnProperty() {
+		return returnProperty;
+	}
+
+	public void setReturnProperty(String returnProperty) {
+		this.returnProperty = returnProperty;
+	}
+
 	@Override
 	public boolean isGlobal() {
 		return true;

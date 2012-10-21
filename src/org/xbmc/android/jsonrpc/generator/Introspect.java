@@ -52,6 +52,7 @@ import org.xbmc.android.jsonrpc.generator.view.EnumView;
 import org.xbmc.android.jsonrpc.generator.view.NamespaceView;
 import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
 import org.xbmc.android.jsonrpc.generator.view.module.classmodule.JsonAccesClassModule;
+import org.xbmc.android.jsonrpc.generator.view.module.classmodule.MemberDeclarationClassModule;
 import org.xbmc.android.jsonrpc.generator.view.module.classmodule.MethodAPIClassModule;
 import org.xbmc.android.jsonrpc.generator.view.module.classmodule.ParcelableClassModule;
 import org.xbmc.android.jsonrpc.generator.view.module.parentmodule.ClassParentModule;
@@ -120,7 +121,8 @@ public class Introspect {
 		    final Response response = OBJECT_MAPPER.readValue(new File("introspect.json"), Response.class);
 		    RESULT = response.getResult();
 			
-		    final IClassModule[] typeClassModules = { 
+		    final IClassModule[] typeClassModules = {
+		    		new MemberDeclarationClassModule(),
 		    		new JsonAccesClassModule(), 
 		    		new ParcelableClassModule() 
 		    };
