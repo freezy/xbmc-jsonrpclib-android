@@ -33,7 +33,7 @@ public class MemberView extends AbstractView {
 	private final JavaMember member;
 	
 	public MemberView(JavaMember member) {
-		this.member = member.resolveType();
+		this.member = member;
 	}
 	
 	public void renderDeclaration(StringBuilder sb, Namespace ns, int indent) {

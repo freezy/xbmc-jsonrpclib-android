@@ -157,7 +157,7 @@ public class Introspect {
 		    	ns.resolveClasses();
 		    }
 	    
-		    // pre-fetch imports
+		    // pre-process imports
 		    for (Namespace ns : Namespace.getAll()) {
 		    	ns.findModuleImports();
 		    }

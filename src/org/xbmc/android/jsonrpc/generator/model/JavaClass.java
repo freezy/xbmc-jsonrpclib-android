@@ -27,6 +27,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -55,6 +56,7 @@ public class JavaClass implements IClassContainer {
 	 * fetched.
 	 */
 	private final boolean unresolved;
+	private boolean resolved = false;
 
 	private final List<JavaConstructor> constructors = new ArrayList<JavaConstructor>();
 	private final List<JavaMember> members = new ArrayList<JavaMember>();
@@ -150,6 +152,11 @@ public class JavaClass implements IClassContainer {
 	 * @return
 	 */
 	public static JavaClass resolve(JavaClass klass) {
+		
+		if (klass.resolved) {
+			return klass;
+		}
+		
 		final JavaClass resolvedClass;
 		
 		// resolve class itself
@@ -169,6 +176,7 @@ public class JavaClass implements IClassContainer {
 	}
 	
 	protected void resolve() {
+		resolved = true;
 		
 		// resolve parent class
 		if (parentClass != null) {
@@ -178,7 +186,21 @@ public class JavaClass implements IClassContainer {
 		// ..and array type
 		if (arrayType != null) {
 			arrayType = resolve(arrayType);
-		}		
+		}
+		
+		// inner classes 
+		final ListIterator<JavaClass> iterator = innerTypes.listIterator();
+		while (iterator.hasNext()) {
+			iterator.set(JavaClass.resolve(iterator.next()));
+		}
+
+		// ..and members
+		for (JavaMember m : members) {
+			if (!m.isEnum() && !m.getType().equals(this)) {
+				m.resolveType();
+			}
+		}
+		
 	}
 
 	/**
@@ -420,7 +442,7 @@ public class JavaClass implements IClassContainer {
 
 		imports.addAll(this.imports);
 		for (JavaMember m : members) {
-			if (m.getType() != null) {
+			if (!m.isEnum()) {
 				imports.addAll(m.getType().getImports());
 			}
 		}
@@ -435,6 +457,11 @@ public class JavaClass implements IClassContainer {
 			imports.add("java.util.Arrays");
 		}
 		return imports;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		return apiType != null && apiType.equals(((JavaClass)obj).apiType);
 	}
 
 }

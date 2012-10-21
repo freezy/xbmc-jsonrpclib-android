@@ -20,13 +20,16 @@
  */
 package org.xbmc.android.jsonrpc.generator.view.module.classmodule;
 
+
 import java.util.HashSet;
 import java.util.Set;
 
 import org.xbmc.android.jsonrpc.generator.model.JavaClass;
+import org.xbmc.android.jsonrpc.generator.model.JavaMember;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 import org.xbmc.android.jsonrpc.generator.view.AbstractView;
 import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
+
 
 /**
  * Provides Parcelable-serialization via Android.
@@ -65,6 +68,26 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 		final Set<String> imports = new HashSet<String>();
 		imports.add("android.os.Parcel");
 		imports.add("android.os.Parcelable");
+		imports.addAll(getInternalImports(klass));
+		
+		for (JavaClass innerClass : klass.getInnerTypes()) {
+			imports.addAll(getInternalImports(innerClass));
+		}
+		
 		return imports;
 	}
+	
+	public Set<String> getInternalImports(JavaClass klass) {
+		final Set<String> imports = new HashSet<String>();
+		for (JavaMember member : klass.getMembers()) {
+			if (!member.isEnum()) {
+				final JavaClass memberType = member.getType();
+				if (memberType.isGlobal()) {
+					imports.add(memberType.getNamespace().getPackageName() + "." + memberType.getNamespace().getName());
+				}
+			}
+		}
+		return imports;
+	}
+	
 }
