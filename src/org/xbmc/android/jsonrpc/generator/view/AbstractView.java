@@ -264,4 +264,15 @@ public abstract class AbstractView {
 		}
 		return sb.toString();
 	}
+	
+	protected String getDescription(JavaClass klass, String indent) {
+		final StringBuilder sb = new StringBuilder();
+		sb.append(indent).append(" * ");
+		sb.append(klass.getDescription());
+		if (!klass.getDescription().endsWith(".")) {
+			sb.append(".");
+		}
+		sb.append("\n");	
+		return sb.toString();
+	}
 }

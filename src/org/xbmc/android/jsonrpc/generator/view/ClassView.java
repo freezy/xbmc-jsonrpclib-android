@@ -41,9 +41,24 @@ public class ClassView extends AbstractView {
 	public void renderDeclaration(StringBuilder sb, int idt, boolean force) {
 
 		final String indent = getIndent(idt);
+		
+		// class header comment
+		sb.append("\n");
+		sb.append(indent).append("/**\n");
+		if (klass.hasDescription()) {
+			sb.append(getDescription(klass, indent));
+			sb.append(indent).append(" * <p/>\n");
+		}
+		if (klass.isGlobal()) {
+			sb.append(indent).append(" * API Name: <tt>");
+			sb.append(klass.getApiType());
+			sb.append("</tt>\n");
+			sb.append(indent).append(" * <p/>\n");
+		}
+		sb.append(indent).append(" * <i>This class was generated automatically from XBMC's JSON-RPC introspect.</i>\n");
+		sb.append(indent).append(" */\n");
 
 		// signature
-		sb.append("\n");
 		sb.append(indent).append("public static class ");
 		sb.append(getClassName(klass));
 		if (klass.hasParentModule()) {

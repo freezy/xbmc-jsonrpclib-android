@@ -22,8 +22,8 @@ package org.xbmc.android.jsonrpc.generator.view;
 
 import org.xbmc.android.jsonrpc.generator.model.JavaConstructor;
 import org.xbmc.android.jsonrpc.generator.model.JavaMember;
-import org.xbmc.android.jsonrpc.generator.model.Namespace;
 import org.xbmc.android.jsonrpc.generator.model.JavaParameter;
+import org.xbmc.android.jsonrpc.generator.model.Namespace;
 
 /**
  * Renders a Java class constructor.
@@ -36,11 +36,6 @@ public class ConstructorView extends AbstractView {
 
 	public ConstructorView(JavaConstructor constructor) {
 		this.constructor = constructor;
-		
-		// resolve param types
-		for (JavaParameter param : constructor.getParameters()) {
-			param.resolve();
-		}
 	}
 
 	public void renderDeclaration(StringBuilder sb, Namespace ns, int indent) {

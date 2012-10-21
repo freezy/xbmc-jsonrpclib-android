@@ -20,7 +20,6 @@
  */
 package org.xbmc.android.jsonrpc.generator.controller;
 
-import org.xbmc.android.jsonrpc.generator.Introspect;
 import org.xbmc.android.jsonrpc.generator.introspect.Property;
 import org.xbmc.android.jsonrpc.generator.model.JavaClass;
 import org.xbmc.android.jsonrpc.generator.model.JavaEnum;
@@ -44,9 +43,10 @@ public class MemberController {
 
 	public JavaMember getMember(Namespace namespace, JavaClass parentType) {
 
-		final Property prop = Introspect.find(property);
+		final Property prop = property.obj();
 		final JavaMember member;
 		if (prop.isEnum()) {
+			
 			final PropertyController pc = new PropertyController(name, prop);
 			final JavaEnum e = pc.getEnum(name);
 			e.setInner(true);
@@ -56,7 +56,6 @@ public class MemberController {
 
 			final PropertyController pc = new PropertyController(name, property);
 			final JavaClass klass = pc.getClass(namespace, name, parentType);
-
 			member = new JavaMember(name, klass);
 		}
 

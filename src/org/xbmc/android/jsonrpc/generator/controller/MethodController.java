@@ -29,6 +29,8 @@ import org.xbmc.android.jsonrpc.generator.introspect.Property;
 import org.xbmc.android.jsonrpc.generator.introspect.Type;
 import org.xbmc.android.jsonrpc.generator.introspect.wrapper.TypeWrapper;
 import org.xbmc.android.jsonrpc.generator.model.JavaClass;
+import org.xbmc.android.jsonrpc.generator.model.JavaConstructor;
+import org.xbmc.android.jsonrpc.generator.model.JavaMember;
 import org.xbmc.android.jsonrpc.generator.model.JavaMethod;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 
@@ -86,36 +88,72 @@ public class MethodController {
 		
 		final JavaMethod klass = new JavaMethod(namespace, name, apiType);
 		
+//		final List<JavaConstructor> constructors = new ArrayList<JavaConstructor>();
+		final JavaConstructor jc = new JavaConstructor(klass);
+		
 		// parameters
 		for (Param p : method.getParams()) {
-			if (!p.isEnum()) {
-/*				
-				final PropertyController pc = new PropertyController(name, p);
-				final JavaClass klass = pc.getClass(namespace, name, m);
-				m.addParameter(new JavaParameter(p.getName(), klass));
-				
-				final TypeWrapper tr = p.getType();
-				if (tr.isNative()) {
-
+			
+			final TypeWrapper tr = p.getType();
+			final Property obj = p.obj();
+			final Property itemsObj = obj.getItems() != null ? obj.getItems().obj() : null;
+			
+			if (obj.isEnum()) {
+			} else if (obj.isArray() && obj.getItems().isEnum()) {
+			} else if (itemsObj != null && itemsObj.isEnum()) {
+			} else {
+				if (tr == null || !tr.isList()) {
 					final PropertyController pc = new PropertyController(name, p);
-					final JavaClass klass = pc.getClass(namespace, name, m);
-					m.addParameter(new JavaParameter(p.getName(), klass));
-				} else if (tr.isObject()) {
-					final PropertyController pc = new PropertyController(name, tr.getObj());
-					final JavaClass klass = pc.getClass(namespace, name, m);
-					m.addParameter(new JavaParameter(p.getName(), klass));
-				
-				} else {
-					final List<JavaClass> types = new ArrayList<JavaClass>(tr.getList().size());
-					for (Type type : tr.getList()) {
-						final PropertyController pc = new PropertyController(name, type);
-						types.add(pc.getClass(namespace, name, m));
-					}
-					m.addParameter(new JavaParameter(p.getName(), types));
+					final JavaClass type = pc.getClass(namespace, p.getName(), klass);
+					
+					klass.addMember(new JavaMember(p.getName(), type));
+					
+					System.out.println("T " + apiType + "." + p.getName() + ": " + type);
 				}
-*/
 			}
+
+			
+/*			final Property copy = p.obj();
+			final Property itemsCopy = copy.getItems() != null ? copy.getItems().obj() : null;
+			
+			//final List<JavaConstructor> currentConstructors = new ArrayList<JavaConstructor>(constructors);
+			
+			// enum
+			if (copy.isEnum()) {
+				
+			// still enum	
+			} else if (copy.isArray() && copy.getItems().isEnum()) {
+				
+			// still enum	
+			} else if (itemsCopy != null && itemsCopy.isEnum()) {
+				
+			// classic type	
+			} else {
+				
+				final TypeWrapper tr = copy.getType();
+				
+				if (tr.isList()) {
+					// TODO
+				} else {
+					
+					final PropertyController pc;
+					if (tr.isNative()) {
+						pc = new PropertyController(name, p);
+					} else {
+						pc = new PropertyController(name, tr.getObj());
+					}
+					
+					final JavaClass paramType = pc.getClass(namespace, p.getName(), klass);
+					final JavaParameter jp = new JavaParameter(p.getName(), paramType);
+					jc.addParameter(jp);
+				}
+
+			}*/ 
 		}
+//		constructors.add(jc);
+		
+		klass.addConstructor(jc);
+
 		
 
 		// return type
@@ -210,6 +248,8 @@ public class MethodController {
 			throw new RuntimeException("Expected return type is an object with properties.");
 		}
 		
+		// description
+		klass.setDescription(method.getDescription());
 		
 		return klass;
 	}

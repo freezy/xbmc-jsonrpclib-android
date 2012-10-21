@@ -44,6 +44,8 @@ public class JavaClass {
 	private final String name;
 	private final String apiType;
 	private final Namespace namespace;
+	
+	private String description = null;
 
 	private boolean isInner = false; // = !isGlobal
 	private Nature nature = null;
@@ -178,7 +180,7 @@ public class JavaClass {
 		// resolve class itself
 		if (klass.isUnresolved()) {
 			if (!GLOBALS.containsKey(klass.apiType)) {
-				throw new RuntimeException("Trying to resolve unknown class \"" + klass.apiType + "\".");
+				throw new IllegalArgumentException("Trying to resolve unknown class \"" + klass.apiType + "\".");
 			}
 			resolvedClass = GLOBALS.get(klass.apiType);
 		} else {
@@ -211,6 +213,11 @@ public class JavaClass {
 		final ListIterator<JavaClass> iterator = innerTypes.listIterator();
 		while (iterator.hasNext()) {
 			iterator.set(JavaClass.resolve(iterator.next()));
+		}
+		
+		// constructor types
+		for (JavaConstructor c : constructors) {
+			c.resolve();
 		}
 
 		// ..and members
@@ -636,6 +643,30 @@ public class JavaClass {
 		}
 		return isInner ? namespace.getInnerClassModules() : namespace.getClassModules();
 	}
+	
+	/**
+	 * Returns if class has a description.
+	 * @return True if class has a description, false otherwise.
+	 */
+	public boolean hasDescription() {
+		return description != null;
+	}
+
+	/**
+	 * Returns the class description.
+	 * @return
+	 */
+	public String getDescription() {
+		return description;
+	}
+
+	/**
+	 * Sets the class description.
+	 * @param description
+	 */
+	public void setDescription(String description) {
+		this.description = description;
+	}
 
 	/**
 	 * Applies the import routine of a list of modules to this class and its
@@ -701,6 +732,35 @@ public class JavaClass {
 			imports.add("java.util.Arrays");
 		}
 		return imports;
+	}
+	
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder();
+		if (nature != null) {
+			switch (nature) {
+			case ARRAY:
+				sb.append("array: ");
+				sb.append(arrayType.toString());
+				break;
+			case MULTITYPE:
+				sb.append("multi ");
+				break;
+			case NATIVE:
+				sb.append("native: ");
+				sb.append(name);
+				break;
+			}
+		} else {
+			if (apiType != null) {
+				sb.append(apiType);
+				sb.append(": ");
+			} else {
+				sb.append("unknown: ");
+			}
+			sb.append(name);
+		}
+		return sb.toString();
 	}
 
 }

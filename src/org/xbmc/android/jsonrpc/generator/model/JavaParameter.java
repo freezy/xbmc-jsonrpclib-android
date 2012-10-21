@@ -57,11 +57,10 @@ public class JavaParameter {
 		this.multitypes.addAll(multitypes);
 	}
 	
-	public JavaParameter resolve() {
+	public void resolveType() {
 		if (type != null) {
 			type = JavaClass.resolve(type);
 		}
-		return this;
 	}
 	
 	public boolean isMultitype() {

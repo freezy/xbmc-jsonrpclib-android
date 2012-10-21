@@ -43,9 +43,9 @@ public class Type extends Property {
 	public void setId(String id) {
 		this.id = id;
 	}
-
+	
+	@Override
 	public String toString() {
-		return type.toString();
+		return type != null ? type.toString() : "type=null";
 	}
-
 }

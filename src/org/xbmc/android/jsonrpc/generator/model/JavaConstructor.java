@@ -30,7 +30,7 @@ import java.util.List;
  */
 public class JavaConstructor {
 
-	private final JavaClass type;
+	private JavaClass type;
 	private final List<JavaParameter> parameters = new ArrayList<JavaParameter>();
 
 	public JavaConstructor(JavaClass type) {
@@ -51,6 +51,13 @@ public class JavaConstructor {
 
 	public JavaClass getType() {
 		return type;
+	}
+	
+	public void resolve() {
+		type = JavaClass.resolve(type);
+		for (JavaParameter param : parameters) {
+			param.resolveType();
+		}
 	}
 
 }

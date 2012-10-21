@@ -42,7 +42,7 @@ public class Param extends Property {
 	public void setName(String name) {
 		this.name = name;
 	}
-
+	
 	public String toString() {
 		if (type != null) {
 			return type.toString();

@@ -188,9 +188,24 @@ public class PropertyController {
 				klass.getArrayType().setGlobal();
 			}
 			
-		// create class from reference
+		// create class from reference (1)
 		} else if (property.isRef()) {
-			klass = new JavaClass(property.getRef());
+			
+//			final Property copy = property.obj();
+//			if (copy.isEnum()) {
+//				klass = new JavaClass(namespace, "string");
+//			} else {
+				klass = new JavaClass(property.getRef());
+//			}
+			
+		// create class from reference (2)
+		} else if (property.getType() != null && property.getType().isObject() && property.getType().getObj().isRef()) {
+//			final Property copy = property.getType().getObj().obj();
+//			if (copy.isEnum()) {
+//				klass = new JavaClass(namespace, "string");
+//			} else {
+				klass = new JavaClass(property.getType().getObj().getRef());
+//			}
 			
 		// create class from global type
 		} else if (property instanceof Type) {
@@ -212,7 +227,7 @@ public class PropertyController {
 			
 		// wtf!
 		} else {
-			throw new RuntimeException("Unexpected property type. Put breakpoint and check code :p");
+			throw new IllegalStateException("Unexpected property type. Put breakpoint and check code :p");
 		}
 
 		// parse properties
@@ -257,6 +272,9 @@ public class PropertyController {
 				klass.setParentClass(new JavaClass(property.getExtends().getName()));
 			}
 		}
+		
+		// description
+		klass.setDescription(property.getDescription());
 		
 		// create constructor(s)
 		if (!klass.isUnresolved()) { 

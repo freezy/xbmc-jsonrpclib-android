@@ -38,25 +38,62 @@ import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
  */
 public class MethodAPIClassModule extends AbstractView implements IClassModule {
 
+	public final static String RESULT_PROPERTY_NAME = "RESULT";
 	
 	@Override
 	public void render(StringBuilder sb, Namespace ns, JavaClass klass, int idt) {
 		if (!(klass instanceof JavaMethod)) {
 			throw new IllegalArgumentException("When rendering method API class modules, passed class must be of type JavaMethod.");
 		}
+		final String indent = getIndent(idt);
 		final JavaMethod method = (JavaMethod)klass;
 		
+		// property name
+		if (method.hasReturnProperty()) {
+			sb.append(indent).append("public final static String ");
+			sb.append(RESULT_PROPERTY_NAME);
+			sb.append(" = \"");
+			sb.append(method.getReturnProperty());
+			sb.append("\";\n");
+		}
+		
+		renderConstructor(sb, method, idt);
 		renderStaticStuff(sb, method, idt);
 	}
 	
+	private void renderConstructor(StringBuilder sb, JavaMethod method, int idt) {
+		final String indent = getIndent(idt);
+		
+		// header
+		sb.append(indent).append("/**\n");
+		if (method.hasDescription()) {
+			sb.append(getDescription(method, indent));
+		}
+		sb.append(indent).append(" */\n");
+		
+		// signature
+		sb.append(indent).append("public ");
+		sb.append(getClassName(method));
+		sb.append("(");
+		sb.append(") {\n");
+		
+		// body
+		sb.append(indent).append("	super();\n");
+		
+		sb.append(indent).append("}\n");
+		
+	}
 	
 	private void renderStaticStuff(StringBuilder sb, JavaMethod method, int idt) {
 		final String indent = getIndent(idt);
 		
+		// public String getName() { }
 		sb.append(indent).append("@Override\n");
 		sb.append(indent).append("public String getName() {\n");
 		sb.append(indent).append("	return API_TYPE;\n");
 		sb.append(indent).append("}\n");
+		
+		// protected boolean returnsList() { }
 		sb.append(indent).append("@Override\n");
 		sb.append(indent).append("protected boolean returnsList() {\n");
 		sb.append(indent).append("	return ").append(method.getReturnType().isArray() ? "true" : "false").append(";\n");

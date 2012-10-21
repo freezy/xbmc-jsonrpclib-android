@@ -1607,7 +1607,7 @@
 						"name" : "options",
 						"properties" : {
 							"repeat" : {
-								"default" : null,
+								"default" : "123",
 								"type" : [{
 										"type" : "null"
 									}, {

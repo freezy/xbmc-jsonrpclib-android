@@ -273,10 +273,12 @@ public class Property {
 
 	public String getRef() {
 		return ref;
+//		return ref != null ? ref : (type != null && type.isObject() ? type.getObj().getRef() : null);
 	}
 	
 	public boolean isRef() {
 		return ref != null;
+//		return ref != null || (type != null && type.isObject() && type.getObj().isRef());
 	}
 
 	public void setRef(String ref) {
@@ -415,7 +417,7 @@ public class Property {
 		this.extendsValue = extendsValue;
 	}
 	
-	private void copyTo(Property dest) {
+	protected void copyTo(Property dest) {
 		// firstly copy attributes from parent(s)
 		if (extendsValue != null) {
 			// if multiple, copy from each
@@ -470,7 +472,7 @@ public class Property {
 	 * Traverses all parents and copies all attributes. A new object is then
 	 * returned, not a reference.
 	 * 
-	 * @return Copy this object, with all attributes copied from parents and
+	 * @return Copy of this object, with all attributes copied from parents and
 	 *         references.
 	 */
 	public Property obj() {
