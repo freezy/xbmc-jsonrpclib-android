@@ -54,7 +54,7 @@ public class JavaConstructor {
 	}
 	
 	public void resolve() {
-		type = JavaClass.resolve(type);
+		type = JavaClass.resolveNonNull(type);
 		for (JavaParameter param : parameters) {
 			param.resolveType();
 		}

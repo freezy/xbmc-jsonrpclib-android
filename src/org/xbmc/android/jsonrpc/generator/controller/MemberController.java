@@ -43,11 +43,13 @@ public class MemberController {
 
 	public JavaMember getMember(Namespace namespace, JavaClass parentType) {
 
-		final Property prop = property.obj();
+		final Property obj = property.obj();
 		final JavaMember member;
-		if (prop.isEnum()) {
+		
+		// direct enum
+		if (obj.isEnum() || (obj.isArray() && obj.getItems().obj().isEnum())) {
 			
-			final PropertyController pc = new PropertyController(name, prop);
+			final PropertyController pc = new PropertyController(name, obj);
 			final JavaEnum e = pc.getEnum(name);
 			e.setInner(true);
 			member = new JavaMember(name, e);
@@ -59,8 +61,8 @@ public class MemberController {
 			member = new JavaMember(name, klass);
 		}
 
-		if (prop.getRequired() != null) {
-			member.setRequired(prop.getRequired());
+		if (obj.getRequired() != null) {
+			member.setRequired(obj.getRequired());
 		}
 
 		return member;

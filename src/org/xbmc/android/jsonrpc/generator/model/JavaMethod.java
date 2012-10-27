@@ -64,7 +64,7 @@ public class JavaMethod extends JavaClass {
 	protected void resolve() {
 		super.resolve();
 		if (returnType != null) {
-			returnType = resolve(returnType);
+			returnType = resolveNonNull(returnType);
 		}
 	}
 }

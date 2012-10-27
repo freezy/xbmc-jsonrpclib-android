@@ -133,6 +133,13 @@ public class PropertyController {
 		if (outerType == null && !isGlobal()) {
 			throw new IllegalArgumentException("Outer type must be set for non-global classes.");
 		}
+		final Property obj = property.obj();
+		if (obj.isEnum()) {
+			throw new IllegalArgumentException("Property must not be an enum.");
+		}
+		if (obj.isArray() && obj.getItems().obj().isEnum()) {
+			throw new IllegalArgumentException("Property must not be a list of enums.");
+		}
 		
 		// create class from native type
 		if (property.isNative()) {
@@ -348,7 +355,8 @@ public class PropertyController {
 	 */
 	public JavaEnum getEnum(String enumName) {
 		final JavaEnum e = new JavaEnum(enumName, name);
-		for (String enumValue : property.getEnums()) {
+		List<String> enums = property.isArray() ? property.getItems().getEnums() : property.getEnums();
+		for (String enumValue : enums) {
 			e.addValue(enumValue);
 		}
 		return e;

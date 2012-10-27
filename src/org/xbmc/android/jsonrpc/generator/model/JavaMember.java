@@ -28,8 +28,8 @@ package org.xbmc.android.jsonrpc.generator.model;
 public class JavaMember {
 
 	private JavaClass type;
+	private JavaEnum e;
 	private final String name;
-	private final JavaEnum e;
 	private boolean required = false;
 
 	public JavaMember(String name, JavaClass type) {
@@ -93,8 +93,17 @@ public class JavaMember {
 	}
 
 	public JavaMember resolveType() {
-		if (type != null) {
-			type = JavaClass.resolve(type);
+		if (this.type != null) {
+			JavaClass type = JavaClass.resolve(this.type);
+			// try to resolve as enum
+			if (type == null) {
+				e = JavaEnum.resolve(this.type);
+				if (e == null) {
+					throw new IllegalStateException("Cannot resolve member \"" + name + "\" to neither enum nor class.");
+				}
+			} else {
+				this.type = type;
+			}
 		}
 		return this;
 	}

@@ -97,7 +97,7 @@ public class Namespace {
 	public void resolveClasses() {
 		final ListIterator<JavaClass> iterator = classes.listIterator();
 		while (iterator.hasNext()) {
-			iterator.set(JavaClass.resolve(iterator.next()));
+			iterator.set(JavaClass.resolveNonNull(iterator.next()));
 		}
 	}
 	

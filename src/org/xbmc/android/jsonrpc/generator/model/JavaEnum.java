@@ -21,7 +21,11 @@
 package org.xbmc.android.jsonrpc.generator.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.xbmc.android.jsonrpc.generator.introspect.Property;
 
 /**
  * Defines an enum in an agnostic way.
@@ -40,7 +44,16 @@ public class JavaEnum {
 	public JavaEnum(String name, String apiType) {
 		this.name = name;
 		this.apiType = apiType;
+		
+		if (apiType != null) {
+			GLOBALS.put(apiType, this);
+		}
 	}
+	
+	/**
+	 * Contains all global enums for resolving purpose.
+	 */
+	private final static Map<String, JavaEnum> GLOBALS = new HashMap<String, JavaEnum>();
 
 	public void addValue(String value) {
 		values.add(value);
@@ -72,6 +85,37 @@ public class JavaEnum {
 
 	public void setOuterType(JavaClass outerType) {
 		this.outerType = outerType;
+	}
+	
+
+	/**
+	 * Returns the resolved enum object.
+	 * 
+	 * It's possible that specially methods contain "unresolved" classes
+	 * where there is only a reference. It will be converted to a {@link JavaClass},
+	 * but it potentially could also be an {@link JavaEnum}.
+	 * 
+	 * If {@link JavaClass#resolve(JavaClass)} returns null, this should be
+	 * tried.
+	 * 
+	 * Why not use {@link Property#obj()} to figure out if it's an enum in the
+	 * first place? Well, since it would be an empty JavaEnum with only the API
+	 * type set, we didn't bother, JavaClass suits the case equally.
+	 * 
+	 * @param klass
+	 * @return
+	 */
+	public static JavaEnum resolve(JavaClass klass) {
+
+		if (!klass.isUnresolved() || klass.getApiType() == null) {
+			return null;
+		}
+		
+		if (!GLOBALS.containsKey(klass.getApiType())) {
+			return null;
+		}
+
+		return GLOBALS.get(klass.getApiType());
 	}
 
 }

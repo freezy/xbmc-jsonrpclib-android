@@ -155,6 +155,29 @@ public class JavaClass {
 			GLOBALS.put(apiType, this);
 		}
 	}
+	
+	/**
+	 * Returns {@link #resolve()} but fails if class cannot be resolved. Use
+	 * this when you're sure you're resolving a class and not an enum.
+	 * @param klass The class to be resolved
+	 * @return Resolved class.
+	 */
+	public static JavaClass resolveNonNull(JavaClass klass) {
+		return resolve(klass, true);
+	}
+	
+	/**
+	 * Returns {@link #resolve()} and returns null if class cannot be resolved.
+	 * Use this when it's not clear whether an enum or a type is being resolved
+	 * and in the first case {@link JavaEnum#resolve(JavaClass)} is called 
+	 * right afterwards.
+	 * 
+	 * @param klass The class to be resolved
+	 * @return Resolved class or null if not found.
+	 */
+	public static JavaClass resolve(JavaClass klass) {
+		return resolve(klass, false);
+	}
 
 	/**
 	 * Returns the resolved class object if unresolved or the same instance
@@ -166,10 +189,11 @@ public class JavaClass {
 	 * returned via this method. </p> Note that this also resolves all the sub
 	 * types of the class, like the array type and the parent type.
 	 * 
-	 * @param klass
-	 * @return
+	 * @param klass The class to be resolved
+	 * @param fail If true, an exception is thrown, otherwise null is returned.
+	 * @return Resolved class
 	 */
-	public static JavaClass resolve(JavaClass klass) {
+	public static JavaClass resolve(JavaClass klass, boolean fail) {
 
 		if (klass.resolved) {
 			return klass;
@@ -180,7 +204,11 @@ public class JavaClass {
 		// resolve class itself
 		if (klass.isUnresolved()) {
 			if (!GLOBALS.containsKey(klass.apiType)) {
-				throw new IllegalArgumentException("Trying to resolve unknown class \"" + klass.apiType + "\".");
+				if (fail) {
+					throw new IllegalArgumentException("Trying to resolve unknown class \"" + klass.apiType + "\".");
+				} else {
+					return null;
+				}
 			}
 			resolvedClass = GLOBALS.get(klass.apiType);
 		} else {
@@ -201,18 +229,18 @@ public class JavaClass {
 
 		// resolve parent class
 		if (parentClass != null) {
-			parentClass = resolve(this.parentClass);
+			parentClass = resolveNonNull(this.parentClass);
 		}
 
 		// ..and array type
 		if (arrayType != null) {
-			arrayType = resolve(arrayType);
+			arrayType = resolveNonNull(arrayType);
 		}
 
 		// inner classes
 		final ListIterator<JavaClass> iterator = innerTypes.listIterator();
 		while (iterator.hasNext()) {
-			iterator.set(JavaClass.resolve(iterator.next()));
+			iterator.set(JavaClass.resolveNonNull(iterator.next()));
 		}
 		
 		// constructor types
@@ -288,6 +316,15 @@ public class JavaClass {
 	 */
 	public boolean isUnresolved() {
 		return unresolved;
+	}
+
+	/**
+	 * Returns the API type of the class, which is the ID under types objects (e.g.
+	 * <tt>List.Filter.Albums</tt>, <tt>Audio.Details.Album</tt>)
+	 * @return API name
+	 */
+	public String getApiType() {
+		return apiType;
 	}
 
 	/**
@@ -499,18 +536,6 @@ public class JavaClass {
 			throw new RuntimeException("Unresolved.");
 		}
 		return namespace;
-	}
-
-	/**
-	 * Returns the API type of the class, which is the ID under types objects (e.g.
-	 * <tt>List.Filter.Albums</tt>, <tt>Audio.Details.Album</tt>)
-	 * @return API name
-	 */
-	public String getApiType() {
-		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
-		}
-		return apiType;
 	}
 
 	/**
