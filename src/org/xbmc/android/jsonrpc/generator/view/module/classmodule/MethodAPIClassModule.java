@@ -180,8 +180,8 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 	@Override
 	public Set<String> getImports(JavaClass klass) {
 		final Set<String> imports = new HashSet<String>();
-		imports.add("android.os.Parcel");
-		imports.add("android.os.Parcelable");
+//		imports.add("android.os.Parcel");
+//		imports.add("android.os.Parcelable");
 		imports.addAll(getInternalImports(klass));
 		
 		for (JavaClass innerClass : klass.getInnerTypes()) {

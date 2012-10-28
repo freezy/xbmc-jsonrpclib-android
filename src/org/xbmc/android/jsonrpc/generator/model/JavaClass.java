@@ -502,17 +502,6 @@ public class JavaClass {
 		this.nature = Nature.TYPEARRAY;
 		this.arrayType = arrayType;
 	}
-	
-/*	public void setArray(JavaEnum arrayEnum) {
-		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
-		}
-		if (nature != null) {
-			throw new IllegalStateException("Cannot set nature if already set.");
-		}
-		this.nature = Nature.ENUMARRAY;
-		this.arrayEnum = arrayEnum;
-	}*/
 
 	/**
 	 * Marks the class as a global class.

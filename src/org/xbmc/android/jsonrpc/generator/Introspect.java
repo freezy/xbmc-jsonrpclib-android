@@ -163,12 +163,9 @@ public class Introspect {
 		    for (Namespace ns : Namespace.getAll()) {
 		    	ns.findModuleImports();
 		    }
-		    // render
-		    for (Namespace ns : Namespace.getAll()) {
-	    		render(ns);
-		    }
 		    
-		    // copy static classes
+		    
+		    // 1. copy static classes
 		    final String relRoot = "org/xbmc/android/jsonrpc";
 		    final File destRoot = new File(OUTPUT_FOLDER + "/src/" + relRoot);
 		    if (!destRoot.exists()) {
@@ -178,7 +175,12 @@ public class Introspect {
 		    }
 		    FileUtils.copyDirectory(new File("tpl/" + relRoot), destRoot);
 		    
-		    // copy resources
+		    // 2. render
+		    for (Namespace ns : Namespace.getAll()) {
+	    		render(ns);
+		    }
+		    
+		    // 3. copy resources
 		    final File resRoot = new File(OUTPUT_FOLDER + "/res/");
 		    if (!resRoot.exists()) {
 		    	if (!resRoot.mkdir()) {
@@ -187,7 +189,7 @@ public class Introspect {
 		    }
 		    FileUtils.copyDirectory(new File("res/"), resRoot);
 		    
-		    // while we're at it, copy necessary libs
+		    // 4. while we're at it, copy necessary libs
 		    final File libRoot = new File(OUTPUT_FOLDER + "/libs/");
 		    if (!libRoot.exists()) {
 		    	if (!libRoot.mkdir()) {
