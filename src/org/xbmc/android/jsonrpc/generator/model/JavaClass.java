@@ -728,6 +728,14 @@ public class JavaClass {
 	public boolean hasDescription() {
 		return description != null;
 	}
+	
+	/**
+	 * Returns if class has a name.
+	 * @return True if class has a name, false otherwise.
+	 */
+	public boolean hasName() {
+		return name != null;
+	}
 
 	/**
 	 * Returns the class description.

@@ -83,7 +83,7 @@ public class JavaParameter {
 	}
 	
 	public boolean isArray() {
-		return type != null && (type.isEnumArray() || type.isTypeArray()); 
+		return (type != null && (type.isEnumArray() || type.isTypeArray())) || (e != null && e.isArray()); 
 	}
 
 	public boolean hasDescription() {

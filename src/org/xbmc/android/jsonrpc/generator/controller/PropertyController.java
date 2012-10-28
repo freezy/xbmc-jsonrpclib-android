@@ -106,7 +106,7 @@ public class PropertyController {
 			 * the array type.
 			 */
 			final PropertyController pc = new PropertyController(name, type.getItems());
-			ns.addEnum(pc.getEnum(ns, strippedName));
+			ns.addEnum(pc.getEnum(ns, strippedName).setArray());
 			
 		} else {
 			ns.addClass(getClass(ns, strippedName, null));

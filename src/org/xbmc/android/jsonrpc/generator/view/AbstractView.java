@@ -36,7 +36,13 @@ import org.xbmc.android.jsonrpc.generator.model.Namespace;
 public abstract class AbstractView {
 
 	protected String getClassName(JavaClass klass) {
-		return getClassName(klass.getNamespace(), klass);
+		return getClassName(klass.getNamespace(), klass, false);
+	}
+	protected String getClassName(JavaClass klass, boolean asArray) {
+		return getClassName(klass.getNamespace(), klass, asArray);
+	}
+	protected String getClassName(Namespace ns, JavaClass klass) {
+		return getClassName(ns, klass, false);
 	}
 
 	/**
@@ -45,14 +51,14 @@ public abstract class AbstractView {
 	 * @param klass Given class
 	 * @return Java class name
 	 */
-	protected String getClassName(Namespace ns, JavaClass klass) {
+	protected String getClassName(Namespace ns, JavaClass klass, boolean asArray) {
 		if (klass == null) {
 			throw new IllegalArgumentException("Provided class cannot be null.");
 		}
 		if (klass.isNative()) {
 			return getNativeType(klass);
 		} else if (klass.isTypeArray()) {
-			return getArrayType(ns, klass);
+			return getArrayType(ns, klass, asArray);
 		} else if (klass.isEnumArray()) {
 			return getArrayEnum();
 		} else if (klass.isInner()) {
@@ -167,8 +173,12 @@ public abstract class AbstractView {
 		}
 	}
 
-	protected String getArrayType(Namespace ns, JavaClass klass) {
-		return "List<" + getClassReference(ns, klass.getArrayType()) + ">";
+	protected String getArrayType(Namespace ns, JavaClass klass, boolean asArray) {
+		if (asArray) {
+			return getClassReference(ns, klass.getArrayType()) + "[]";
+		} else {
+			return "List<" + getClassReference(ns, klass.getArrayType()) + ">";
+		}
 	}
 	
 	protected String getArrayEnum() {

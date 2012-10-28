@@ -40,6 +40,7 @@ public class JavaEnum {
 	private final List<String> values = new ArrayList<String>();
 
 	private boolean isInner = false;
+	private boolean isArray = false;
 	private JavaClass outerType = null; // set if isInner == true
 
 	public JavaEnum(Namespace namespace, String name, String apiType) {
@@ -91,6 +92,21 @@ public class JavaEnum {
 
 	public void setOuterType(JavaClass outerType) {
 		this.outerType = outerType;
+	}
+	
+	public JavaEnum setArray() {
+		this.isArray = true;
+		return this;
+	}
+	
+	/**
+	 * Global enums sometimes are defined as array of enums. Since we render
+	 * them as if they are normal enums when defining, it's important to know
+	 * when methods refer to them whether they're array or not.
+	 * @return
+	 */
+	public boolean isArray() {
+		return isArray;
 	}
 	
 

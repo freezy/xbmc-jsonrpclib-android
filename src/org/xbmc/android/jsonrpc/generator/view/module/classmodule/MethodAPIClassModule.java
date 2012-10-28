@@ -97,7 +97,11 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 				sb.append(p.getDescription());
 			}
 			if (p.isEnum()) {
-				sb.append(" One of: ");
+				if (p.getEnum().isArray()) {
+					sb.append(" One or more of: ");
+				} else {
+					sb.append(" One of: ");
+				}
 				renderEnumValues(sb, p.getEnum());
 				sb.append(" See constants at {@link ").append(getEnumReference(ns, p.getEnum())).append("}.");
 				
@@ -117,9 +121,10 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 		Iterator<JavaParameter> it = constructor.getParameters().iterator();
 		while (it.hasNext()) {
 			final JavaParameter p = it.next();
-			
 			if (!it.hasNext() && p.isArray()) {
-				if (p.getType().isEnumArray()) {
+				// if enum != null, we know it's an enum array, otherwise isArray() woulnd't have returned true.
+				// in all other cases, p.getType() != null.
+				if (p.getEnum() != null || p.getType().isEnumArray()) {
 					sb.append("String...");
 				} else {
 					sb.append(getClassReference(ns, p.getType().getArrayType()));
@@ -129,7 +134,7 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 				if (p.isEnum()) {
 					sb.append("String");
 				} else {
-					sb.append(getClassReference(ns, p.getType()));
+					sb.append(getClassName(p.getType(), true));
 				}
 			}
 			sb.append(" ");
@@ -139,11 +144,18 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 		if (!constructor.getParameters().isEmpty()) {
 			sb.delete(sb.length() - 2, sb.length());
 		}
-		
 		sb.append(") {\n");
 		
 		// body
 		sb.append(indent).append("	super();\n");
+		for (JavaParameter p : constructor.getParameters()) {
+			sb.append(indent).append("	addParameter(\"");
+			sb.append(p.getName());
+			sb.append("\", ");
+			sb.append(p.getName());
+			sb.append(");\n");
+		}
+		
 		
 		sb.append(indent).append("}\n");
 		
@@ -186,6 +198,8 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 	 */
 	private Set<String> getInternalImports(JavaClass klass) {
 		final Set<String> imports = new HashSet<String>();
+		
+		// members
 		for (JavaMember member : klass.getMembers()) {
 			if (!member.isEnum()) {
 				final JavaClass memberType = member.getType();
@@ -194,6 +208,22 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 				}
 			}
 		}
+		
+		// params in constructors
+		for (JavaConstructor constructor : klass.getConstructors()) {
+			for (JavaParameter param : constructor.getParameters()) {
+				if (!param.isEnum()) {
+					final JavaClass paramType = param.getType();
+					if (paramType.isGlobal() && !paramType.isNative() && paramType.hasName()) {
+						imports.add(
+								paramType.getNamespace().getPackageName() 
+								+ "." + paramType.getNamespace().getName()
+								+ "." + paramType.getName());
+					}
+				}
+			}
+		}
+		
 		return imports;
 	}
 	
