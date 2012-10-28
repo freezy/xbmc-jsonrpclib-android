@@ -108,7 +108,7 @@ public class ParcelableClassModule extends AbstractView implements IClassModule 
 		} else {
 			
 			final JavaClass klass = member.getType();
-			if (klass.isArray()) {
+			if (klass.isTypeArray()) {
 				final JavaClass arrayType = klass.getArrayType();
 				
 				// like: parcel.writeInt(genre.size());
@@ -198,7 +198,7 @@ public class ParcelableClassModule extends AbstractView implements IClassModule 
 		} else {
 			
 			final JavaClass klass = member.getType();
-			if (klass.isArray()) {
+			if (klass.isTypeArray()) {
 				final JavaClass arrayType = klass.getArrayType();
 				
 				// like: final int genreSize = parcel.readInt();

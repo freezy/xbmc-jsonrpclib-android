@@ -21,7 +21,6 @@
 package org.xbmc.android.jsonrpc.generator.view;
 
 import org.xbmc.android.jsonrpc.generator.model.JavaClass;
-import org.xbmc.android.jsonrpc.generator.model.JavaConstructor;
 import org.xbmc.android.jsonrpc.generator.model.JavaEnum;
 import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
 
@@ -79,12 +78,12 @@ public class ClassView extends AbstractView {
 		}
 		
 		// constructors
-		if (!klass.doesExtend()) {
+/*		if (!klass.doesExtend()) {
 			for (JavaConstructor c : klass.getConstructors()) {
 				final ConstructorView constructorView = new ConstructorView(c);
 				constructorView.renderDeclaration(sb, klass.getNamespace(), idt + 1);
 			}
-		}
+		}*/
 
 		// inner classes
 		if (klass.hasInnerTypes()) {

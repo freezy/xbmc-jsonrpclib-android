@@ -145,8 +145,8 @@ public class Introspect {
 		    		final MethodController controller = new MethodController(name, RESULT.getMethods().get(name));
 		    		final Namespace ns = controller.register(CALL_PACKAGE, CALL_CLASS_SUFFIX);
 		    		ns.addClassModule(
-		    				new MethodAPIClassModule(),
-		    				new ParcelableClassModule()
+		    				new MethodAPIClassModule()
+//		    				new ParcelableClassModule()
 		    			);
 		    		ns.addInnerClassModule(typeClassModules);
 		    		ns.setParentModule(new MethodParentModule());

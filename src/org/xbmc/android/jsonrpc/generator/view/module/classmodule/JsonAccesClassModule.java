@@ -175,7 +175,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 				renderNodeSetter(sb, member, member.getName());
 				sb.append(";\n");
 				
-			} else if (klass.isArray()) {
+			} else if (klass.isTypeArray()) {
 				final String arrayName = member.getName() + "Array";
 				
 				// like: final ArrayNode dependencyArray = OM.createArrayNode();
@@ -236,7 +236,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 			} else if (klass.isNative()) {
 				renderOptionalNativeNodeGetter(sb, member.getName(), NATIVE_OPTIONAL_NODE_GETTER.get(klass.getName()));
 				
-			} else if (klass.isArray()) { // native arrays
+			} else if (klass.isTypeArray()) { // native arrays
 				final JavaClass arrayType = klass.getArrayType();
 				if (arrayType.isNative()) {
 					

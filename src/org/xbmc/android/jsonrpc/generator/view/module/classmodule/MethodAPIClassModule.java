@@ -22,11 +22,14 @@ package org.xbmc.android.jsonrpc.generator.view.module.classmodule;
 
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import org.xbmc.android.jsonrpc.generator.model.JavaClass;
+import org.xbmc.android.jsonrpc.generator.model.JavaConstructor;
 import org.xbmc.android.jsonrpc.generator.model.JavaMember;
 import org.xbmc.android.jsonrpc.generator.model.JavaMethod;
+import org.xbmc.android.jsonrpc.generator.model.JavaParameter;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 import org.xbmc.android.jsonrpc.generator.view.AbstractView;
 import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
@@ -57,11 +60,15 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 			sb.append("\";\n");
 		}
 		
-		renderConstructor(sb, method, idt);
+		for (JavaConstructor jc : method.getConstructors()) {
+			renderConstructor(sb, ns, method, jc, idt);
+		}
+		
+		
 		renderStaticStuff(sb, method, idt);
 	}
 	
-	private void renderConstructor(StringBuilder sb, JavaMethod method, int idt) {
+	private void renderConstructor(StringBuilder sb, Namespace ns, JavaMethod method, JavaConstructor constructor, int idt) {
 		final String indent = getIndent(idt);
 		
 		// header
@@ -69,12 +76,43 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 		if (method.hasDescription()) {
 			sb.append(getDescription(method, indent));
 		}
+		for (JavaParameter p : constructor.getParameters()) {
+			sb.append(indent).append(" * @param ");
+			sb.append(p.getName());
+			sb.append("\n");
+		}
 		sb.append(indent).append(" */\n");
 		
 		// signature
 		sb.append(indent).append("public ");
 		sb.append(getClassName(method));
 		sb.append("(");
+		Iterator<JavaParameter> it = constructor.getParameters().iterator();
+		while (it.hasNext()) {
+			final JavaParameter p = it.next();
+			
+			if (!it.hasNext() && p.isArray()) {
+				if (p.getType().isEnumArray()) {
+					sb.append("String...");
+				} else {
+					sb.append(getClassReference(ns, p.getType().getArrayType()));
+					sb.append("...");
+				}
+			} else {
+				if (p.isEnum()) {
+					sb.append("String");
+				} else {
+					sb.append(getClassReference(ns, p.getType()));
+				}
+			}
+			sb.append(" ");
+			sb.append(p.getName());
+			sb.append(", ");
+		}
+		if (!constructor.getParameters().isEmpty()) {
+			sb.delete(sb.length() - 2, sb.length());
+		}
+		
 		sb.append(") {\n");
 		
 		// body
@@ -96,7 +134,7 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 		// protected boolean returnsList() { }
 		sb.append(indent).append("@Override\n");
 		sb.append(indent).append("protected boolean returnsList() {\n");
-		sb.append(indent).append("	return ").append(method.getReturnType().isArray() ? "true" : "false").append(";\n");
+		sb.append(indent).append("	return ").append(method.getReturnType().isTypeArray() ? "true" : "false").append(";\n");
 		sb.append(indent).append("}\n");
 	}
 

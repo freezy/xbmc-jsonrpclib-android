@@ -30,8 +30,8 @@ import org.xbmc.android.jsonrpc.generator.introspect.Type;
 import org.xbmc.android.jsonrpc.generator.introspect.wrapper.TypeWrapper;
 import org.xbmc.android.jsonrpc.generator.model.JavaClass;
 import org.xbmc.android.jsonrpc.generator.model.JavaConstructor;
-import org.xbmc.android.jsonrpc.generator.model.JavaMember;
 import org.xbmc.android.jsonrpc.generator.model.JavaMethod;
+import org.xbmc.android.jsonrpc.generator.model.JavaParameter;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 
 /**
@@ -94,67 +94,44 @@ public class MethodController {
 		// parameters
 		for (Param p : method.getParams()) {
 			
-			final TypeWrapper tr = p.getType();
-			final Property obj = p.obj();
-			final Property itemsObj = obj.getItems() != null ? obj.getItems().obj() : null;
-			
-			if (obj.isEnum()) {
-			} else if (obj.isArray() && obj.getItems().isEnum()) {
-			} else if (itemsObj != null && itemsObj.isEnum()) {
+			if (p.isEnum()) {
+			} else if (p.isArray() && p.getItems().isEnum()) {
 			} else {
+				final TypeWrapper tr = p.getType();
 				if (tr == null || !tr.isList()) {
 					final PropertyController pc = new PropertyController(name, p);
 					final JavaClass type = pc.getClass(namespace, p.getName(), klass);
-					
-					klass.addMember(new JavaMember(p.getName(), type));
-					
-					System.out.println("T " + apiType + "." + p.getName() + ": " + type);
+					jc.addParameter(new JavaParameter(p.getName(), type));
 				}
 			}
 
 			
-/*			final Property copy = p.obj();
-			final Property itemsCopy = copy.getItems() != null ? copy.getItems().obj() : null;
+/*			final Property obj = p.obj();
+			final Property itemsObj = obj.getItems() != null ? obj.getItems().obj() : null;
 			
-			//final List<JavaConstructor> currentConstructors = new ArrayList<JavaConstructor>(constructors);
-			
-			// enum
-			if (copy.isEnum()) {
+			if (obj.isEnum()) {
 				
-			// still enum	
-			} else if (copy.isArray() && copy.getItems().isEnum()) {
+				final PropertyController pc = new PropertyController(name, p);
+				final JavaEnum e = pc.getEnum(p.getName());
+				jc.addParameter(new JavaParameter(p.getName(), e));
 				
-			// still enum	
-			} else if (itemsCopy != null && itemsCopy.isEnum()) {
-				
-			// classic type	
+			} else if (obj.isArray() && obj.getItems().isEnum()) {
+			} else if (itemsObj != null && itemsObj.isEnum()) {
 			} else {
-				
-				final TypeWrapper tr = copy.getType();
-				
-				if (tr.isList()) {
-					// TODO
-				} else {
+				final TypeWrapper tr = p.getType();
+				if (tr == null || !tr.isList()) {
+					final PropertyController pc = new PropertyController(name, p);
+					final JavaClass type = pc.getClass(namespace, p.getName(), klass);
+					jc.addParameter(new JavaParameter(p.getName(), type));
 					
-					final PropertyController pc;
-					if (tr.isNative()) {
-						pc = new PropertyController(name, p);
-					} else {
-						pc = new PropertyController(name, tr.getObj());
-					}
-					
-					final JavaClass paramType = pc.getClass(namespace, p.getName(), klass);
-					final JavaParameter jp = new JavaParameter(p.getName(), paramType);
-					jc.addParameter(jp);
+					System.out.println("T " + apiType + "." + p.getName() + ": " + type);
 				}
-
-			}*/ 
+			}*/
 		}
+
 //		constructors.add(jc);
-		
 		klass.addConstructor(jc);
 
-		
 
 		// return type
 		final TypeWrapper tw = method.getReturns();
@@ -169,7 +146,7 @@ public class MethodController {
 				final PropertyController returnTypeController = new PropertyController(null, method.getReturns().getObj());
 				final JavaClass returnType = returnTypeController.getClass(namespace, name, klass);
 				
-				if (returnType.isArray()) {
+				if (returnType.isTypeArray()) {
 					klass.linkInnerType(returnType.getArrayType());
 				}
 				

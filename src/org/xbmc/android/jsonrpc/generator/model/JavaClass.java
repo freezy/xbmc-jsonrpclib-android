@@ -51,7 +51,7 @@ public class JavaClass {
 	private Nature nature = null;
 
 	public enum Nature {
-		NATIVE, MULTITYPE, ARRAY;
+		NATIVE, MULTITYPE, TYPEARRAY, ENUMARRAY;
 	}
 
 	/**
@@ -59,9 +59,13 @@ public class JavaClass {
 	 */
 	private JavaClass parentClass = null;
 	/**
-	 * If this is an array, the type is set here.
+	 * If this is a type array, the type is set here.
 	 */
 	private JavaClass arrayType = null;
+	/**
+	 * If this is an enum array, the type is set here.
+	 */
+	private JavaEnum arrayEnum = null;
 	/**
 	 * If this is an inner class, the outer class is set here.
 	 */
@@ -234,7 +238,17 @@ public class JavaClass {
 
 		// ..and array type
 		if (arrayType != null) {
-			arrayType = resolveNonNull(arrayType);
+			final JavaClass type = resolve(arrayType);
+			if (type == null) {
+				arrayEnum = JavaEnum.resolve(arrayType);
+				if (arrayEnum == null) {
+					throw new IllegalStateException("Cannot resolve member \"" + name + "\" to neither enum nor class.");
+				}
+				arrayType = null;
+				nature = Nature.ENUMARRAY;
+			} else {
+				arrayType = type;
+			}
 		}
 
 		// inner classes
@@ -276,14 +290,27 @@ public class JavaClass {
 	}
 
 	/**
-	 * Returnes true if the class is an array. In this case,
+	 * Returnes true if the class is a type array. In this case,
 	 * {@link #getArrayType()} will return an object.
 	 * 
 	 * @see #getArrayType()
+	 * @see #isEnumArray()
 	 * @return True if array, false otherwise.
 	 */
-	public boolean isArray() {
-		return nature == Nature.ARRAY;
+	public boolean isTypeArray() {
+		return nature == Nature.TYPEARRAY;
+	}
+	
+	/**
+	 * Returnes true if the class is an enum array. In this case,
+	 * {@link #getArrayType()} will return an object.
+	 * 
+	 * @see #getArrayType()
+	 * @see #isTypeArray()
+	 * @return True if type array, false otherwise.
+	 */
+	public boolean isEnumArray() {
+		return nature == Nature.ENUMARRAY;
 	}
 
 	/**
@@ -371,7 +398,7 @@ public class JavaClass {
 		if (unresolved) {
 			throw new RuntimeException("Unresolved.");
 		}
-		return !(isNative() || (isArray() && !arrayType.isVisible()));
+		return !(isNative() || (isTypeArray() && !arrayType.isVisible()));
 	}
 
 	/**
@@ -461,7 +488,7 @@ public class JavaClass {
 	}
 
 	/**
-	 * Marks the class as an array.
+	 * Marks the class as a type array.
 	 * 
 	 * @param arrayType Type of the array
 	 */
@@ -472,9 +499,20 @@ public class JavaClass {
 		if (nature != null) {
 			throw new IllegalStateException("Cannot set nature if already set.");
 		}
-		this.nature = Nature.ARRAY;
+		this.nature = Nature.TYPEARRAY;
 		this.arrayType = arrayType;
 	}
+	
+/*	public void setArray(JavaEnum arrayEnum) {
+		if (unresolved) {
+			throw new RuntimeException("Unresolved.");
+		}
+		if (nature != null) {
+			throw new IllegalStateException("Cannot set nature if already set.");
+		}
+		this.nature = Nature.ENUMARRAY;
+		this.arrayEnum = arrayEnum;
+	}*/
 
 	/**
 	 * Marks the class as a global class.
@@ -500,9 +538,9 @@ public class JavaClass {
 
 	/**
 	 * Returns the array type. This only returns an non-null object if
-	 * {@link #isArray()} is true.
+	 * {@link #isTypeArray()} is true.
 	 * 
-	 * @see #isArray()
+	 * @see #isTypeArray()
 	 * @return Array type of this class.
 	 */
 	public JavaClass getArrayType() {
@@ -764,7 +802,8 @@ public class JavaClass {
 		final StringBuilder sb = new StringBuilder();
 		if (nature != null) {
 			switch (nature) {
-			case ARRAY:
+			case ENUMARRAY:
+			case TYPEARRAY:
 				sb.append("array: ");
 				sb.append(arrayType.toString());
 				break;

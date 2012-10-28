@@ -65,7 +65,7 @@ public class JavaMember {
 	}
 	
 	public boolean isArray() {
-		return type != null && type.isArray();
+		return type != null && type.isTypeArray();
 	}
 	
 	public boolean isGlobal() {
@@ -101,6 +101,8 @@ public class JavaMember {
 				if (e == null) {
 					throw new IllegalStateException("Cannot resolve member \"" + name + "\" to neither enum nor class.");
 				}
+				// since it's an enum, reset type.
+				type = null;
 			} else {
 				this.type = type;
 			}

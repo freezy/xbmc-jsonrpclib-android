@@ -133,13 +133,13 @@ public class PropertyController {
 		if (outerType == null && !isGlobal()) {
 			throw new IllegalArgumentException("Outer type must be set for non-global classes.");
 		}
-		final Property obj = property.obj();
+/*		final Property obj = property.obj();
 		if (obj.isEnum()) {
 			throw new IllegalArgumentException("Property must not be an enum.");
 		}
 		if (obj.isArray() && obj.getItems().obj().isEnum()) {
 			throw new IllegalArgumentException("Property must not be a list of enums.");
-		}
+		}*/
 		
 		// create class from native type
 		if (property.isNative()) {
@@ -197,22 +197,11 @@ public class PropertyController {
 			
 		// create class from reference (1)
 		} else if (property.isRef()) {
-			
-//			final Property copy = property.obj();
-//			if (copy.isEnum()) {
-//				klass = new JavaClass(namespace, "string");
-//			} else {
-				klass = new JavaClass(property.getRef());
-//			}
+			klass = new JavaClass(property.getRef());
 			
 		// create class from reference (2)
 		} else if (property.getType() != null && property.getType().isObject() && property.getType().getObj().isRef()) {
-//			final Property copy = property.getType().getObj().obj();
-//			if (copy.isEnum()) {
-//				klass = new JavaClass(namespace, "string");
-//			} else {
-				klass = new JavaClass(property.getType().getObj().getRef());
-//			}
+			klass = new JavaClass(property.getType().getObj().getRef());
 			
 		// create class from global type
 		} else if (property instanceof Type) {

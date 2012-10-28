@@ -51,8 +51,10 @@ public abstract class AbstractView {
 		}
 		if (klass.isNative()) {
 			return getNativeType(klass);
-		} else if (klass.isArray()) {
+		} else if (klass.isTypeArray()) {
 			return getArrayType(ns, klass);
+		} else if (klass.isEnumArray()) {
+			return getArrayEnum();
 		} else if (klass.isInner()) {
 			if (klass.getOuterType() == null) {
 				throw new IllegalStateException("Outer class of " + klass.getName() + " cannot be null.");
@@ -153,6 +155,10 @@ public abstract class AbstractView {
 
 	protected String getArrayType(Namespace ns, JavaClass klass) {
 		return "List<" + getClassReference(ns, klass.getArrayType()) + ">";
+	}
+	
+	protected String getArrayEnum() {
+		return "List<String>";
 	}
 
 	/**

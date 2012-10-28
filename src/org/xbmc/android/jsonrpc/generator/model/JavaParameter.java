@@ -58,16 +58,18 @@ public class JavaParameter {
 	}
 	
 	public void resolveType() {
-		if (this.type != null) {
-			JavaClass type = JavaClass.resolve(this.type);
+		if (type != null) {
+			JavaClass t = JavaClass.resolve(type);
 			// try to resolve as enum
-			if (type == null) {
-				e = JavaEnum.resolve(this.type);
+			if (t == null) {
+				e = JavaEnum.resolve(type);
 				if (e == null) {
 					throw new IllegalStateException("Cannot resolve member \"" + name + "\" to neither enum nor class.");
 				}
+				// since it's an enum, reset type.
+				type = null;
 			} else {
-				this.type = type;
+				type = t;
 			}
 		}
 	}
@@ -78,6 +80,10 @@ public class JavaParameter {
 	
 	public boolean isEnum() {
 		return e != null;
+	}
+	
+	public boolean isArray() {
+		return type != null && (type.isEnumArray() || type.isTypeArray()); 
 	}
 
 	public String getDescription() {
