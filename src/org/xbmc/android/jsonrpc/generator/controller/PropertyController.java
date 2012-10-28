@@ -97,7 +97,7 @@ public class PropertyController {
 		
 		// either register class or enum
 		if (p.isEnum()) {
-			ns.addEnum(getEnum(strippedName));
+			ns.addEnum(getEnum(ns, strippedName));
 			
 		} else if (p.isArray() && p.getItems().isEnum()) {
 			/* So if we have an array that is made out of enums, it's
@@ -106,7 +106,7 @@ public class PropertyController {
 			 * the array type.
 			 */
 			final PropertyController pc = new PropertyController(name, type.getItems());
-			ns.addEnum(pc.getEnum(strippedName));
+			ns.addEnum(pc.getEnum(ns, strippedName));
 			
 		} else {
 			ns.addClass(getClass(ns, strippedName, null));
@@ -339,11 +339,12 @@ public class PropertyController {
 	/**
 	 * Creates the agnostic {@link JavaEnum} object.
 	 * 
+	 * @param ns Namespace where the enum is defined
 	 * @param enumName Name of the enum (retrieved from parent key)
 	 * @return Enum object
 	 */
-	public JavaEnum getEnum(String enumName) {
-		final JavaEnum e = new JavaEnum(enumName, name);
+	public JavaEnum getEnum(Namespace ns, String enumName) {
+		final JavaEnum e = new JavaEnum(ns, enumName, name);
 		List<String> enums = property.isArray() ? property.getItems().getEnums() : property.getEnums();
 		for (String enumValue : enums) {
 			e.addValue(enumValue);

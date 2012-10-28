@@ -86,6 +86,9 @@ public class JavaParameter {
 		return type != null && (type.isEnumArray() || type.isTypeArray()); 
 	}
 
+	public boolean hasDescription() {
+		return description != null;
+	}
 	public String getDescription() {
 		return description;
 	}

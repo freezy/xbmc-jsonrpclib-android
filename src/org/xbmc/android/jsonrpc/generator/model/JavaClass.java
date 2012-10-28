@@ -549,6 +549,20 @@ public class JavaClass {
 		}
 		return arrayType;
 	}
+	
+	/**
+	 * Returns the array enum. This only returns an non-null object if
+	 * {@link #isEnumArray()} is true.
+	 * 
+	 * @see #isEnumArray()
+	 * @return Array enum of this class.
+	 */
+	public JavaEnum getEnumArray() {
+		if (unresolved) {
+			throw new RuntimeException("Unresolved.");
+		}
+		return arrayEnum;
+	}
 
 	/**
 	 * Returns the name of the class.

@@ -35,14 +35,16 @@ import org.xbmc.android.jsonrpc.generator.introspect.Property;
 public class JavaEnum {
 
 	private final String name;
+	private final Namespace namespace;  
 	private final String apiType;
 	private final List<String> values = new ArrayList<String>();
 
 	private boolean isInner = false;
 	private JavaClass outerType = null; // set if isInner == true
 
-	public JavaEnum(String name, String apiType) {
+	public JavaEnum(Namespace namespace, String name, String apiType) {
 		this.name = name;
+		this.namespace = namespace;
 		this.apiType = apiType;
 		
 		if (apiType != null) {
@@ -61,6 +63,10 @@ public class JavaEnum {
 
 	public String getName() {
 		return name;
+	}
+	
+	public Namespace getNamespace() {
+		return namespace;
 	}
 
 	public String getApiType() {

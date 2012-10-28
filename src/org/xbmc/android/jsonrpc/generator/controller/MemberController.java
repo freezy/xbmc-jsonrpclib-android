@@ -50,7 +50,7 @@ public class MemberController {
 		if (obj.isEnum() || (obj.isArray() && obj.getItems().obj().isEnum())) {
 			
 			final PropertyController pc = new PropertyController(name, obj);
-			final JavaEnum e = pc.getEnum(name);
+			final JavaEnum e = pc.getEnum(namespace, name);
 			e.setInner(true);
 			member = new JavaMember(name, e);
 

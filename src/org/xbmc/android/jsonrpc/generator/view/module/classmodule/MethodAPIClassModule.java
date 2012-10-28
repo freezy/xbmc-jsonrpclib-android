@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.xbmc.android.jsonrpc.generator.model.JavaClass;
 import org.xbmc.android.jsonrpc.generator.model.JavaConstructor;
+import org.xbmc.android.jsonrpc.generator.model.JavaEnum;
 import org.xbmc.android.jsonrpc.generator.model.JavaMember;
 import org.xbmc.android.jsonrpc.generator.model.JavaMethod;
 import org.xbmc.android.jsonrpc.generator.model.JavaParameter;
@@ -68,6 +69,19 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 		renderStaticStuff(sb, method, idt);
 	}
 	
+	private void renderEnumValues(StringBuilder sb, JavaEnum e) {
+		for (String value : e.getValues()) {
+			sb.append("<tt>");
+			sb.append(value);
+			sb.append("</tt>, ");
+		}
+		if (!e.getValues().isEmpty()) {
+			sb.delete(sb.length() - 2, sb.length());
+		}
+		sb.append(".");
+		
+	}
+	
 	private void renderConstructor(StringBuilder sb, Namespace ns, JavaMethod method, JavaConstructor constructor, int idt) {
 		final String indent = getIndent(idt);
 		
@@ -79,6 +93,19 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 		for (JavaParameter p : constructor.getParameters()) {
 			sb.append(indent).append(" * @param ");
 			sb.append(p.getName());
+			if (p.hasDescription()) {
+				sb.append(p.getDescription());
+			}
+			if (p.isEnum()) {
+				sb.append(" One of: ");
+				renderEnumValues(sb, p.getEnum());
+				sb.append(" See constants at {@link ").append(getEnumReference(ns, p.getEnum())).append("}.");
+				
+			} else if (p.getType().isEnumArray()) {
+				sb.append(" One or more of: ");
+				renderEnumValues(sb, p.getType().getEnumArray());
+				sb.append(" See constants at {@link ").append(getEnumReference(ns, p.getType().getEnumArray())).append("}.");
+			}
 			sb.append("\n");
 		}
 		sb.append(indent).append(" */\n");

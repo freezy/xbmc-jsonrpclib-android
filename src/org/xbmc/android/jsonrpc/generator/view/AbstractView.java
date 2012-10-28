@@ -78,7 +78,7 @@ public abstract class AbstractView {
 	 * 
 	 * @param ns Namespace where class is being referenced to.
 	 * @param klass Class being referenced 
-	 * @return
+	 * @return Java reference depending on where it's referenced from.
 	 */
 	protected String getClassReference(Namespace ns, JavaClass klass) {
 		final StringBuilder sb = new StringBuilder();
@@ -90,6 +90,20 @@ public abstract class AbstractView {
 		}
 		sb.append(className);
 		return sb.toString();
+	}
+	
+	/**
+	 * Returns enum reference. 
+	 * @param ns Namespace where the enum is being referenced to.
+	 * @param e Enum being referenced
+	 * @return Java reference depending on where it's referenced from.
+	 */
+	protected String getEnumReference(Namespace ns, JavaEnum e) {
+		if (!ns.equals(e.getNamespace())) {
+			return e.getNamespace().getName() + "." + getEnumName(e);
+		} else {
+			return getEnumName(e);
+		}
 	}
 
 	/**

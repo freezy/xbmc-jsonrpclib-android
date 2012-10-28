@@ -101,7 +101,9 @@ public class MethodController {
 				if (tr == null || !tr.isList()) {
 					final PropertyController pc = new PropertyController(name, p);
 					final JavaClass type = pc.getClass(namespace, p.getName(), klass);
-					jc.addParameter(new JavaParameter(p.getName(), type));
+					final JavaParameter jp = new JavaParameter(p.getName(), type);
+					jp.setDescription(p.getDescription());
+					jc.addParameter(jp);
 				}
 			}
 
