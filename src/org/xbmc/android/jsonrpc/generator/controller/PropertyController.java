@@ -263,7 +263,7 @@ public class PropertyController {
 		if (property.doesExtend()) {
 			final ExtendsWrapper ew = property.getExtends();
 			if (ew.isList()) {
-				// TODO
+				// TODO multiple heritage
 			} else {
 				klass.setParentClass(new JavaClass(property.getExtends().getName()));
 			}

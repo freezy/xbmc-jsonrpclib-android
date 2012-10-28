@@ -103,8 +103,9 @@ public class ParcelableClassModule extends AbstractView implements IClassModule 
 		final String indent = getIndent(idt);
 		
 		if (member.isEnum()) {
-			// TODO
-			sb.append(indent).append("/* TODO enum: ").append(member.getName()).append(" */\n");
+			sb.append(indent).append("parcel.writeValue(");
+			sb.append(member.getName());
+			sb.append("); // enum\n");
 		} else {
 			
 			final JavaClass klass = member.getType();
@@ -192,9 +193,8 @@ public class ParcelableClassModule extends AbstractView implements IClassModule 
 		final String indent = getIndent(idt);
 		
 		if (member.isEnum()) {
-			// TODO
 			sb.append(indent).append(member.getName());
-			sb.append(" = null; // TODO enum\n");
+			sb.append(" = parcel.readString(); // enum\n");
 		} else {
 			
 			final JavaClass klass = member.getType();

@@ -154,8 +154,8 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 			sb.append(indent).append("	return node;\n");
 			
 		} else {
-			// TODO
-			sb.append(indent).append("	return null; // TODO return JsonBaseNode or whatever\n");
+			// TODO return JsonBaseNode or whatever
+			sb.append(indent).append("	return null; // return JsonBaseNode or whatever\n");
 		}
 		
 		sb.append(indent).append("}\n");
@@ -165,8 +165,9 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 		final String indent = getIndent(idt);
 		
 		if (member.isEnum()) {
-			// TODO
-			sb.append(indent).append("/* TODO enum for").append(member.getName()).append(" */\n");
+			sb.append(indent);
+			renderNodeSetter(sb, member, member.getName());
+			sb.append("; // enum\n");
 		} else {
 			final JavaClass klass = member.getType();
 			if (klass.isNative()) {
@@ -225,8 +226,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 	 */
 	private void renderParseLine(StringBuilder sb, JavaMember member, Namespace ns) {
 		if (member.isEnum()) {
-			// TODO
-			sb.append("null; /* TODO enum */\n");
+			renderOptionalNativeNodeGetter(sb, member.getName(), NATIVE_OPTIONAL_NODE_GETTER.get("string"));
 		} else {
 			final JavaClass klass = member.getType();
 			
@@ -315,8 +315,8 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 					}
 				}
 			} else {
-				// TODO
-				sb.append("if (node.isObject()) { // TODO - check what's returned and see if we can match by name rather than type.\n");
+				// TODO check what's returned and see if we can match by name rather than type
+				sb.append("if (node.isObject()) { // check what's returned and see if we can match by name rather than type.\n");
 				for (JavaMember m : allMembers) {
 					sb.append(indent).append("\t");
 					sb.append(m.getName());

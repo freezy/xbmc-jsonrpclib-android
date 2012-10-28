@@ -27,11 +27,14 @@ import org.codehaus.jackson.JsonNode;
 import org.json.JSONException;
 
 import android.content.ContentProvider;
+import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
+
+import com.sun.xml.internal.ws.handler.HandlerException;
 
 /**
  * Abstract class that handles reading and parsing an JSON-serialized API
@@ -102,7 +105,6 @@ public abstract class JsonHandler implements Parcelable {
 
 	@Override
 	public int describeContents() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
