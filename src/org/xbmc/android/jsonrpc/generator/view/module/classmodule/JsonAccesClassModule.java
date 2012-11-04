@@ -39,9 +39,9 @@ import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
  */
 public class JsonAccesClassModule extends AbstractView implements IClassModule {
 
-	private static final Map<String, String> NATIVE_REQUIRED_NODE_GETTER = new HashMap<String, String>();
-	private static final Map<String, String> NATIVE_OPTIONAL_NODE_GETTER = new HashMap<String, String>();
-	private static final Map<String, String> NATIVE_NODE_TYPECHECK = new HashMap<String, String>();
+	public static final Map<String, String> NATIVE_REQUIRED_NODE_GETTER = new HashMap<String, String>();
+	public static final Map<String, String> NATIVE_OPTIONAL_NODE_GETTER = new HashMap<String, String>();
+	public static final Map<String, String> NATIVE_NODE_TYPECHECK = new HashMap<String, String>();
 	
 	static {
 		NATIVE_REQUIRED_NODE_GETTER.put("integer", "getIntValue");
