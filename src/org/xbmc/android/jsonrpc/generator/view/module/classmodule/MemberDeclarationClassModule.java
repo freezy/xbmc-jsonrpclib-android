@@ -44,18 +44,18 @@ public class MemberDeclarationClassModule extends AbstractView implements IClass
 
 		// field name constants
 		if (!klass.isMultiType()) {
-			sb.append("\n").append(indent).append("\t// field names\n");
+			sb.append("\n").append(indent).append("// field names\n");
 			for (JavaMember member : klass.getMembers()) {
 				final MemberView memberView = new MemberView(member);
-				sb.append(memberView.renderFieldDeclaration(idt + 1));
+				sb.append(memberView.renderFieldDeclaration(idt));
 			}
 		}
 
 		// members
-		sb.append("\n").append(indent).append("\t// class members\n");
+		sb.append("\n").append(indent).append("// class members\n");
 		for (JavaMember member : klass.getMembers()) {
 			final MemberView memberView = new MemberView(member);
-			memberView.renderDeclaration(sb, klass.getNamespace(), idt + 1);
+			memberView.renderDeclaration(sb, klass.getNamespace(), idt);
 		}
 	}
 

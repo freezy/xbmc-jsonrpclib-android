@@ -44,6 +44,9 @@ public abstract class AbstractView {
 	protected String getClassName(Namespace ns, JavaClass klass) {
 		return getClassName(ns, klass, false);
 	}
+	protected String getClassReference(Namespace ns, JavaClass klass) {
+		return getClassReference(ns, klass, false);
+	}
 
 	/**
 	 * Returns the Java class name based on a class object.
@@ -86,11 +89,14 @@ public abstract class AbstractView {
 	 * @param klass Class being referenced 
 	 * @return Java reference depending on where it's referenced from.
 	 */
-	protected String getClassReference(Namespace ns, JavaClass klass) {
+	protected String getClassReference(Namespace ns, JavaClass klass, boolean asArray) {
 		final StringBuilder sb = new StringBuilder();
 
-		final String className = getClassName(ns, klass);
-		if (!klass.isNative() && !ns.equals(klass.getNamespace()) && !className.startsWith("List")) {
+		final String className = getClassName(ns, klass, asArray);
+		if (!klass.isNative() && !ns.equals(klass.getNamespace())
+				// hacks
+				&& !className.startsWith("List") && !className.startsWith("String")) {
+			
 			sb.append(klass.getNamespace().getName());
 			sb.append(".");
 		}

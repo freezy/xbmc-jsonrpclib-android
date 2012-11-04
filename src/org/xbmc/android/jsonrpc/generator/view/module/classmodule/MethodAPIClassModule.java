@@ -134,7 +134,7 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 				if (p.isEnum()) {
 					sb.append("String");
 				} else {
-					sb.append(getClassName(p.getType(), true));
+					sb.append(getClassReference(ns, p.getType(), true));
 				}
 			}
 			sb.append(" ");
@@ -217,8 +217,7 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 					if (paramType.isGlobal() && !paramType.isNative() && paramType.hasName()) {
 						imports.add(
 								paramType.getNamespace().getPackageName() 
-								+ "." + paramType.getNamespace().getName()
-								+ "." + paramType.getName());
+								+ "." + paramType.getNamespace().getName());
 					}
 				}
 			}
