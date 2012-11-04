@@ -63,7 +63,7 @@ public abstract class AbstractView {
 		} else if (klass.isTypeArray()) {
 			return getArrayType(ns, klass, asArray);
 		} else if (klass.isEnumArray()) {
-			return getArrayEnum();
+			return getArrayEnum(asArray);
 		} else if (klass.isInner()) {
 			if (klass.getOuterType() == null) {
 				throw new IllegalStateException("Outer class of " + klass.getName() + " cannot be null.");
@@ -187,8 +187,8 @@ public abstract class AbstractView {
 		}
 	}
 	
-	protected String getArrayEnum() {
-		return "List<String>";
+	protected String getArrayEnum(boolean asArray) {
+		return asArray ? "String[]" : "List<String>";
 	}
 
 	/**

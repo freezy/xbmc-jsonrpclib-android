@@ -95,7 +95,9 @@ public class MethodController {
 		for (Param p : method.getParams()) {
 			
 			if (p.isEnum()) {
+				// TODO
 			} else if (p.isArray() && p.getItems().isEnum()) {
+				// TODO
 			} else {
 				final TypeWrapper tr = p.getType();
 				if (tr == null || !tr.isList()) {

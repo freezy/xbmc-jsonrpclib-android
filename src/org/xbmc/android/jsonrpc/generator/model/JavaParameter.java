@@ -62,12 +62,19 @@ public class JavaParameter {
 			JavaClass t = JavaClass.resolve(type);
 			// try to resolve as enum
 			if (t == null) {
-				e = JavaEnum.resolve(type);
+				JavaEnum e = JavaEnum.resolve(type);
 				if (e == null) {
-					throw new IllegalStateException("Cannot resolve member \"" + name + "\" to neither enum nor class.");
+					throw new IllegalStateException("Cannot resolve parameter \"" + name + "\" to neither enum nor class.");
 				}
-				// since it's an enum, reset type.
-				type = null;
+				// if array, upate type.
+				if (e.isArray()) {
+					type = new JavaClass(e);
+
+				// otherwise it's an enum, so reset type.
+				} else {
+					this.e = e;
+					this.type = null;
+				}
 			} else {
 				type = t;
 			}

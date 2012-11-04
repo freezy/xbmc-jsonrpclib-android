@@ -346,6 +346,11 @@ public class PropertyController {
 	public JavaEnum getEnum(Namespace ns, String enumName) {
 		final JavaEnum e = new JavaEnum(ns, enumName, name);
 		List<String> enums = property.isArray() ? property.getItems().getEnums() : property.getEnums();
+		
+		if (property.obj().isArray()) {
+			e.setArray();
+		}
+			
 		for (String enumValue : enums) {
 			e.addValue(enumValue);
 		}

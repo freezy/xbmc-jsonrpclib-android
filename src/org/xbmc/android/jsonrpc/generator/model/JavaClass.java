@@ -161,6 +161,28 @@ public class JavaClass {
 	}
 	
 	/**
+	 * New class as enum array.
+	 * 
+	 * When defining the model, we don't care about whether an enum is just an
+	 * enum or an array of enums, we always render just the enum values. 
+	 * However, for parameters and results, this is important. In this case, an
+	 * array of enums is represented by a {@link JavaClass} with nature
+	 * {@link Nature#ENUMARRAY}.
+	 * 
+	 * This constructor creates such a class for a given enum.
+	 * 
+	 * @param arrayEnum Enum of the array
+	 */
+	public JavaClass(JavaEnum arrayEnum) {
+		this.namespace = arrayEnum.getNamespace();
+		this.name = arrayEnum.getName();
+		this.apiType = arrayEnum.getApiType();
+		this.arrayEnum = arrayEnum;
+		this.unresolved = false;
+		this.nature = Nature.ENUMARRAY;
+	}
+	
+	/**
 	 * Returns {@link #resolve()} but fails if class cannot be resolved. Use
 	 * this when you're sure you're resolving a class and not an enum.
 	 * @param klass The class to be resolved
@@ -303,7 +325,7 @@ public class JavaClass {
 	
 	/**
 	 * Returnes true if the class is an enum array. In this case,
-	 * {@link #getArrayType()} will return an object.
+	 * {@link #getEnumArray()} will return an object.
 	 * 
 	 * @see #getArrayType()
 	 * @see #isTypeArray()

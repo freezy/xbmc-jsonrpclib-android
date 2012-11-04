@@ -93,18 +93,25 @@ public class JavaMember {
 	}
 
 	public JavaMember resolveType() {
-		if (this.type != null) {
-			JavaClass type = JavaClass.resolve(this.type);
+		if (type != null) {
+			JavaClass t = JavaClass.resolve(type);
 			// try to resolve as enum
-			if (type == null) {
-				e = JavaEnum.resolve(this.type);
+			if (t == null) {
+				JavaEnum e = JavaEnum.resolve(type);
 				if (e == null) {
 					throw new IllegalStateException("Cannot resolve member \"" + name + "\" to neither enum nor class.");
 				}
-				// since it's an enum, reset type.
-				type = null;
+				// if array, upate type.
+				if (e.isArray()) {
+					type = new JavaClass(e);
+
+				// otherwise it's an enum, so reset type.
+				} else {
+					this.e = e;
+					this.type = null;
+				}
 			} else {
-				this.type = type;
+				type = t;
 			}
 		}
 		return this;

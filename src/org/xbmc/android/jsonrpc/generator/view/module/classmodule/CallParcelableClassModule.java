@@ -36,7 +36,6 @@ import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
  */
 public class CallParcelableClassModule extends AbstractView implements IClassModule {
 
-	
 	@Override
 	public void render(StringBuilder sb, Namespace ns, JavaClass klass, int idt) {
 		
@@ -74,12 +73,13 @@ public class CallParcelableClassModule extends AbstractView implements IClassMod
 		final String indent = getIndent(idt);
 		
 		// method header
-		sb.append(indent).append("/**\n");
+/*		sb.append(indent).append("/**\n");
 		sb.append(indent).append(" * Flatten this object into a Parcel.\n");
 		sb.append(indent).append(" * @param parcel the Parcel in which the object should be written.\n");
 		sb.append(indent).append(" * @param flags additional flags about how the object should be written.\n");
-		sb.append(indent).append(" */\n");
-		
+		sb.append(indent).append(" * /\n");
+*/		
+
 		// signature
 		sb.append(indent).append("@Override\n");
 		sb.append(indent).append("public void writeToParcel(Parcel parcel, int flags) {\n");
