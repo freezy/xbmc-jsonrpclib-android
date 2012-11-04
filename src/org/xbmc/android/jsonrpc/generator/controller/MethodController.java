@@ -21,7 +21,9 @@
 package org.xbmc.android.jsonrpc.generator.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.xbmc.android.jsonrpc.generator.introspect.Method;
 import org.xbmc.android.jsonrpc.generator.introspect.Param;
@@ -44,9 +46,11 @@ public class MethodController {
 	private final String name;
 	private final String apiType;
 	private final Method method;
+	private final Map<String, Integer> innerClassDupes = new HashMap<String, Integer>(); 
 	
 	private final static String RESULT_CLASS_SUFFIX = "Result";
 	private final static List<String> META_RETURN_PROPS = new ArrayList<String>();
+	
 	
 	static {
 		META_RETURN_PROPS.add("limits");
@@ -88,8 +92,8 @@ public class MethodController {
 		
 		final JavaMethod klass = new JavaMethod(namespace, name, apiType);
 		
-//		final List<JavaConstructor> constructors = new ArrayList<JavaConstructor>();
-		final JavaConstructor jc = new JavaConstructor(klass);
+		final List<JavaConstructor> constructors = new ArrayList<JavaConstructor>();
+		constructors.add(new JavaConstructor(klass));
 		
 		// parameters
 		for (Param p : method.getParams()) {
@@ -100,14 +104,41 @@ public class MethodController {
 				// TODO
 			} else {
 				final TypeWrapper tr = p.getType();
-				if (tr == null || !tr.isList()) {
-					final PropertyController pc = new PropertyController(name, p);
-					final JavaClass type = pc.getClass(namespace, p.getName(), klass);
-					final JavaParameter jp = new JavaParameter(p.getName(), type);
-					jp.setDescription(p.getDescription());
-					jc.addParameter(jp);
-					if (type.isInner()) {
-						klass.linkInnerType(type);
+				if (!p.isMultitype()) {
+					for (JavaConstructor jc : constructors) {
+						jc.addParameter(getParam(p.getName(), p, namespace, klass));
+					}
+				} else {
+					
+					final List<JavaConstructor> copiedConstructors = new ArrayList<JavaConstructor>();
+					for (JavaConstructor jc : constructors) {
+						copiedConstructors.add(jc.copy());
+					}
+					
+					int i = 0;
+					for (Type t : tr.getList()) {
+						if (i == 0) {
+							// first multitype: just add param to current constructors.
+							for (JavaConstructor jc : constructors) {
+								jc.addParameter(getParam(p.getName(), t, namespace, klass));
+							}
+						} else {
+							// second..nth multitype: for each previously saved constructor, copy then add param
+							for (JavaConstructor jc : copiedConstructors) {
+								final JavaConstructor jjc = jc.copy();
+								jjc.addParameter(getParam(p.getName(), t, namespace, klass));
+								boolean dupeFound = false;
+								for (JavaConstructor jjjc : constructors) {
+									if (jjjc.hasSameParams(jjc)) {
+										dupeFound = true;
+									}
+								}
+								if (!dupeFound) {
+									constructors.add(jjc);
+								}
+							}
+						}
+						i++;
 					}
 				}
 			}
@@ -136,9 +167,9 @@ public class MethodController {
 			}*/
 		}
 
-//		constructors.add(jc);
-		klass.addConstructor(jc);
-
+		for (JavaConstructor jc : constructors) {
+			klass.addConstructor(jc);
+		}
 
 		// return type
 		final TypeWrapper tw = method.getReturns();
@@ -237,4 +268,34 @@ public class MethodController {
 		
 		return klass;
 	}
+	
+	
+	/**
+	 * Returns a JavaParameter for a given property. 
+	 * @param name
+	 * @param p
+	 * @param namespace
+	 * @param klass
+	 * @return
+	 */
+	private JavaParameter getParam(String name, Property p, Namespace namespace, JavaClass klass) {
+		final PropertyController pc = new PropertyController(name, p);
+		final JavaClass type = pc.getClass(namespace, name, klass);
+		final JavaParameter jp = new JavaParameter(name, type);
+		jp.setDescription(p.getDescription());
+		if (type.isInner()) {
+			final String k = type.getName();
+			if (innerClassDupes.containsKey(k)) {
+				int suffix = innerClassDupes.get(k) + 1;
+				type.suffixName(String.valueOf(suffix));
+				innerClassDupes.put(k, suffix);
+			} else {
+				innerClassDupes.put(k, 1);
+			}
+			klass.linkInnerType(type);
+			
+		}
+		return jp;
+	}
+
 }

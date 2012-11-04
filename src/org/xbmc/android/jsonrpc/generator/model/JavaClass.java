@@ -41,7 +41,7 @@ import org.xbmc.android.jsonrpc.generator.view.module.IParentModule;
  */
 public class JavaClass {
 
-	private final String name;
+	private String name;
 	private final String apiType;
 	private final Namespace namespace;
 	
@@ -70,7 +70,7 @@ public class JavaClass {
 	 * If this is an inner class, the outer class is set here.
 	 */
 	private JavaClass outerType = null; // set if isInner == true.
-
+	
 	/**
 	 * If true, this is just a place holder and the "real" object has yet to be
 	 * fetched.
@@ -589,6 +589,23 @@ public class JavaClass {
 		}
 		return name;
 	}
+	
+	/**
+	 * Adds a suffix to the name.
+	 * 
+	 * This is sometime needed if more than one anonymous type is used as
+	 * argument and both need to be declared but have the same name.
+	 * @param suffix Suffix
+	 */
+	public void suffixName(String suffix) {
+		if (unresolved) {
+			throw new RuntimeException("Unresolved.");
+		}
+		if (!isInner) {
+			throw new IllegalStateException("Can only suffix name for inner classes.");
+		}
+		name = name + suffix;
+	}
 
 	/**
 	 * Returns the namespace the class is attached to.
@@ -858,6 +875,28 @@ public class JavaClass {
 			sb.append(name);
 		}
 		return sb.toString();
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		final JavaClass c = (JavaClass)obj;
+		if (c.name != null && !c.name.equals(name)) {
+			return false;
+		}
+		if (c.isNative() != isNative()) {
+			return false;
+		}
+		if (c.isGlobal() != isGlobal()) {
+			return false;
+		}
+		if (c.isTypeArray() != isTypeArray()) {
+			return false;
+		}
+		if (c.isTypeArray()) {
+			return c.getArrayType().equals(getArrayType());
+		}
+		
+		return true;
 	}
 
 }

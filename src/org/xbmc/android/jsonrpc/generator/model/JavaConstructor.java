@@ -59,5 +59,42 @@ public class JavaConstructor {
 			param.resolveType();
 		}
 	}
-
+	
+	/**
+	 * Returns a new reference of this constructor. Note that references to
+	 * parameters stay the same, only the list and the constructor are cloned.
+	 * @return
+	 */
+	public JavaConstructor copy() {
+		final JavaConstructor jc = new JavaConstructor(this.type);
+		for (JavaParameter jp : parameters) {
+			jc.addParameter(jp);
+		}
+		return jc;
+	}
+	
+	/**
+	 * Returns true if a constructor has the same amount of parameters per 
+	 * type, in the same order.
+	 * 
+	 * @param jc
+	 * @return
+	 */
+	public boolean hasSameParams(JavaConstructor jc) {
+		
+		if (parameters.size() != jc.getParameters().size()) {
+			return false;
+		}
+		
+		for (int i = 0; i < parameters.size(); i++) {
+			final JavaClass class1 = parameters.get(i).getType();
+			final JavaClass class2 = jc.getParameters().get(i).getType();
+			
+			if (!class1.equals(class2)) {
+				return false;
+			}
+		}
+		return true;
+		
+	}
 }
