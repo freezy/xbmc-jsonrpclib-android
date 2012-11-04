@@ -19,10 +19,10 @@ Status
 ------
 
 Work in progress. Generated code compiles and the type structure should be
-fine now.
+fine now. Also basic call structure is done now and first test with actually
+using the generated lib with XBMC was successfully.
 
-TODO is mainly multi-type related stuff which is tricky in Java, as well as
-all the method parsing & rendering.
+TODO is mainly multi-type related stuff which is tricky in Java.
 
 Usage
 -----

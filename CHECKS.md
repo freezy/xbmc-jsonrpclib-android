@@ -1,6 +1,6 @@
 
-XBMC JSON-RPC wilderness:
-=========================
+XBMC JSON-RPC Wilderness
+========================
 
 Methods
 -------
