@@ -37,6 +37,7 @@ import java.util.TimerTask;
 
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
@@ -231,17 +232,19 @@ public class ConnectionService extends IntentService {
 			JsonNode node = null;
 			while ((node = OM.readTree(jp)) != null) {
 				Log.i(TAG, "READ: " + node.toString().substring(0, 80) + "...");
-//				Log.i(TAG, "READ: " + node.toString());
 				notifyClients(node);
 			}
 			mOut.close();
 			Log.i(TAG, "TCP socket closed.");
 
+		} catch (JsonParseException e) {
+			Log.e(TAG, "Cannot parse JSON response: " + e.getMessage(), e);
+			notifyError(new ApiException(ApiException.JSON_EXCEPTION,  "Error while parsing JSON response: " + e.getMessage(), e), null);
 		} catch (EOFException e) {
 			Log.i(TAG, "Connection broken, quitting.");
 			notifyError(new ApiException(ApiException.IO_DISCONNECTED,  "Socket disconnected: " + e.getMessage(), e), null);
 		} catch (IOException e) {
-			Log.e(TAG, "I/O error while reading: " + e.getMessage(), e);
+			Log.e(TAG, "I/O error while reading (" + e.getClass().getSimpleName() + "): " + e.getMessage(), e);
 			notifyError(new ApiException(ApiException.IO_EXCEPTION_WHILE_READING,  "I/O error while reading: " + e.getMessage(), e), null);
 		} finally {
 			try {

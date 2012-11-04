@@ -77,14 +77,6 @@ public class ClassView extends AbstractView {
 			module.render(sb, klass.getNamespace(), klass, idt + 1);
 		}
 		
-		// constructors
-/*		if (!klass.doesExtend()) {
-			for (JavaConstructor c : klass.getConstructors()) {
-				final ConstructorView constructorView = new ConstructorView(c);
-				constructorView.renderDeclaration(sb, klass.getNamespace(), idt + 1);
-			}
-		}*/
-
 		// inner classes
 		if (klass.hasInnerTypes()) {
 			for (JavaClass innerClass : klass.getInnerTypes()) {

@@ -24,9 +24,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.xbmc.android.jsonrpc.generator.model.JavaClass;
+import org.xbmc.android.jsonrpc.generator.model.JavaConstructor;
 import org.xbmc.android.jsonrpc.generator.model.JavaMember;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 import org.xbmc.android.jsonrpc.generator.view.AbstractView;
+import org.xbmc.android.jsonrpc.generator.view.ConstructorView;
 import org.xbmc.android.jsonrpc.generator.view.MemberView;
 import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
 
@@ -56,6 +58,14 @@ public class MemberDeclarationClassModule extends AbstractView implements IClass
 		for (JavaMember member : klass.getMembers()) {
 			final MemberView memberView = new MemberView(member);
 			memberView.renderDeclaration(sb, klass.getNamespace(), idt);
+		}
+		
+		// constructors
+		if (!klass.doesExtend()) {
+			for (JavaConstructor c : klass.getConstructors()) {
+				final ConstructorView constructorView = new ConstructorView(c);
+				constructorView.renderDeclaration(sb, klass.getNamespace(), idt);
+			}
 		}
 	}
 
