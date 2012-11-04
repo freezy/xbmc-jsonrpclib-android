@@ -65,8 +65,33 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 			renderConstructor(sb, ns, method, jc, idt);
 		}
 		
+		if (method.getReturnType().isTypeArray()) {
+			renderParseMany(sb, ns, method, idt);
+		} else {
+			renderParseOne(sb, ns, method, idt);
+		}
 		
 		renderStaticStuff(sb, method, idt);
+	}
+	
+	private void renderParseMany(StringBuilder sb, Namespace ns, JavaMethod method, int idt) {
+		final String indent = getIndent(idt);
+		final String returnType = getClassReference(ns, method.getReturnType().getArrayType());
+		final String returnProp = method.getReturnProperty() != null ? method.getReturnProperty() : "results";
+		
+		sb.append(indent).append("@Override\n");
+		sb.append(indent).append("protected ArrayList<").append(returnType).append("> parseMany(ObjectNode node) {\n");
+		sb.append(indent).append("	final ArrayNode ").append(returnProp).append(" = parseResults(node, RESULT);\n");
+		sb.append(indent).append("	final ArrayList<").append(returnType).append("> ret = new ArrayList<").append(returnType).append(">(").append(returnProp).append(".size());\n");
+		sb.append(indent).append("	for (int i = 0; i < ").append(returnProp).append(".size(); i++) {\n");
+		sb.append(indent).append("		final ObjectNode item = (ObjectNode)").append(returnProp).append(".get(i);\n");
+		sb.append(indent).append("		ret.add(new ").append(returnType).append("(item));\n");
+		sb.append(indent).append("	}\n");
+		sb.append(indent).append("return ret;\n");
+		sb.append(indent).append("}\n");
+	}
+	private void renderParseOne(StringBuilder sb, Namespace ns, JavaMethod method, int idt) {
+		
 	}
 	
 	private void renderEnumValues(StringBuilder sb, JavaEnum e) {
@@ -180,12 +205,16 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 	@Override
 	public Set<String> getImports(JavaClass klass) {
 		final Set<String> imports = new HashSet<String>();
-//		imports.add("android.os.Parcel");
-//		imports.add("android.os.Parcelable");
 		imports.addAll(getInternalImports(klass));
 		
 		for (JavaClass innerClass : klass.getInnerTypes()) {
 			imports.addAll(getInternalImports(innerClass));
+		}
+		
+		if (((JavaMethod)klass).getReturnType().isTypeArray()) {
+			imports.add("java.util.ArrayList");
+			imports.add("org.codehaus.jackson.node.ArrayNode");
+			imports.add("org.codehaus.jackson.node.ObjectNode");
 		}
 		
 		return imports;
