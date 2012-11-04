@@ -104,6 +104,9 @@ public class MethodController {
 					final JavaParameter jp = new JavaParameter(p.getName(), type);
 					jp.setDescription(p.getDescription());
 					jc.addParameter(jp);
+					if (type.isInner()) {
+						klass.linkInnerType(type);
+					}
 				}
 			}
 

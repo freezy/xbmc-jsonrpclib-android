@@ -203,7 +203,7 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 		for (JavaMember member : klass.getMembers()) {
 			if (!member.isEnum()) {
 				final JavaClass memberType = member.getType();
-				if (memberType.isGlobal()) {
+				if (memberType.isGlobal() && memberType.isVisible()) {
 					imports.add(memberType.getNamespace().getPackageName() + "." + memberType.getNamespace().getName());
 				}
 			}

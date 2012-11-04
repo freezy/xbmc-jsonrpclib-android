@@ -164,7 +164,6 @@ public class Introspect {
 		    	ns.findModuleImports();
 		    }
 		    
-		    
 		    // 1. copy static classes
 		    final String relRoot = "org/xbmc/android/jsonrpc";
 		    final File destRoot = new File(OUTPUT_FOLDER + "/src/" + relRoot);
