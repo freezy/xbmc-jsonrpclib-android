@@ -19,8 +19,8 @@ Status
 ------
 
 Work in progress. Generated code compiles and the type structure should be
-fine now. Also basic call structure is done now and first test with actually
-using the generated lib with XBMC was successfully.
+fine. Also the methods render fine now and a first test with actually
+using the generated lib with XBMC was successful.
 
 TODO is mainly multi-type related stuff which is tricky in Java.
 
