@@ -51,10 +51,11 @@ import org.xbmc.android.jsonrpc.generator.view.ClassView;
 import org.xbmc.android.jsonrpc.generator.view.EnumView;
 import org.xbmc.android.jsonrpc.generator.view.NamespaceView;
 import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
+import org.xbmc.android.jsonrpc.generator.view.module.classmodule.CallParcelableClassModule;
 import org.xbmc.android.jsonrpc.generator.view.module.classmodule.JsonAccesClassModule;
 import org.xbmc.android.jsonrpc.generator.view.module.classmodule.MemberDeclarationClassModule;
 import org.xbmc.android.jsonrpc.generator.view.module.classmodule.MethodAPIClassModule;
-import org.xbmc.android.jsonrpc.generator.view.module.classmodule.ParcelableClassModule;
+import org.xbmc.android.jsonrpc.generator.view.module.classmodule.ModelParcelableClassModule;
 import org.xbmc.android.jsonrpc.generator.view.module.parentmodule.ClassParentModule;
 import org.xbmc.android.jsonrpc.generator.view.module.parentmodule.MethodParentModule;
 
@@ -124,7 +125,7 @@ public class Introspect {
 		    final IClassModule[] typeClassModules = {
 		    		new MemberDeclarationClassModule(),
 		    		new JsonAccesClassModule(), 
-		    		new ParcelableClassModule() 
+		    		new ModelParcelableClassModule() 
 		    };
 		    
 		    // register types
@@ -145,8 +146,8 @@ public class Introspect {
 		    		final MethodController controller = new MethodController(name, RESULT.getMethods().get(name));
 		    		final Namespace ns = controller.register(CALL_PACKAGE, CALL_CLASS_SUFFIX);
 		    		ns.addClassModule(
-		    				new MethodAPIClassModule()
-//		    				new ParcelableClassModule()
+		    				new MethodAPIClassModule(),
+		    				new CallParcelableClassModule()
 		    			);
 		    		ns.addInnerClassModule(typeClassModules);
 		    		ns.setParentModule(new MethodParentModule());

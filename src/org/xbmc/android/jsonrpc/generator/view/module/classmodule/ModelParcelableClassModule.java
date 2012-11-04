@@ -34,7 +34,7 @@ import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
  * 
  * @author freezy <freezy@xbmc.org>
  */
-public class ParcelableClassModule extends AbstractView implements IClassModule {
+public class ModelParcelableClassModule extends AbstractView implements IClassModule {
 
 	
 	@Override
