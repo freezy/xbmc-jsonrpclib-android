@@ -180,12 +180,16 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 			final String returnProp = method.getReturnProperty() != null ? method.getReturnProperty() : "results";
 			sb.append(indent).append("protected ArrayList<").append(returnType).append("> parseMany(ObjectNode node) {\n");
 			sb.append(indent).append("	final ArrayNode ").append(returnProp).append(" = parseResults(node, RESULT);\n");
-			sb.append(indent).append("	final ArrayList<").append(returnType).append("> ret = new ArrayList<").append(returnType).append(">(").append(returnProp).append(".size());\n");
-			sb.append(indent).append("	for (int i = 0; i < ").append(returnProp).append(".size(); i++) {\n");
-			sb.append(indent).append("		final ObjectNode item = (ObjectNode)").append(returnProp).append(".get(i);\n");
-			sb.append(indent).append("		ret.add(new ").append(returnType).append("(item));\n");
+			sb.append(indent).append("	if (").append(returnProp).append(" != null) {\n");
+			sb.append(indent).append("		final ArrayList<").append(returnType).append("> ret = new ArrayList<").append(returnType).append(">(").append(returnProp).append(".size());\n");
+			sb.append(indent).append("		for (int i = 0; i < ").append(returnProp).append(".size(); i++) {\n");
+			sb.append(indent).append("			final ObjectNode item = (ObjectNode)").append(returnProp).append(".get(i);\n");
+			sb.append(indent).append("			ret.add(new ").append(returnType).append("(item));\n");
+			sb.append(indent).append("		}\n");
+			sb.append(indent).append("		return ret;\n");
+			sb.append(indent).append("	} else {\n");
+			sb.append(indent).append("		return new ArrayList<").append(returnType).append(">(0);\n");
 			sb.append(indent).append("	}\n");
-			sb.append(indent).append("return ret;\n");
 			sb.append(indent).append("}\n");
 			
 		} else {
