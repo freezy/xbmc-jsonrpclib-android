@@ -434,6 +434,15 @@ public class JavaClass {
 		}
 		constructors.add(c);
 	}
+	
+	/**
+	 * Sets all class constructors.
+	 * @param constructors
+	 */
+	public void setConstructors(List<JavaConstructor> constructors) {
+		this.constructors.clear();
+		this.constructors.addAll(constructors);
+	}
 
 	/**
 	 * Adds a new class member to this class.

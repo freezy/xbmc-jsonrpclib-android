@@ -95,7 +95,7 @@ public class MethodController {
 		final List<JavaConstructor> constructors = new ArrayList<JavaConstructor>();
 		constructors.add(new JavaConstructor(klass));
 		
-		// parameters
+		// 1. parameters
 		for (Param p : method.getParams()) {
 			
 			if (p.isEnum()) {
@@ -103,13 +103,19 @@ public class MethodController {
 			} else if (p.isArray() && p.getItems().isEnum()) {
 				// TODO
 			} else {
+				
 				final TypeWrapper tr = p.getType();
-				if (!p.isMultitype()) {
+				
+				// single type
+				if (!p.isMultitype() || Helper.equalNativeTypes(tr.getList())) {
 					for (JavaConstructor jc : constructors) {
 						jc.addParameter(getParam(p.getName(), p, namespace, klass));
 					}
+					
+				// multitype
 				} else {
 					
+					// copy current constructors so we can copy them for each additional type
 					final List<JavaConstructor> copiedConstructors = new ArrayList<JavaConstructor>();
 					for (JavaConstructor jc : constructors) {
 						copiedConstructors.add(jc.copy());
@@ -142,36 +148,11 @@ public class MethodController {
 					}
 				}
 			}
-
-			
-/*			final Property obj = p.obj();
-			final Property itemsObj = obj.getItems() != null ? obj.getItems().obj() : null;
-			
-			if (obj.isEnum()) {
-				
-				final PropertyController pc = new PropertyController(name, p);
-				final JavaEnum e = pc.getEnum(p.getName());
-				jc.addParameter(new JavaParameter(p.getName(), e));
-				
-			} else if (obj.isArray() && obj.getItems().isEnum()) {
-			} else if (itemsObj != null && itemsObj.isEnum()) {
-			} else {
-				final TypeWrapper tr = p.getType();
-				if (tr == null || !tr.isList()) {
-					final PropertyController pc = new PropertyController(name, p);
-					final JavaClass type = pc.getClass(namespace, p.getName(), klass);
-					jc.addParameter(new JavaParameter(p.getName(), type));
-					
-					System.out.println("T " + apiType + "." + p.getName() + ": " + type);
-				}
-			}*/
 		}
+		klass.setConstructors(constructors);
 
-		for (JavaConstructor jc : constructors) {
-			klass.addConstructor(jc);
-		}
-
-		// return type
+		
+		// 2. return type
 		final TypeWrapper tw = method.getReturns();
 		if (tw.isObject()) {
 			

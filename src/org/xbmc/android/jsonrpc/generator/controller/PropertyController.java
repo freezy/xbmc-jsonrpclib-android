@@ -154,24 +154,32 @@ public class PropertyController {
 		// create class from multiple values
 		} else if (property.isMultitype()) {
 			
-			if (isGlobal()) { // new class
-				klass = new JavaClass(namespace, className, apiType);
-			} else {
-				klass = new JavaClass(namespace, className);
-				klass.setInner(outerType);
-			}
-			klass.setMultiType();
-			
 			final List<Type> types = property.getType().getList();
-			for (Type t : types) {
-				final String multiTypeName = findName(t);
-				final MemberController mc = new MemberController(multiTypeName, t);
-				klass.addMember(mc.getMember(namespace, klass));
-				if (t.isObjectDefinition()) {
-					final PropertyController pc = new PropertyController(multiTypeName, t);
-					final JavaClass typeClass = pc.getClass(namespace, multiTypeName, klass);
-					if (!t.isRef()) {
-						klass.linkInnerType(typeClass);
+			
+			// types are equal, so no multitype.
+			if (Helper.equalNativeTypes(types)) {
+				klass = new JavaClass(namespace, types.get(0).getType().getName(), apiType);
+				klass.setNative();
+				
+			} else {
+				if (isGlobal()) { // new class
+					klass = new JavaClass(namespace, className, apiType);
+				} else {
+					klass = new JavaClass(namespace, className);
+					klass.setInner(outerType);
+				}
+				klass.setMultiType();
+				
+				for (Type t : types) {
+					final String multiTypeName = findName(t);
+					final MemberController mc = new MemberController(multiTypeName, t);
+					klass.addMember(mc.getMember(namespace, klass));
+					if (t.isObjectDefinition()) {
+						final PropertyController pc = new PropertyController(multiTypeName, t);
+						final JavaClass typeClass = pc.getClass(namespace, multiTypeName, klass);
+						if (!t.isRef()) {
+							klass.linkInnerType(typeClass);
+						}
 					}
 				}
 			}
