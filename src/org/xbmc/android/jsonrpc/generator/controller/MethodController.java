@@ -52,7 +52,6 @@ public class MethodController {
 	private final static String RESULT_CLASS_SUFFIX = "Result";
 	private final static List<String> META_RETURN_PROPS = new ArrayList<String>();
 	
-	
 	static {
 		META_RETURN_PROPS.add("limits");
 	}
@@ -283,6 +282,7 @@ public class MethodController {
 		final JavaClass type = pc.getClass(namespace, name, klass);
 		final JavaParameter jp = new JavaParameter(name, type);
 		jp.setDescription(p.getDescription());
+		type.setUsedAsParameter();
 		if (type.isInner()) {
 			final String k = type.getName();
 			if (innerClassDupes.containsKey(k)) {

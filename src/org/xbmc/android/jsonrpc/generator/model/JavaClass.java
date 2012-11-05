@@ -72,6 +72,12 @@ public class JavaClass {
 	private JavaClass outerType = null; // set if isInner == true.
 	
 	/**
+	 * True if this is used in any call as parameter and the user needs
+	 * to instantiate it.
+	 */
+	private boolean usedAsParameter = false;
+	
+	/**
 	 * If true, this is just a place holder and the "real" object has yet to be
 	 * fetched.
 	 */
@@ -240,6 +246,9 @@ public class JavaClass {
 			if (klass.hasDescription()) {
 				resolvedClass.setDescription(klass.getDescription());
 			}
+			if (klass.isUsedAsParameter()) {
+				resolvedClass.setUsedAsParameter();
+			}
 		} else {
 			resolvedClass = klass;
 		}
@@ -377,6 +386,21 @@ public class JavaClass {
 	 */
 	public String getApiType() {
 		return apiType;
+	}
+	
+	/**
+	 * Marks this class as used as parameter.
+	 */
+	public void setUsedAsParameter() {
+		usedAsParameter = true;
+	}
+	
+	/**
+	 * Returns true if this type is used as parameter, false otherwise.
+	 * @return
+	 */
+	public boolean isUsedAsParameter() {
+		return usedAsParameter;
 	}
 
 	/**
@@ -823,6 +847,30 @@ public class JavaClass {
 			// superclass render module if available
 			if (parentModule != null) {
 				imports.addAll(parentModule.getImports(this));
+			}
+		}
+	}
+	
+	public List<JavaMember> getParentMembers() {
+		return getParentMembers(false);
+	}
+	
+	/**
+	 * Returns the members plus all parent members.
+	 * @return
+	 */
+	private List<JavaMember> getParentMembers(boolean includeOwnMembers) {
+		if (doesExtend()) {
+			final List<JavaMember> members = parentClass.getParentMembers(true); 
+			if (includeOwnMembers) {
+				members.addAll(this.members);
+			}
+			return members;
+		} else {
+			if (includeOwnMembers) {
+				return this.members;
+			} else {
+				return new ArrayList<JavaMember>(0);
 			}
 		}
 	}

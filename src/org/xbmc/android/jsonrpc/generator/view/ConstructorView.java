@@ -41,6 +41,28 @@ public class ConstructorView extends AbstractView {
 	public void renderDeclaration(StringBuilder sb, Namespace ns, int idt) {
 		final String indent = getIndent(idt);
 		
+		// parent member list
+		final StringBuilder parentMemberDeclaration = new StringBuilder();
+		final StringBuilder parentMemberList = new StringBuilder();
+		if (constructor.getType().doesExtend()) {
+			for (JavaMember m : constructor.getType().getParentMembers()) {
+				if (m.isEnum()) {
+					parentMemberDeclaration.append(getClassName(ns, m));
+				} else {
+					parentMemberDeclaration.append(getClassReference(ns, m.getType()));
+				}
+				parentMemberDeclaration.append(" ");
+				parentMemberDeclaration.append(m.getName());
+				parentMemberDeclaration.append(", ");
+				
+				parentMemberList.append(m.getName());
+				parentMemberList.append(", ");
+			}
+			parentMemberDeclaration.delete(parentMemberDeclaration.length() - 2, parentMemberDeclaration.length());
+			parentMemberList.delete(parentMemberList.length() - 2, parentMemberList.length());
+		}
+		
+		
 		// header
 		sb.append("\n");
 		sb.append(indent).append("/**\n");
@@ -56,6 +78,7 @@ public class ConstructorView extends AbstractView {
 					sb.append(p.getDescription());
 				}
 				renderEnumComment(sb, ns, p);
+				sb.append("\n");
 				if (!p.isEnum()) {
 					sb.append(getDescription(p.getType()));
 				}
@@ -67,6 +90,10 @@ public class ConstructorView extends AbstractView {
 		sb.append(indent).append("public ");
 		sb.append(getClassName(constructor.getType()));
 		sb.append("(");
+		if (constructor.getType().doesExtend()) {
+			sb.append(parentMemberDeclaration.toString());
+			sb.append(", ");
+		}
 		if (constructor.hasParameters()) {
 			for (JavaParameter p : constructor.getParameters()) {
 				if (p.isEnum()) {
@@ -84,6 +111,11 @@ public class ConstructorView extends AbstractView {
 		
 		// body
 		String lastArg = null;
+		if (constructor.getType().doesExtend()) {
+			sb.append(indent).append("	super(");
+			sb.append(parentMemberList.toString());
+			sb.append(");\n");
+		}
 		for (JavaParameter p : constructor.getParameters()) {
 			sb.append(indent).append("\tthis.");
 			sb.append(p.getName());
