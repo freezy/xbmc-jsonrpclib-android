@@ -34,7 +34,7 @@ public class Helper {
 	 * @return
 	 */
 	public static boolean equalNativeTypes(List<Type> types) {
-		if (!types.get(0).isNative()) {
+		if (!types.get(0).obj().isNative()) {
 			return false;
 		}
 		final String name = types.get(0).obj().getType().getName();

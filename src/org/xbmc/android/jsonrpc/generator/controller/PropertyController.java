@@ -158,7 +158,7 @@ public class PropertyController {
 			
 			// types are equal, so no multitype.
 			if (Helper.equalNativeTypes(types)) {
-				klass = new JavaClass(namespace, types.get(0).getType().getName(), apiType);
+				klass = new JavaClass(namespace, types.get(0).obj().getType().getName(), apiType);
 				klass.setNative();
 				
 			} else {
