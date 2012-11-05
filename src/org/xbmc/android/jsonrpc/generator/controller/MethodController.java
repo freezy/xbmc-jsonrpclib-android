@@ -32,6 +32,7 @@ import org.xbmc.android.jsonrpc.generator.introspect.Type;
 import org.xbmc.android.jsonrpc.generator.introspect.wrapper.TypeWrapper;
 import org.xbmc.android.jsonrpc.generator.model.JavaClass;
 import org.xbmc.android.jsonrpc.generator.model.JavaConstructor;
+import org.xbmc.android.jsonrpc.generator.model.JavaMember;
 import org.xbmc.android.jsonrpc.generator.model.JavaMethod;
 import org.xbmc.android.jsonrpc.generator.model.JavaParameter;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
@@ -46,7 +47,7 @@ public class MethodController {
 	private final String name;
 	private final String apiType;
 	private final Method method;
-	private final Map<String, Integer> innerClassDupes = new HashMap<String, Integer>(); 
+	private final Map<String, JavaClass> innerClassDupes = new HashMap<String, JavaClass>(); 
 	
 	private final static String RESULT_CLASS_SUFFIX = "Result";
 	private final static List<String> META_RETURN_PROPS = new ArrayList<String>();
@@ -108,8 +109,9 @@ public class MethodController {
 				
 				// single type
 				if (!p.isMultitype() || Helper.equalNativeTypes(tr.getList())) {
+					final JavaParameter jp = getParam(p.getName(), p, namespace, klass);
 					for (JavaConstructor jc : constructors) {
-						jc.addParameter(getParam(p.getName(), p, namespace, klass));
+						jc.addParameter(jp);
 					}
 					
 				// multitype
@@ -125,14 +127,16 @@ public class MethodController {
 					for (Type t : tr.getList()) {
 						if (i == 0) {
 							// first multitype: just add param to current constructors.
+							final JavaParameter jp = getParam(p.getName(), t, namespace, klass);
 							for (JavaConstructor jc : constructors) {
-								jc.addParameter(getParam(p.getName(), t, namespace, klass));
+								jc.addParameter(jp);
 							}
 						} else {
 							// second..nth multitype: for each previously saved constructor, copy then add param
+							final JavaParameter jp = getParam(p.getName(), t, namespace, klass);
 							for (JavaConstructor jc : copiedConstructors) {
 								final JavaConstructor jjc = jc.copy();
-								jjc.addParameter(getParam(p.getName(), t, namespace, klass));
+								jjc.addParameter(jp);
 								boolean dupeFound = false;
 								for (JavaConstructor jjjc : constructors) {
 									if (jjjc.hasSameParams(jjc)) {
@@ -267,16 +271,29 @@ public class MethodController {
 		if (type.isInner()) {
 			final String k = type.getName();
 			if (innerClassDupes.containsKey(k)) {
-				int suffix = innerClassDupes.get(k) + 1;
-				type.suffixName(String.valueOf(suffix));
-				innerClassDupes.put(k, suffix);
+				if (innerClassDupes.get(k) != null) {
+					// update "old" type with new name and set null
+					innerClassDupes.get(k).suffixName(getSuffixFromMembers(innerClassDupes.get(k)));
+					innerClassDupes.put(k, null);
+				} 
+				// update type with new name
+				type.suffixName(getSuffixFromMembers(type));
 			} else {
-				innerClassDupes.put(k, 1);
+				innerClassDupes.put(k, type);
 			}
 			klass.linkInnerType(type);
-			
 		}
 		return jp;
+	}
+	
+	private String getSuffixFromMembers(JavaClass klass) {
+		final StringBuilder sb = new StringBuilder();
+		for (JavaMember m : klass.getMembers()) {
+			final String name = m.getName().replace("id", "Id");
+			sb.append(name.substring(0, 1).toUpperCase());
+			sb.append(name.substring(1));
+		}
+		return sb.toString();
 	}
 
 }
