@@ -95,6 +95,7 @@ public class MethodController {
 		
 		final List<JavaConstructor> constructors = new ArrayList<JavaConstructor>();
 		constructors.add(new JavaConstructor(klass));
+		JavaParameter properties = null;
 		
 		// 1. parameters
 		for (Param p : method.getParams()) {
@@ -110,6 +111,13 @@ public class MethodController {
 				// single type
 				if (!p.isMultitype() || Helper.equalNativeTypes(tr.getList())) {
 					final JavaParameter jp = getParam(p.getName(), p, namespace, klass);
+					
+					// "properties" is a special case, we add them at the end.
+					if (p.getName().equals("properties")) {
+						properties = jp;
+						continue;
+					}
+
 					for (JavaConstructor jc : constructors) {
 						jc.addParameter(jp);
 					}
@@ -151,6 +159,13 @@ public class MethodController {
 						i++;
 					}
 				}
+			}
+		}
+		
+		// add properties if previously skipped
+		if (properties != null) {
+			for (JavaConstructor jc : constructors) {
+				jc.addParameter(properties);
 			}
 		}
 		klass.setConstructors(constructors);
@@ -286,6 +301,11 @@ public class MethodController {
 		return jp;
 	}
 	
+	/**
+	 * Returns some nicely readable suffix, generated from member names.
+	 * @param klass To be suffixed class
+	 * @return Suffix
+	 */
 	private String getSuffixFromMembers(JavaClass klass) {
 		final StringBuilder sb = new StringBuilder();
 		for (JavaMember m : klass.getMembers()) {
