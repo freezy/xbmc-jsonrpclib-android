@@ -302,13 +302,55 @@ public abstract class AbstractView {
 	}
 	
 	protected String getDescription(JavaClass klass, String indent) {
+		return indent + " * " + getDescription(klass.getDescription());
+	}
+	protected String getDescription(JavaClass klass) {
+		return getDescription(klass.getDescription());
+	}
+	protected String getDescription(JavaParameter param) {
+		return getDescription(param.getDescription());
+	}
+	private String getDescription(String description) {
+		if (description == null) {
+			return "\n";
+		}
 		final StringBuilder sb = new StringBuilder();
-		sb.append(indent).append(" * ");
-		sb.append(klass.getDescription());
-		if (!klass.getDescription().endsWith(".")) {
+		sb.append(description);
+		if (!description.endsWith(".")) {
 			sb.append(".");
 		}
 		sb.append("\n");	
 		return sb.toString();
+	}
+	
+	protected void renderEnumValues(StringBuilder sb, JavaEnum e) {
+		for (String value : e.getValues()) {
+			sb.append("<tt>");
+			sb.append(value);
+			sb.append("</tt>, ");
+		}
+		if (!e.getValues().isEmpty()) {
+			sb.delete(sb.length() - 2, sb.length());
+		}
+		sb.append(".");
+	}
+	
+	protected void renderEnumComment(StringBuilder sb, Namespace ns, JavaParameter p) {
+		if (p.isEnum()) {
+			if (p.getEnum().isArray()) {
+				sb.append(" One or more of: ");
+			} else {
+				sb.append(" One of: ");
+			}
+			renderEnumValues(sb, p.getEnum());
+			if (!p.getEnum().isInner()) {
+				sb.append(" See constants at {@link ").append(getEnumReference(ns, p.getEnum())).append("}.");
+			}
+			
+		} else if (p.getType().isEnumArray()) {
+			sb.append(" One or more of: ");
+			renderEnumValues(sb, p.getType().getEnumArray());
+			sb.append(" See constants at {@link ").append(getEnumReference(ns, p.getType().getEnumArray())).append("}.");
+		}		
 	}
 }

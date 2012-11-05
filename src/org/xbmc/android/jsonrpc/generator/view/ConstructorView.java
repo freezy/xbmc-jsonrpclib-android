@@ -38,16 +38,33 @@ public class ConstructorView extends AbstractView {
 		this.constructor = constructor;
 	}
 
-	public void renderDeclaration(StringBuilder sb, Namespace ns, int indent) {
-
-		String prefix = "";
-		for (int i = 0; i < indent; i++) {
-			prefix += "\t";
-		}
+	public void renderDeclaration(StringBuilder sb, Namespace ns, int idt) {
+		final String indent = getIndent(idt);
+		
+		// header
 		sb.append("\n");
+		sb.append(indent).append("/**\n");
+		if (constructor.getType().hasDescription()) {
+			sb.append(getDescription(constructor.getType(), indent));
+		}
+		if (constructor.hasParameters()) {
+			for (JavaParameter p : constructor.getParameters()) {
+				sb.append(indent).append(" * @param ");
+				sb.append(p.getName());
+				sb.append(" ");
+				if (p.hasDescription()) {
+					sb.append(p.getDescription());
+				}
+				renderEnumComment(sb, ns, p);
+				if (!p.isEnum()) {
+					sb.append(getDescription(p.getType()));
+				}
+			}
+			sb.append(indent).append(" */\n");
+		}
 		
 		// signature
-		sb.append(prefix).append("public ");
+		sb.append(indent).append("public ");
 		sb.append(getClassName(constructor.getType()));
 		sb.append("(");
 		if (constructor.hasParameters()) {
@@ -68,7 +85,7 @@ public class ConstructorView extends AbstractView {
 		// body
 		String lastArg = null;
 		for (JavaParameter p : constructor.getParameters()) {
-			sb.append(prefix).append("\tthis.");
+			sb.append(indent).append("\tthis.");
 			sb.append(p.getName());
 			sb.append(" = ");
 			sb.append(p.getName());
@@ -83,12 +100,12 @@ public class ConstructorView extends AbstractView {
 				if (lastArg != null && lastArg.equals(member.getName())) {
 					continue;
 				}
-				sb.append(prefix).append("\tthis.");
+				sb.append(indent).append("\tthis.");
 				sb.append(member.getName());
 				sb.append(" = null;\n");
 			}
 		}
 		
-		sb.append(prefix).append("}\n");
+		sb.append(indent).append("}\n");
 	}
 }

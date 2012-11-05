@@ -237,6 +237,9 @@ public class JavaClass {
 				}
 			}
 			resolvedClass = GLOBALS.get(klass.apiType);
+			if (klass.hasDescription()) {
+				resolvedClass.setDescription(klass.getDescription());
+			}
 		} else {
 			resolvedClass = klass;
 		}

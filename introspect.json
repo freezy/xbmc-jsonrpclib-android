@@ -1616,6 +1616,7 @@
 								]
 							},
 							"resume" : {
+								"description" : "Resume position",
 								"default" : false,
 								"type" : [{
 										"description" : "Whether to resume from the resume point or not",
