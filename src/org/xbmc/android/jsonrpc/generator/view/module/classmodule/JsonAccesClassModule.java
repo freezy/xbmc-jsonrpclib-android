@@ -77,6 +77,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 	@Override
 	public Set<String> getImports(JavaClass klass) {
 		final Set<String> imports = new HashSet<String>();
+		imports.add("org.codehaus.jackson.JsonNode");
 		imports.add("org.codehaus.jackson.node.ArrayNode");
 		imports.add("org.codehaus.jackson.node.ObjectNode");
 		imports.add("java.util.List");
@@ -145,7 +146,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 		// comment
 		sb.append("\n");
 		sb.append(indent).append("@Override\n");
-		sb.append(indent).append("public ObjectNode toObjectNode() {\n");
+		sb.append(indent).append("public JsonNode toJsonNode() {\n");
 		
 		if (!klass.isMultiType()) {
 			
@@ -193,14 +194,14 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 				sb.append(member.getName());
 				sb.append(") {\n");
 				
-				// like: dependenciesArray.add(item.toObjectNode());
+				// like: dependenciesArray.add(item.toJsonNode());
 				sb.append(indent).append("\t");
 				sb.append(arrayName);
 				sb.append(".add(");
 				if (klass.getArrayType().isNative()) {
 					sb.append("item");
 				} else {
-					sb.append("item.toObjectNode()");
+					sb.append("item.toJsonNode()");
 				}
 				sb.append(");\n");
 				
@@ -210,9 +211,9 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 				sb.append(";\n");
 				
 			} else {
-				// like: node.put(BROKEN, broken.toObjectNode());
+				// like: node.put(BROKEN, broken.toJsonNode());
 				sb.append(indent);
-				renderNodeSetter(sb, member, member.getName() + ".toObjectNode()");
+				renderNodeSetter(sb, member, member.getName() + ".toJsonNode()");
 				sb.append(";\n");
 			}
 		}

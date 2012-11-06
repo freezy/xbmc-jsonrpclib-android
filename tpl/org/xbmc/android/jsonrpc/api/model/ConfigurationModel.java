@@ -21,12 +21,15 @@
 
 package org.xbmc.android.jsonrpc.api.model;
 
-import android.os.Parcel;
-import android.os.Parcelable;
 import java.util.ArrayList;
+
+import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.node.ObjectNode;
 import org.xbmc.android.jsonrpc.api.AbstractModel;
+
+import android.os.Parcel;
+import android.os.Parcelable;
 
 public final class ConfigurationModel {
 	/**
@@ -81,7 +84,7 @@ public final class ConfigurationModel {
 			this.videolibrary = videolibrary;
 		}
 		@Override
-		public ObjectNode toObjectNode() {
+		public JsonNode toJsonNode() {
 			final ObjectNode node = OM.createObjectNode();
 			node.put(AUDIOLIBRARY, audiolibrary);
 			node.put(GUI, gui);

@@ -21,12 +21,15 @@
 
 package org.xbmc.android.jsonrpc.api.model;
 
-import android.os.Parcel;
-import android.os.Parcelable;
 import java.util.ArrayList;
+
+import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.node.ObjectNode;
 import org.xbmc.android.jsonrpc.api.AbstractModel;
+
+import android.os.Parcel;
+import android.os.Parcelable;
 
 public final class GlobalModel {
 	/**
@@ -56,9 +59,9 @@ public final class GlobalModel {
 			this.notifications = notifications;
 		}
 		@Override
-		public ObjectNode toObjectNode() {
+		public JsonNode toJsonNode() {
 			final ObjectNode node = OM.createObjectNode();
-			node.put(NOTIFICATIONS, notifications.toObjectNode());
+			node.put(NOTIFICATIONS, notifications.toJsonNode());
 			return node;
 		}
 		/**
@@ -152,7 +155,7 @@ public final class GlobalModel {
 			this.seconds = seconds;
 		}
 		@Override
-		public ObjectNode toObjectNode() {
+		public JsonNode toJsonNode() {
 			final ObjectNode node = OM.createObjectNode();
 			node.put(HOURS, hours);
 			node.put(MILLISECONDS, milliseconds);

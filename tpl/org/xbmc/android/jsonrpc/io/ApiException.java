@@ -72,7 +72,6 @@ public class ApiException extends Exception {
 		sb.append(node.get("error").get("data").get("stack").get("name").getValueAsText());
 		sb.append(": ");
 		sb.append(node.get("error").get("data").get("stack").get("message").getValueAsText());
-		
 		Log.d(TAG, sb.toString());
 	}
 

@@ -21,7 +21,7 @@
 
 package org.xbmc.android.jsonrpc.api;
 
-import org.codehaus.jackson.node.ObjectNode;
+import org.codehaus.jackson.JsonNode;
 
 /**
  * All model objects of the API must implement this interface. 
@@ -34,6 +34,6 @@ public interface JsonSerializable {
 	 * Returns a JSON-serialized version of this object.
 	 * @return
 	 */
-	public abstract ObjectNode toObjectNode();
+	public abstract JsonNode toJsonNode();
 	
 }

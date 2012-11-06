@@ -293,7 +293,7 @@ public abstract class AbstractCall<T> implements Parcelable {
 	
 	protected void addParameter(String name, AbstractModel value) {
 		if (value != null) {
-			getParameters().put(name, value.toObjectNode());
+			getParameters().put(name, value.toJsonNode());
 		}
 	}
 	
