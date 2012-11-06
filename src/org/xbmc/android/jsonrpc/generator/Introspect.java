@@ -91,8 +91,8 @@ public class Introspect {
 	private final static String MODEL_CLASS_SUFFIX = "Model";
 	private final static String CALL_CLASS_SUFFIX  = "";
 	
-//	private final static String OUTPUT_FOLDER = "D:/dev/xbmc-jsonrpclib-android-output";
-	private final static String OUTPUT_FOLDER = "S:/Development/xbmc-jsonrpclib-android-output";
+	private final static String OUTPUT_FOLDER = "D:/dev/xbmc-jsonrpclib-android-output";
+//	private final static String OUTPUT_FOLDER = "S:/Development/xbmc-jsonrpclib-android-output";
 
 	private final static List<String> IGNORED_METHODS = new ArrayList<String>();
 	
