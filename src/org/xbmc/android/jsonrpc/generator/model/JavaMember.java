@@ -31,6 +31,7 @@ public class JavaMember {
 	private JavaEnum e;
 	private final String name;
 	private boolean required = false;
+	private String description = null;
 
 	public JavaMember(String name, JavaClass type) {
 		if (name == null) {
@@ -90,6 +91,18 @@ public class JavaMember {
 
 	public void setRequired(boolean required) {
 		this.required = required;
+	}
+	
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	
+	public boolean hasDescription() {
+		return description != null;
 	}
 
 	public JavaMember resolveType() {

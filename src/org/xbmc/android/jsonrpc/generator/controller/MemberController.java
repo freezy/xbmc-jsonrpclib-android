@@ -64,6 +64,7 @@ public class MemberController {
 		if (obj.getRequired() != null) {
 			member.setRequired(obj.getRequired());
 		}
+		member.setDescription(property.getDescription());
 
 		return member;
 	}

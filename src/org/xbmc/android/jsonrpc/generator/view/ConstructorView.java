@@ -41,11 +41,15 @@ public class ConstructorView extends AbstractView {
 	public void renderDeclaration(StringBuilder sb, Namespace ns, int idt) {
 		final String indent = getIndent(idt);
 		
-		// parent member list
+		// parent member definitions
 		final StringBuilder parentMemberDeclaration = new StringBuilder();
 		final StringBuilder parentMemberList = new StringBuilder();
+		final StringBuilder parentMemberCommentBlock = new StringBuilder();
 		if (constructor.getType().doesExtend()) {
 			for (JavaMember m : constructor.getType().getParentMembers()) {
+				parentMemberCommentBlock.append(indent).append(" * @param ");
+				parentMemberCommentBlock.append(m.getName());
+				parentMemberCommentBlock.append(getDescription(m));
 				if (m.isEnum()) {
 					parentMemberDeclaration.append(getClassName(ns, m));
 				} else {
@@ -70,15 +74,16 @@ public class ConstructorView extends AbstractView {
 			sb.append(getDescription(constructor.getType(), indent));
 		}
 		if (constructor.hasParameters()) {
+			sb.append(parentMemberCommentBlock.toString());
 			for (JavaParameter p : constructor.getParameters()) {
 				sb.append(indent).append(" * @param ");
 				sb.append(p.getName());
-				sb.append(" ");
 				if (p.hasDescription()) {
-					sb.append(p.getDescription());
+					sb.append(" ");
+					sb.append(getDescription(p));
 				}
 				renderEnumComment(sb, ns, p);
-				sb.append("\n");
+//				sb.append("\n");
 				if (!p.isEnum()) {
 					sb.append(getDescription(p.getType()));
 				}

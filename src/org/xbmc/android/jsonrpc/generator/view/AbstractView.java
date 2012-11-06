@@ -310,6 +310,9 @@ public abstract class AbstractView {
 	protected String getDescription(JavaParameter param) {
 		return getDescription(param.getDescription());
 	}
+	protected String getDescription(JavaMember member) {
+		return getDescription(member.getDescription());
+	}
 	private String getDescription(String description) {
 		if (description == null) {
 			return "\n";
@@ -351,6 +354,7 @@ public abstract class AbstractView {
 			sb.append(" One or more of: ");
 			renderEnumValues(sb, p.getType().getEnumArray());
 			sb.append(" See constants at {@link ").append(getEnumReference(ns, p.getType().getEnumArray())).append("}.");
-		}		
+		}
+		sb.append("\n");
 	}
 }

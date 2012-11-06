@@ -393,6 +393,14 @@ public class JavaClass {
 	 */
 	public void setUsedAsParameter() {
 		usedAsParameter = true;
+		for (JavaMember m : members) {
+			if (!m.isEnum()) {
+				m.getType().setUsedAsParameter();
+			}
+		}
+		if (doesExtend()) {
+			parentClass.setUsedAsParameter();
+		}
 	}
 	
 	/**
