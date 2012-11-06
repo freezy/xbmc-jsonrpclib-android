@@ -81,6 +81,7 @@ public class CallParcelableClassModule extends AbstractView implements IClassMod
 */		
 
 		// signature
+		sb.append("\n");
 		sb.append(indent).append("@Override\n");
 		sb.append(indent).append("public void writeToParcel(Parcel parcel, int flags) {\n");
 
@@ -106,6 +107,7 @@ public class CallParcelableClassModule extends AbstractView implements IClassMod
 		final String indent = getIndent(idt);
 		
 		// header
+		sb.append("\n");
 		sb.append(indent).append("/**\n");
 		sb.append(indent).append(" * Construct via parcel.\n");
 		sb.append(indent).append(" */\n");
@@ -135,6 +137,7 @@ public class CallParcelableClassModule extends AbstractView implements IClassMod
 		final String n = getClassName(klass);
 		
 		// variable comment block
+		sb.append("\n");
 		sb.append(indent).append("/**\n");
 		sb.append(indent).append(" * Generates instances of this Parcelable class from a Parcel.\n");
 		sb.append(indent).append(" */\n");

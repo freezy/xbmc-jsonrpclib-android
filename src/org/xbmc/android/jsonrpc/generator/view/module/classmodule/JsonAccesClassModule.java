@@ -96,6 +96,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 		final String indent = getIndent(idt);
 		
 		// comment
+		sb.append("\n");
 		sb.append(indent).append("/**\n");
 		sb.append(indent).append(" * Construct from JSON object.\n");
 		sb.append(indent).append(" * @param node JSON object representing a ");
@@ -142,6 +143,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 		final String indent = getIndent(idt);
 		
 		// comment
+		sb.append("\n");
 		sb.append(indent).append("@Override\n");
 		sb.append(indent).append("public ObjectNode toObjectNode() {\n");
 		
@@ -332,6 +334,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 		final String name = getClassReference(ns, klass);
 
 		// method header comment
+		sb.append("\n");
 		sb.append(indent).append("/**\n");
 		sb.append(indent).append(" * Extracts a list of {@link ");
 		sb.append(name);

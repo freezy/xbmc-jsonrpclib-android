@@ -61,7 +61,7 @@ public class MemberDeclarationClassModule extends AbstractView implements IClass
 		}
 		
 		// constructors
-		if (klass.isUsedAsParameter()) {
+		if (klass.isUsedAsParameter() || !klass.doesExtend()) {
 			for (JavaConstructor c : klass.getConstructors()) {
 				final ConstructorView constructorView = new ConstructorView(c);
 				constructorView.renderDeclaration(sb, klass.getNamespace(), idt);

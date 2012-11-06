@@ -45,7 +45,7 @@ public class ClassView extends AbstractView {
 		sb.append("\n");
 		sb.append(indent).append("/**\n");
 		if (klass.hasDescription()) {
-			sb.append(getDescription(klass, indent));
+			sb.append(indent).append(" * ").append(getDescription(klass)).append("\n");
 			sb.append(indent).append(" * <p/>\n");
 		}
 		if (klass.isGlobal()) {

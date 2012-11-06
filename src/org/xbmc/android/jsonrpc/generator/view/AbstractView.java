@@ -301,32 +301,28 @@ public abstract class AbstractView {
 		return sb.toString();
 	}
 	
-	protected String getDescription(JavaClass klass, String indent) {
-		return indent + " * " + getDescription(klass.getDescription());
-	}
 	protected String getDescription(JavaClass klass) {
 		return getDescription(klass.getDescription());
 	}
-	protected String getDescription(JavaParameter param) {
-		return getDescription(param.getDescription());
+	protected String getDescription(Namespace ns, JavaParameter param) {
+		return getDescription(param.getDescription()) + getEnumComment(ns, param);
 	}
-	protected String getDescription(JavaMember member) {
-		return getDescription(member.getDescription());
+	protected String getDescription(Namespace ns, JavaMember member) {
+		return getDescription(member.getDescription()) + getEnumComment(ns, member);
 	}
 	private String getDescription(String description) {
 		if (description == null) {
-			return "\n";
+			return "";
 		}
 		final StringBuilder sb = new StringBuilder();
 		sb.append(description);
 		if (!description.endsWith(".")) {
 			sb.append(".");
 		}
-		sb.append("\n");	
 		return sb.toString();
 	}
 	
-	protected void renderEnumValues(StringBuilder sb, JavaEnum e) {
+	private void renderEnumValues(StringBuilder sb, JavaEnum e) {
 		for (String value : e.getValues()) {
 			sb.append("<tt>");
 			sb.append(value);
@@ -338,7 +334,14 @@ public abstract class AbstractView {
 		sb.append(".");
 	}
 	
-	protected void renderEnumComment(StringBuilder sb, Namespace ns, JavaParameter p) {
+	/**
+	 * Renders enum comment if given parameter is an enum or an array of enums.
+	 * @param sb Current StringBuilder
+	 * @param ns Current namespace
+	 * @param p Parameter
+	 */
+	private String getEnumComment(Namespace ns, JavaParameter p) {
+		final StringBuilder sb = new StringBuilder();
 		if (p.isEnum()) {
 			if (p.getEnum().isArray()) {
 				sb.append(" One or more of: ");
@@ -355,6 +358,28 @@ public abstract class AbstractView {
 			renderEnumValues(sb, p.getType().getEnumArray());
 			sb.append(" See constants at {@link ").append(getEnumReference(ns, p.getType().getEnumArray())).append("}.");
 		}
-		sb.append("\n");
+		return sb.toString();
+	}
+	
+	// TODO abstract JavaMember and JavaParameter with interface.
+	private String getEnumComment(Namespace ns, JavaMember m) {
+		final StringBuilder sb = new StringBuilder();
+		if (m.isEnum()) {
+			if (m.getEnum().isArray()) {
+				sb.append(" One or more of: ");
+			} else {
+				sb.append(" One of: ");
+			}
+			renderEnumValues(sb, m.getEnum());
+			if (!m.getEnum().isInner()) {
+				sb.append(" See constants at {@link ").append(getEnumReference(ns, m.getEnum())).append("}.");
+			}
+			
+		} else if (m.getType().isEnumArray()) {
+			sb.append(" One or more of: ");
+			renderEnumValues(sb, m.getType().getEnumArray());
+			sb.append(" See constants at {@link ").append(getEnumReference(ns, m.getType().getEnumArray())).append("}.");
+		}
+		return sb.toString();
 	}
 }

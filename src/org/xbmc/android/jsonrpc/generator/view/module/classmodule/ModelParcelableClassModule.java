@@ -72,6 +72,7 @@ public class ModelParcelableClassModule extends AbstractView implements IClassMo
 		final String indent = getIndent(idt);
 		
 		// method header
+		sb.append("\n");
 		sb.append(indent).append("/**\n");
 		sb.append(indent).append(" * Flatten this object into a Parcel.\n");
 		sb.append(indent).append(" * @param parcel the Parcel in which the object should be written.\n");
@@ -163,6 +164,7 @@ public class ModelParcelableClassModule extends AbstractView implements IClassMo
 		final String indent = getIndent(idt);
 		
 		// header
+		sb.append("\n");
 		sb.append(indent).append("/**\n");
 		sb.append(indent).append(" * Construct via parcel.\n");
 		sb.append(indent).append(" */\n");
@@ -283,6 +285,7 @@ public class ModelParcelableClassModule extends AbstractView implements IClassMo
 		final String n = getClassName(klass);
 		
 		// variable comment block
+		sb.append("\n");
 		sb.append(indent).append("/**\n");
 		sb.append(indent).append(" * Generates instances of this Parcelable class from a Parcel.\n");
 		sb.append(indent).append(" */\n");
@@ -302,6 +305,7 @@ public class ModelParcelableClassModule extends AbstractView implements IClassMo
 
 	private void renderDescribeContents(StringBuilder sb, int idt) {
 		final String indent = getIndent(idt);
+		sb.append("\n");
 		sb.append(indent).append("@Override\n");
 		sb.append(indent).append("public int describeContents() {\n");
 		sb.append(indent).append("	return 0;\n");

@@ -49,7 +49,8 @@ public class ConstructorView extends AbstractView {
 			for (JavaMember m : constructor.getType().getParentMembers()) {
 				parentMemberCommentBlock.append(indent).append(" * @param ");
 				parentMemberCommentBlock.append(m.getName());
-				parentMemberCommentBlock.append(getDescription(m));
+				parentMemberCommentBlock.append(getDescription(ns, m));
+				parentMemberCommentBlock.append("\n");
 				if (m.isEnum()) {
 					parentMemberDeclaration.append(getClassName(ns, m));
 				} else {
@@ -71,22 +72,15 @@ public class ConstructorView extends AbstractView {
 		sb.append("\n");
 		sb.append(indent).append("/**\n");
 		if (constructor.getType().hasDescription()) {
-			sb.append(getDescription(constructor.getType(), indent));
+			sb.append(indent).append(" * ").append(getDescription(constructor.getType())).append("\n");
 		}
 		if (constructor.hasParameters()) {
 			sb.append(parentMemberCommentBlock.toString());
 			for (JavaParameter p : constructor.getParameters()) {
 				sb.append(indent).append(" * @param ");
 				sb.append(p.getName());
-				if (p.hasDescription()) {
-					sb.append(" ");
-					sb.append(getDescription(p));
-				}
-				renderEnumComment(sb, ns, p);
-//				sb.append("\n");
-				if (!p.isEnum()) {
-					sb.append(getDescription(p.getType()));
-				}
+				sb.append(getDescription(ns, p));
+				sb.append("\n");
 			}
 			sb.append(indent).append(" */\n");
 		}

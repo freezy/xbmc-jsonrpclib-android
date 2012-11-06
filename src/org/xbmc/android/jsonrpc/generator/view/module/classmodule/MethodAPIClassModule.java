@@ -73,17 +73,15 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 		final String indent = getIndent(idt);
 		
 		// header
+		sb.append("\n");
 		sb.append(indent).append("/**\n");
 		if (method.hasDescription()) {
-			sb.append(getDescription(method, indent));
+			sb.append(indent).append(" * ").append(getDescription(method)).append("\n");
 		}
 		for (JavaParameter p : constructor.getParameters()) {
 			sb.append(indent).append(" * @param ");
 			sb.append(p.getName());
-			if (p.hasDescription()) {
-				sb.append(p.getDescription());
-			}
-			renderEnumComment(sb, ns, p);
+			sb.append(getDescription(ns, p));
 			sb.append("\n");
 		}
 		sb.append(indent).append(" */\n");
@@ -147,6 +145,7 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 	private void renderParseOneMany(StringBuilder sb, Namespace ns, JavaMethod method, int idt) {
 		final String indent = getIndent(idt);
 		
+		sb.append("\n");
 		sb.append(indent).append("@Override\n");
 		if (method.getReturnType().isTypeArray()) {
 			final String returnType = getClassReference(ns, method.getReturnType().getArrayType());
@@ -200,12 +199,14 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 		final String indent = getIndent(idt);
 		
 		// public String getName() { }
+		sb.append("\n");
 		sb.append(indent).append("@Override\n");
 		sb.append(indent).append("public String getName() {\n");
 		sb.append(indent).append("	return API_TYPE;\n");
 		sb.append(indent).append("}\n");
 		
 		// protected boolean returnsList() { }
+		sb.append("\n");
 		sb.append(indent).append("@Override\n");
 		sb.append(indent).append("protected boolean returnsList() {\n");
 		sb.append(indent).append("	return ").append(method.getReturnType().isTypeArray() ? "true" : "false").append(";\n");

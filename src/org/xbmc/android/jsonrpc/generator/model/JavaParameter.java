@@ -33,7 +33,6 @@ public class JavaParameter {
 	private JavaClass type;
 	private JavaEnum e;
 	private final String name;
-
 	private String description;
 	
 	private final List<JavaClass> multitypes = new ArrayList<JavaClass>();
