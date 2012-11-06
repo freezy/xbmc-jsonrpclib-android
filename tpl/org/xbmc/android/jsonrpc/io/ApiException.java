@@ -21,10 +21,12 @@
 
 package org.xbmc.android.jsonrpc.io;
 
+import org.codehaus.jackson.JsonNode;
 import org.xbmc.android.jsonrpc.api.R;
 
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.util.Log;
 
 /**
  * Stuff that breaks while accessing the API
@@ -33,6 +35,8 @@ import android.os.Bundle;
  * @author Joel Stemmer <stemmertech@gmail.com>
  */
 public class ApiException extends Exception {
+	
+	private final static String TAG = ApiException.class.getSimpleName();
 	
 	public static final int MALFORMED_URL = 0x01;
 	public static final int IO_EXCEPTION = 0x02;
@@ -56,6 +60,20 @@ public class ApiException extends Exception {
 	public ApiException(int code, String message, Throwable cause) {
 		super(message, cause);
 		this.code = code;
+	}
+	
+	public ApiException(JsonNode node) {
+		super(node.get("error").get("message").getValueAsText());
+		this.code = API_ERROR;
+		final StringBuilder sb = new StringBuilder("API Error: ");
+		sb.append("Error in ");
+		sb.append(node.get("error").get("data").get("method").getValueAsText());
+		sb.append(" for ");
+		sb.append(node.get("error").get("data").get("stack").get("name").getValueAsText());
+		sb.append(": ");
+		sb.append(node.get("error").get("data").get("stack").get("message").getValueAsText());
+		
+		Log.d(TAG, sb.toString());
 	}
 
 	public int getCode() {

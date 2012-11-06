@@ -91,8 +91,8 @@ public class Introspect {
 	private final static String MODEL_CLASS_SUFFIX = "Model";
 	private final static String CALL_CLASS_SUFFIX  = "";
 	
-	private final static String OUTPUT_FOLDER = "D:/dev/xbmc-jsonrpclib-android-output";
-//	private final static String OUTPUT_FOLDER = "S:/Development/xbmc-jsonrpclib-android-output";
+//	private final static String OUTPUT_FOLDER = "D:/dev/xbmc-jsonrpclib-android-output";
+	private final static String OUTPUT_FOLDER = "S:/Development/xbmc-jsonrpclib-android-output";
 
 	private final static List<String> IGNORED_METHODS = new ArrayList<String>();
 	
@@ -119,88 +119,85 @@ public class Introspect {
 		try {
 			
 			// parse from json
-		    final Response response = OBJECT_MAPPER.readValue(new File("introspect.json"), Response.class);
-		    RESULT = response.getResult();
-			
-		    final IClassModule[] typeClassModules = {
-		    		new MemberDeclarationClassModule(),
-		    		new JsonAccesClassModule(), 
-		    		new ModelParcelableClassModule() 
-		    };
-		    
-		    // register types
-		    final SortedSet<String> typeNames = new TreeSet<String>(RESULT.getTypes().keySet());
-		    for (String name : typeNames) {
-		    	final PropertyController controller = new PropertyController(name, RESULT.getTypes().get(name));
-		    	final Namespace ns = controller.register(MODEL_PACKAGE, MODEL_CLASS_SUFFIX);
-		    	ns.addClassModule(typeClassModules);
-		    	ns.addInnerClassModule(typeClassModules);
-		    	ns.setParentModule(new ClassParentModule());
-		    	ns.setInnerParentModule(new ClassParentModule());
-		    }
-		    
-		    // register methods
-		    final SortedSet<String> methodNames = new TreeSet<String>(RESULT.getMethods().keySet());
-		    for (String name : methodNames) {
-		    	if (!IGNORED_METHODS.contains(name)) {
-		    		final MethodController controller = new MethodController(name, RESULT.getMethods().get(name));
-		    		final Namespace ns = controller.register(CALL_PACKAGE, CALL_CLASS_SUFFIX);
-		    		ns.addClassModule(
-		    				new MethodAPIClassModule(),
-		    				new CallParcelableClassModule()
-		    			);
-		    		ns.addInnerClassModule(typeClassModules);
-		    		ns.setParentModule(new MethodParentModule());
-		    		ns.setInnerParentModule(new ClassParentModule());
-		    	}
-		    }
-		    
-		    // resolve
-		    for (Namespace ns : Namespace.getAll()) {
-		    	ns.resolveClasses();
-		    }
-	    
-		    // pre-process imports
-		    for (Namespace ns : Namespace.getAll()) {
-		    	ns.findModuleImports();
-		    }
-		    
-		    // 1. copy static classes
-		    final String relRoot = "org/xbmc/android/jsonrpc";
-		    final File destRoot = new File(OUTPUT_FOLDER + "/src/" + relRoot);
-		    if (!destRoot.exists()) {
-		    	if (!destRoot.mkdirs()) {
-		    		throw new RuntimeException("Cannot create folder " + destRoot.getAbsolutePath() + ".");
-		    	}
-		    }
-		    FileUtils.copyDirectory(new File("tpl/" + relRoot), destRoot);
-		    
-		    // 2. render
-		    for (Namespace ns : Namespace.getAll()) {
-	    		render(ns);
-		    }
-		    
-		    // 3. copy resources
-		    final File resRoot = new File(OUTPUT_FOLDER + "/res/");
-		    if (!resRoot.exists()) {
-		    	if (!resRoot.mkdir()) {
-		    		throw new RuntimeException("Cannot create folder " + resRoot.getAbsolutePath() + ".");
-		    	}
-		    }
-		    FileUtils.copyDirectory(new File("res/"), resRoot);
-		    
-		    // 4. while we're at it, copy necessary libs
-		    final File libRoot = new File(OUTPUT_FOLDER + "/libs/");
-		    if (!libRoot.exists()) {
-		    	if (!libRoot.mkdir()) {
-		    		throw new RuntimeException("Cannot create folder " + libRoot.getAbsolutePath() + ".");
-		    	}
-		    }
-		    FileUtils.copyFile(new File("libs/jackson-core-asl-1.8.8.jar"), new File(OUTPUT_FOLDER + "/libs/jackson-core-asl-1.8.8.jar"));
-		    FileUtils.copyFile(new File("libs/jackson-mapper-asl-1.8.8.jar"), new File(OUTPUT_FOLDER + "/libs/jackson-mapper-asl-1.8.8.jar"));
-		    
-		    System.out.println("Done in " + (System.currentTimeMillis() - started) + "ms.");
-			
+			final Response response = OBJECT_MAPPER.readValue(new File("introspect.json"), Response.class);
+			RESULT = response.getResult();
+
+			final IClassModule[] typeClassModules = { 
+				new MemberDeclarationClassModule(), 
+				new JsonAccesClassModule(), 
+				new ModelParcelableClassModule() 
+			};
+
+			// register types
+			final SortedSet<String> typeNames = new TreeSet<String>(RESULT.getTypes().keySet());
+			for (String name : typeNames) {
+				final PropertyController controller = new PropertyController(name, RESULT.getTypes().get(name));
+				final Namespace ns = controller.register(MODEL_PACKAGE, MODEL_CLASS_SUFFIX);
+				ns.addClassModule(typeClassModules);
+				ns.addInnerClassModule(typeClassModules);
+				ns.setParentModule(new ClassParentModule());
+				ns.setInnerParentModule(new ClassParentModule());
+			}
+
+			// register methods
+			final SortedSet<String> methodNames = new TreeSet<String>(RESULT.getMethods().keySet());
+			for (String name : methodNames) {
+				if (!IGNORED_METHODS.contains(name)) {
+					final MethodController controller = new MethodController(name, RESULT.getMethods().get(name));
+					final Namespace ns = controller.register(CALL_PACKAGE, CALL_CLASS_SUFFIX);
+					ns.addClassModule(new MethodAPIClassModule(), new CallParcelableClassModule());
+					ns.addInnerClassModule(typeClassModules);
+					ns.setParentModule(new MethodParentModule());
+					ns.setInnerParentModule(new ClassParentModule());
+				}
+			}
+
+			// resolve
+			for (Namespace ns : Namespace.getAll()) {
+				ns.resolveClasses();
+			}
+
+			// pre-process imports
+			for (Namespace ns : Namespace.getAll()) {
+				ns.findModuleImports();
+			}
+
+			// 1. copy static classes
+			final String relRoot = "org/xbmc/android/jsonrpc";
+			final File destRoot = new File(OUTPUT_FOLDER + "/src/" + relRoot);
+			if (!destRoot.exists()) {
+				if (!destRoot.mkdirs()) {
+					throw new RuntimeException("Cannot create folder " + destRoot.getAbsolutePath() + ".");
+				}
+			}
+			FileUtils.copyDirectory(new File("tpl/" + relRoot), destRoot);
+
+			// 2. render
+			for (Namespace ns : Namespace.getAll()) {
+				render(ns);
+			}
+
+			// 3. copy resources
+			final File resRoot = new File(OUTPUT_FOLDER + "/res/");
+			if (!resRoot.exists()) {
+				if (!resRoot.mkdir()) {
+					throw new RuntimeException("Cannot create folder " + resRoot.getAbsolutePath() + ".");
+				}
+			}
+			FileUtils.copyDirectory(new File("res/"), resRoot);
+
+			// 4. while we're at it, copy necessary libs
+			final File libRoot = new File(OUTPUT_FOLDER + "/libs/");
+			if (!libRoot.exists()) {
+				if (!libRoot.mkdir()) {
+					throw new RuntimeException("Cannot create folder " + libRoot.getAbsolutePath() + ".");
+				}
+			}
+			FileUtils.copyFile(new File("libs/jackson-core-asl-1.8.8.jar"), new File(OUTPUT_FOLDER + "/libs/jackson-core-asl-1.8.8.jar"));
+			FileUtils.copyFile(new File("libs/jackson-mapper-asl-1.8.8.jar"), new File(OUTPUT_FOLDER + "/libs/jackson-mapper-asl-1.8.8.jar"));
+
+			System.out.println("Done in " + (System.currentTimeMillis() - started) + "ms.");
+
 		} catch (JsonParseException e) {
 			e.printStackTrace();
 		} catch (JsonMappingException e) {
@@ -218,14 +215,14 @@ public class Introspect {
 		}
 		
 		final StringBuilder sb = new StringBuilder();
-    	final NamespaceView view = new NamespaceView(ns);
-    	final File out = getFile(ns);
-    	view.render(sb);
-    	if (sb.length() > 0) {
-    		writeFile(out, sb.toString());
-    	}
+		final NamespaceView view = new NamespaceView(ns);
+		final File out = getFile(ns);
+		view.render(sb);
+		if (sb.length() > 0) {
+			writeFile(out, sb.toString());
+		}
 	}
-	
+
 	/**
 	 * Computes the filename of the Java class file based on 
 	 * {@link Introspect#OUTPUT_FOLDER} and the package of the namespace.

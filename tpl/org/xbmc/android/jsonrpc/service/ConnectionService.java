@@ -329,8 +329,12 @@ public class ConnectionService extends IntentService {
 		final HashMap<String, AbstractCall<?>> calls = mCalls;
 		final HashMap<String, JsonHandler> handlers = mHandlers;
 		
+		// check for errors
+		if (node.has("error")) {
+			notifyError(new ApiException(node), node.get("id").getValueAsText());
+			
 		// check if notification or api call
-		if (node.has("id")) {
+		} else if (node.has("id")) {
 			// it's api call.
 			final String id = node.get("id").getValueAsText();
 			if (calls.containsKey(id)) {
