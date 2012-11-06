@@ -27,7 +27,6 @@ import org.codehaus.jackson.JsonNode;
 import org.json.JSONException;
 
 import android.content.ContentProvider;
-import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.os.Parcel;
@@ -38,7 +37,7 @@ import com.sun.xml.internal.ws.handler.HandlerException;
 
 /**
  * Abstract class that handles reading and parsing an JSON-serialized API
- * response into a set of {@link ContentProviderOperation}. It catches
+ * response into a set of ContentProviderOperation. It catches
  * recoverable network exceptions and re-throws them as {@link HandlerException}. 
  * Any local {@link ContentProvider} exceptions are considered unrecoverable.
  * <p>
@@ -61,7 +60,7 @@ public abstract class JsonHandler implements Parcelable {
 
 	/**
 	 * Parse the given HTTP response body, turning into a series of
-	 * {@link ContentProviderOperation} that are immediately applied using the
+	 * ContentProviderOperation that are immediately applied using the
 	 * given {@link ContentResolver}.
 	 * 
 	 * @param response HTTP response body
@@ -83,14 +82,14 @@ public abstract class JsonHandler implements Parcelable {
 				insert(resolver, newBatch);
 				Log.i(TAG, "Execution done in " + (System.currentTimeMillis() - start) + "ms.");
 			}
-        } catch (IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		} 
 	}
 
 	/**
 	 * Parse the HTTP body's de-serialized {@link JsonNode}, returning a set
-	 * of {@link ContentProviderOperation} that will bring the
+	 * of ContentProviderOperation that will bring the
 	 * {@link ContentProvider} into sync with the parsed data.
 	 * 
 	 * @param result HTTP body de-serialized
@@ -99,9 +98,9 @@ public abstract class JsonHandler implements Parcelable {
 	 * @throws JSONException
 	 * @throws IOException
 	 */
-    protected abstract ContentValues[] parse(JsonNode result, ContentResolver resolver) throws IOException;
-    
-    protected abstract void insert(ContentResolver resolver, ContentValues[] batch);
+	protected abstract ContentValues[] parse(JsonNode result, ContentResolver resolver) throws IOException;
+	
+	protected abstract void insert(ContentResolver resolver, ContentValues[] batch);
 
 	@Override
 	public int describeContents() {
@@ -112,5 +111,4 @@ public abstract class JsonHandler implements Parcelable {
 	public void writeToParcel(Parcel parcel, int flags) {
 		parcel.writeString(mAuthority);
 	}
-    
 }
