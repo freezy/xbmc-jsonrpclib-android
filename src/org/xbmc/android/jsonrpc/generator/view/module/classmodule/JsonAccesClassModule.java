@@ -135,7 +135,6 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 		}
 		
 		// parse members
-//		sb.append(indent).append("	mType = API_TYPE;\n");
 		boolean isFirst = true;
 		for (JavaMember member : klass.getMembers()) {
 			if (klass.isMultiType()) {
@@ -180,7 +179,6 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 				sb.append(indent).append("	if (").append(member.getName()).append(" != null) {\n");
 				if (member.isEnum()) {
 					// TODO
-//					sb.append(indent).append("	return null; // enum\n");
 				} else {
 					
 					// native
@@ -227,14 +225,12 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 						
 						// like: return varname.toJsonNode();
 						sb.append(indent).append("		return ").append(member.getName()).append(".toJsonNode();\n");
-						
 					}
 				}
 				sb.append(indent).append("	}\n");
 			}
 			sb.append(indent).append("	return null; // this is completely excluded. theoretically.\n");
 		}
-		
 		sb.append(indent).append("}\n");
 	}
 	
