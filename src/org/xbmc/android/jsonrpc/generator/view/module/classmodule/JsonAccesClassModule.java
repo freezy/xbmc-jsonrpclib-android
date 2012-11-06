@@ -82,6 +82,25 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 		imports.add("org.codehaus.jackson.node.ObjectNode");
 		imports.add("java.util.List");
 		imports.add("java.util.ArrayList");
+		
+		if (klass.isMultiType()) {
+			for (JavaMember member : klass.getMembers()) {
+				if (!member.isEnum()) {
+					if ("boolean".equals(member.getType().getName())) {
+						imports.add("org.codehaus.jackson.node.BooleanNode");
+					}
+					if ("string".equals(member.getType().getName())) {
+						imports.add("org.codehaus.jackson.node.TextNode");
+					}
+					if ("integer".equals(member.getType().getName())) {
+						imports.add("org.codehaus.jackson.node.IntNode");
+					}
+					if ("number".equals(member.getType().getName())) {
+						imports.add("org.codehaus.jackson.node.DoubleNode");
+					}
+				}
+			}
+		}
 		return imports;
 	}
 	
@@ -157,8 +176,63 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 			sb.append(indent).append("	return node;\n");
 			
 		} else {
-			// TODO return JsonBaseNode or whatever
-			sb.append(indent).append("	return null; // return JsonBaseNode or whatever\n");
+			for (JavaMember member : klass.getMembers()) {
+				sb.append(indent).append("	if (").append(member.getName()).append(" != null) {\n");
+				if (member.isEnum()) {
+					// TODO
+//					sb.append(indent).append("	return null; // enum\n");
+				} else {
+					
+					// native
+					if (member.getType().isNative()) {
+						// like: return booleanArg ? BooleanNode.TRUE : BooleanNode.FALSE;
+						if ("boolean".equals(member.getType().getName())) {
+							sb.append(indent).append("		return ").append(member.getName()).append(" ? BooleanNode.TRUE : BooleanNode.FALSE;\n");
+
+						// like: return new TextNode(stringArg);
+						} else if ("string".equals(member.getType().getName()) || "any".equals(member.getType().getName())) {
+							sb.append(indent).append("		return new TextNode(").append(member.getName()).append(");\n");
+
+						// like: return new IntNode(intArg);	
+						} else if ("integer".equals(member.getType().getName())) {
+							sb.append(indent).append("		return new IntNode(").append(member.getName()).append(");\n");
+
+						// like: return new DoubleNode(doubleArg);	
+						} else if ("number".equals(member.getType().getName())) {
+							sb.append(indent).append("		return new DoubleNode(").append(member.getName()).append(");\n");
+
+						// no way!	
+						} else {
+							throw new IllegalStateException("Unknown native type \"" + member.getType().getName() + "\". Probably implementation missing.");
+						}
+						
+					// array
+					} else if (member.isArray()) {
+						
+						sb.append(indent).append("		final ArrayNode an = OM.createArrayNode();\n");
+
+						// like: for (String item : stringArgList) {
+						sb.append(indent).append("		for (");
+						sb.append(getClassName(member.getType().getArrayType()));
+						sb.append(" item : ");
+						sb.append(member.getName());
+						sb.append(") {\n");
+						
+						sb.append(indent).append("			an.add(item);\n");
+						sb.append(indent).append("		};\n");
+						sb.append(indent).append("		return an;\n");
+						
+					// object
+					} else {
+						
+						// like: return varname.toJsonNode();
+						sb.append(indent).append("		return ").append(member.getName()).append(".toJsonNode();\n");
+						
+					}
+				}
+				sb.append(indent).append("	}\n");
+			}
+			sb.append(indent).append("	return null; // this is completely excluded. theoretically.\n");
 		}
 		
 		sb.append(indent).append("}\n");
