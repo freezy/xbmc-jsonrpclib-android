@@ -68,7 +68,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 		renderNodeConstructor(sb, ns, klass, idt);
 		
 		// toObjectNode()
-		renderToObjectNode(sb, klass, ns, idt);
+		renderToJsonNode(sb, klass, ns, idt);
 		
 		// render list getter
 		renderListGetter(sb, klass, ns, idt);
@@ -158,7 +158,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 		sb.append(indent).append("}\n");
 	}
 	
-	private void renderToObjectNode(StringBuilder sb, JavaClass klass, Namespace ns, int idt) {
+	private void renderToJsonNode(StringBuilder sb, JavaClass klass, Namespace ns, int idt) {
 		final String indent = getIndent(idt);
 		
 		// comment
@@ -167,8 +167,11 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 		sb.append(indent).append("public JsonNode toJsonNode() {\n");
 		
 		if (!klass.isMultiType()) {
-			
-			sb.append(indent).append("	final ObjectNode node = OM.createObjectNode();\n");
+			if (klass.doesExtend()) {
+				sb.append(indent).append("	final ObjectNode node = (ObjectNode)super.toJsonNode();\n");
+			} else {
+				sb.append(indent).append("	final ObjectNode node = OM.createObjectNode();\n");
+			}
 			for (JavaMember member : klass.getMembers()) {
 				renderPutLine(sb, member, ns, idt + 1);
 			}
