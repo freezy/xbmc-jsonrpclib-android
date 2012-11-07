@@ -20,9 +20,8 @@
  */
 package org.xbmc.android.jsonrpc.generator.view;
 
+import org.xbmc.android.jsonrpc.generator.model.JavaAttribute;
 import org.xbmc.android.jsonrpc.generator.model.JavaConstructor;
-import org.xbmc.android.jsonrpc.generator.model.JavaMember;
-import org.xbmc.android.jsonrpc.generator.model.JavaParameter;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 
 /**
@@ -46,7 +45,7 @@ public class ConstructorView extends AbstractView {
 		final StringBuilder parentMemberList = new StringBuilder();
 		final StringBuilder parentMemberCommentBlock = new StringBuilder();
 		if (constructor.getType().doesExtend()) {
-			for (JavaMember m : constructor.getType().getParentMembers()) {
+			for (JavaAttribute m : constructor.getType().getParentMembers()) {
 				parentMemberCommentBlock.append(indent).append(" * @param ");
 				parentMemberCommentBlock.append(m.getName());
 				parentMemberCommentBlock.append(getDescription(ns, m));
@@ -76,7 +75,7 @@ public class ConstructorView extends AbstractView {
 		}
 		if (constructor.hasParameters()) {
 			sb.append(parentMemberCommentBlock.toString());
-			for (JavaParameter p : constructor.getParameters()) {
+			for (JavaAttribute p : constructor.getParameters()) {
 				sb.append(indent).append(" * @param ");
 				sb.append(p.getName());
 				sb.append(getDescription(ns, p));
@@ -94,7 +93,7 @@ public class ConstructorView extends AbstractView {
 			sb.append(", ");
 		}
 		if (constructor.hasParameters()) {
-			for (JavaParameter p : constructor.getParameters()) {
+			for (JavaAttribute p : constructor.getParameters()) {
 				if (p.isEnum()) {
 					sb.append(getClassName(ns, p));
 				} else {
@@ -115,7 +114,7 @@ public class ConstructorView extends AbstractView {
 			sb.append(parentMemberList.toString());
 			sb.append(");\n");
 		}
-		for (JavaParameter p : constructor.getParameters()) {
+		for (JavaAttribute p : constructor.getParameters()) {
 			sb.append(indent).append("\tthis.");
 			sb.append(p.getName());
 			sb.append(" = ");
@@ -126,7 +125,7 @@ public class ConstructorView extends AbstractView {
 		
 		// if multi type, init non-used vars as null
 		if (constructor.getType().isMultiType()) {
-			for (JavaMember member : constructor.getType().getMembers()) {
+			for (JavaAttribute member : constructor.getType().getMembers()) {
 				// all but the one we already have.
 				if (lastArg != null && lastArg.equals(member.getName())) {
 					continue;

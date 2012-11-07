@@ -31,7 +31,7 @@ import java.util.List;
 public class JavaConstructor {
 
 	private JavaClass type;
-	private final List<JavaParameter> parameters = new ArrayList<JavaParameter>();
+	private final List<JavaAttribute> parameters = new ArrayList<JavaAttribute>();
 
 	public JavaConstructor(JavaClass type) {
 		this.type = type;
@@ -41,11 +41,11 @@ public class JavaConstructor {
 		return !parameters.isEmpty();
 	}
 
-	public void addParameter(JavaParameter parameter) {
+	public void addParameter(JavaAttribute parameter) {
 		parameters.add(parameter);
 	}
 
-	public List<JavaParameter> getParameters() {
+	public List<JavaAttribute> getParameters() {
 		return parameters;
 	}
 
@@ -55,7 +55,7 @@ public class JavaConstructor {
 	
 	public void resolve() {
 		type = JavaClass.resolveNonNull(type);
-		for (JavaParameter param : parameters) {
+		for (JavaAttribute param : parameters) {
 			param.resolveType();
 		}
 	}
@@ -67,7 +67,7 @@ public class JavaConstructor {
 	 */
 	public JavaConstructor copy() {
 		final JavaConstructor jc = new JavaConstructor(this.type);
-		for (JavaParameter jp : parameters) {
+		for (JavaAttribute jp : parameters) {
 			jc.addParameter(jp);
 		}
 		return jc;

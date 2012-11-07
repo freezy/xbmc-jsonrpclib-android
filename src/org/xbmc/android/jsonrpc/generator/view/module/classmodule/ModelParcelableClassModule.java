@@ -23,8 +23,8 @@ package org.xbmc.android.jsonrpc.generator.view.module.classmodule;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.xbmc.android.jsonrpc.generator.model.JavaAttribute;
 import org.xbmc.android.jsonrpc.generator.model.JavaClass;
-import org.xbmc.android.jsonrpc.generator.model.JavaMember;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 import org.xbmc.android.jsonrpc.generator.view.AbstractView;
 import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
@@ -87,7 +87,7 @@ public class ModelParcelableClassModule extends AbstractView implements IClassMo
 		if (klass.doesExtend()) {
 			sb.append(indent).append("	super.writeToParcel(parcel, flags);\n");
 		}
-		for (JavaMember member : klass.getMembers()) {
+		for (JavaAttribute member : klass.getMembers()) {
 			renderWriteToParcel(sb, ns, member, idt + 1);
 		}
 		sb.append(indent).append("}\n");
@@ -100,7 +100,7 @@ public class ModelParcelableClassModule extends AbstractView implements IClassMo
 	 * @param member Member to render
 	 * @param idt Indent
 	 */
-	private void renderWriteToParcel(StringBuilder sb, Namespace ns, JavaMember member, int idt) {
+	private void renderWriteToParcel(StringBuilder sb, Namespace ns, JavaAttribute member, int idt) {
 		final String indent = getIndent(idt);
 		
 		if (member.isEnum()) {
@@ -178,7 +178,7 @@ public class ModelParcelableClassModule extends AbstractView implements IClassMo
 		if (klass.doesExtend()) {
 			sb.append(indent).append("	super(parcel);\n");
 		}
-		for (JavaMember member : klass.getMembers()) {
+		for (JavaAttribute member : klass.getMembers()) {
 			renderParcelConstructor(sb, ns, member, idt + 1);
 		}
 		sb.append(indent).append("}\n");
@@ -191,7 +191,7 @@ public class ModelParcelableClassModule extends AbstractView implements IClassMo
 	 * @param member Member to render
 	 * @param idt Indent
 	 */
-	private void renderParcelConstructor(StringBuilder sb, Namespace ns, JavaMember member, int idt) {
+	private void renderParcelConstructor(StringBuilder sb, Namespace ns, JavaAttribute member, int idt) {
 		final String indent = getIndent(idt);
 		
 		if (member.isEnum()) {

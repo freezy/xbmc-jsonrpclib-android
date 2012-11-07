@@ -23,9 +23,9 @@ package org.xbmc.android.jsonrpc.generator.view.module.classmodule;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.xbmc.android.jsonrpc.generator.model.JavaAttribute;
 import org.xbmc.android.jsonrpc.generator.model.JavaClass;
 import org.xbmc.android.jsonrpc.generator.model.JavaConstructor;
-import org.xbmc.android.jsonrpc.generator.model.JavaMember;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 import org.xbmc.android.jsonrpc.generator.view.AbstractView;
 import org.xbmc.android.jsonrpc.generator.view.ConstructorView;
@@ -47,7 +47,7 @@ public class MemberDeclarationClassModule extends AbstractView implements IClass
 		// field name constants
 		if (!klass.isMultiType()) {
 			sb.append("\n").append(indent).append("// field names\n");
-			for (JavaMember member : klass.getMembers()) {
+			for (JavaAttribute member : klass.getMembers()) {
 				final MemberView memberView = new MemberView(member);
 				sb.append(memberView.renderFieldDeclaration(idt));
 			}
@@ -55,7 +55,7 @@ public class MemberDeclarationClassModule extends AbstractView implements IClass
 
 		// members
 		sb.append("\n").append(indent).append("// class members\n");
-		for (JavaMember member : klass.getMembers()) {
+		for (JavaAttribute member : klass.getMembers()) {
 			final MemberView memberView = new MemberView(member);
 			memberView.renderDeclaration(sb, klass.getNamespace(), idt);
 		}

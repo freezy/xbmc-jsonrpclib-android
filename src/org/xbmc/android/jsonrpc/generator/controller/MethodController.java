@@ -30,11 +30,10 @@ import org.xbmc.android.jsonrpc.generator.introspect.Param;
 import org.xbmc.android.jsonrpc.generator.introspect.Property;
 import org.xbmc.android.jsonrpc.generator.introspect.Type;
 import org.xbmc.android.jsonrpc.generator.introspect.wrapper.TypeWrapper;
+import org.xbmc.android.jsonrpc.generator.model.JavaAttribute;
 import org.xbmc.android.jsonrpc.generator.model.JavaClass;
 import org.xbmc.android.jsonrpc.generator.model.JavaConstructor;
-import org.xbmc.android.jsonrpc.generator.model.JavaMember;
 import org.xbmc.android.jsonrpc.generator.model.JavaMethod;
-import org.xbmc.android.jsonrpc.generator.model.JavaParameter;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 
 /**
@@ -94,7 +93,7 @@ public class MethodController {
 		
 		final List<JavaConstructor> constructors = new ArrayList<JavaConstructor>();
 		constructors.add(new JavaConstructor(klass));
-		JavaParameter properties = null;
+		JavaAttribute properties = null;
 		
 		// 1. parameters
 		for (Param p : method.getParams()) {
@@ -109,7 +108,7 @@ public class MethodController {
 				
 				// single type
 				if (!p.isMultitype() || Helper.equalNativeTypes(tr.getList())) {
-					final JavaParameter jp = getParam(p.getName(), p, namespace, klass);
+					final JavaAttribute jp = getParam(p.getName(), p, namespace, klass);
 					
 					// "properties" is a special case, we add them at the end.
 					if (p.getName().equals("properties")) {
@@ -134,13 +133,13 @@ public class MethodController {
 					for (Type t : tr.getList()) {
 						if (i == 0) {
 							// first multitype: just add param to current constructors.
-							final JavaParameter jp = getParam(p.getName(), t, namespace, klass);
+							final JavaAttribute jp = getParam(p.getName(), t, namespace, klass);
 							for (JavaConstructor jc : constructors) {
 								jc.addParameter(jp);
 							}
 						} else {
 							// second..nth multitype: for each previously saved constructor, copy then add param
-							final JavaParameter jp = getParam(p.getName(), t, namespace, klass);
+							final JavaAttribute jp = getParam(p.getName(), t, namespace, klass);
 							for (JavaConstructor jc : copiedConstructors) {
 								final JavaConstructor jjc = jc.copy();
 								jjc.addParameter(jp);
@@ -277,10 +276,10 @@ public class MethodController {
 	 * @param klass
 	 * @return
 	 */
-	private JavaParameter getParam(String name, Property p, Namespace namespace, JavaClass klass) {
+	private JavaAttribute getParam(String name, Property p, Namespace namespace, JavaClass klass) {
 		final PropertyController pc = new PropertyController(name, p);
 		final JavaClass type = pc.getClass(namespace, name, klass);
-		final JavaParameter jp = new JavaParameter(name, type);
+		final JavaAttribute jp = new JavaAttribute(name, type);
 		jp.setDescription(p.getDescription());
 		type.setUsedAsParameter();
 		if (type.isInner()) {
@@ -308,7 +307,7 @@ public class MethodController {
 	 */
 	private String getSuffixFromMembers(JavaClass klass) {
 		final StringBuilder sb = new StringBuilder();
-		for (JavaMember m : klass.getMembers()) {
+		for (JavaAttribute m : klass.getMembers()) {
 			final String name = m.getName().replace("id", "Id");
 			sb.append(name.substring(0, 1).toUpperCase());
 			sb.append(name.substring(1));

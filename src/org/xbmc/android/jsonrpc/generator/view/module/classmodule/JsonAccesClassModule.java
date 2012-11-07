@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.xbmc.android.jsonrpc.generator.model.JavaAttribute;
 import org.xbmc.android.jsonrpc.generator.model.JavaClass;
-import org.xbmc.android.jsonrpc.generator.model.JavaMember;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 import org.xbmc.android.jsonrpc.generator.view.AbstractView;
 import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
@@ -84,7 +84,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 		imports.add("java.util.ArrayList");
 		
 		if (klass.isMultiType()) {
-			for (JavaMember member : klass.getMembers()) {
+			for (JavaAttribute member : klass.getMembers()) {
 				if (!member.isEnum()) {
 					if ("boolean".equals(member.getType().getName())) {
 						imports.add("org.codehaus.jackson.node.BooleanNode");
@@ -136,7 +136,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 		
 		// parse members
 		boolean isFirst = true;
-		for (JavaMember member : klass.getMembers()) {
+		for (JavaAttribute member : klass.getMembers()) {
 			if (klass.isMultiType()) {
 				renderMultiTypeLine(sb, member, klass.getMembers(), idt + 1, isFirst);
 			} else {
@@ -172,13 +172,13 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 			} else {
 				sb.append(indent).append("	final ObjectNode node = OM.createObjectNode();\n");
 			}
-			for (JavaMember member : klass.getMembers()) {
+			for (JavaAttribute member : klass.getMembers()) {
 				renderPutLine(sb, member, ns, idt + 1);
 			}
 			sb.append(indent).append("	return node;\n");
 			
 		} else {
-			for (JavaMember member : klass.getMembers()) {
+			for (JavaAttribute member : klass.getMembers()) {
 				sb.append(indent).append("	if (").append(member.getName()).append(" != null) {\n");
 				if (member.isEnum()) {
 					// TODO
@@ -237,7 +237,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 		sb.append(indent).append("}\n");
 	}
 	
-	private void renderPutLine(StringBuilder sb, JavaMember member, Namespace ns, int idt) {
+	private void renderPutLine(StringBuilder sb, JavaAttribute member, Namespace ns, int idt) {
 		final String indent = getIndent(idt);
 		
 		if (member.isEnum()) {
@@ -300,7 +300,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 	 * @param sb
 	 * @param member
 	 */
-	private void renderParseLine(StringBuilder sb, JavaMember member, Namespace ns) {
+	private void renderParseLine(StringBuilder sb, JavaAttribute member, Namespace ns) {
 		if (member.isEnum()) {
 			renderOptionalNativeNodeGetter(sb, member.getName(), NATIVE_OPTIONAL_NODE_GETTER.get("string"));
 		} else {
@@ -358,7 +358,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 	 * @param idt
 	 * @param isFirst
 	 */
-	private void renderMultiTypeLine(StringBuilder sb, JavaMember member, List<JavaMember> allMembers, int idt, boolean isFirst) {
+	private void renderMultiTypeLine(StringBuilder sb, JavaAttribute member, List<JavaAttribute> allMembers, int idt, boolean isFirst) {
 		final String indent = getIndent(idt);
 		if (!member.isEnum()) {
 			final JavaClass klass = member.getType();
@@ -383,7 +383,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 				sb.append(" = node.");
 				sb.append(NATIVE_REQUIRED_NODE_GETTER.get(klass.getName()));
 				sb.append("();\n");
-				for (JavaMember m : allMembers) {
+				for (JavaAttribute m : allMembers) {
 					if (m != member) {
 						sb.append(indent).append("\t");
 						sb.append(m.getName());
@@ -393,7 +393,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 			} else {
 				// TODO check what's returned and see if we can match by name rather than type
 				sb.append("if (node.isObject()) { // check what's returned and see if we can match by name rather than type.\n");
-				for (JavaMember m : allMembers) {
+				for (JavaAttribute m : allMembers) {
 					sb.append(indent).append("\t");
 					sb.append(m.getName());
 					sb.append(" = null;\n");
@@ -486,7 +486,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 	 * @param sb
 	 * @param member
 	 */
-	private void renderNodeSetter(StringBuilder sb, JavaMember member, String value) {
+	private void renderNodeSetter(StringBuilder sb, JavaAttribute member, String value) {
 		sb.append("node.put(");
 		sb.append(member.getName().toUpperCase());
 		sb.append(", ");

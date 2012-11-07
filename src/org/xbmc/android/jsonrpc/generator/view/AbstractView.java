@@ -20,10 +20,9 @@
  */
 package org.xbmc.android.jsonrpc.generator.view;
 
+import org.xbmc.android.jsonrpc.generator.model.JavaAttribute;
 import org.xbmc.android.jsonrpc.generator.model.JavaClass;
 import org.xbmc.android.jsonrpc.generator.model.JavaEnum;
-import org.xbmc.android.jsonrpc.generator.model.JavaMember;
-import org.xbmc.android.jsonrpc.generator.model.JavaParameter;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 
 /**
@@ -135,21 +134,12 @@ public abstract class AbstractView {
 	/**
 	 * Returns the Java type of a member object.
 	 * 
-	 * @param member Given member
+	 * @param attr Given member
 	 * @return Java class name
 	 */
-	protected String getClassName(Namespace ns, JavaMember member) {
-		if (!member.isEnum()) {
-			return getClassName(ns, member.getType());
-		} else {
-			return "String";
-		}
-	}
-
-	// TODO interface param and member
-	protected String getClassName(Namespace ns, JavaParameter param) {
-		if (!param.isEnum()) {
-			return getClassName(ns, param.getType());
+	protected String getClassName(Namespace ns, JavaAttribute attr) {
+		if (!attr.isEnum()) {
+			return getClassName(ns, attr.getType());
 		} else {
 			return "String";
 		}
@@ -304,11 +294,8 @@ public abstract class AbstractView {
 	protected String getDescription(JavaClass klass) {
 		return getDescription(klass.getDescription());
 	}
-	protected String getDescription(Namespace ns, JavaParameter param) {
-		return getDescription(param.getDescription()) + getEnumComment(ns, param);
-	}
-	protected String getDescription(Namespace ns, JavaMember member) {
-		return getDescription(member.getDescription()) + getEnumComment(ns, member);
+	protected String getDescription(Namespace ns, JavaAttribute attr) {
+		return getDescription(attr.getDescription()) + getEnumComment(ns, attr);
 	}
 	private String getDescription(String description) {
 		if (description == null) {
@@ -338,48 +325,27 @@ public abstract class AbstractView {
 	 * Renders enum comment if given parameter is an enum or an array of enums.
 	 * @param sb Current StringBuilder
 	 * @param ns Current namespace
-	 * @param p Parameter
+	 * @param attr Parameter/Member
 	 */
-	private String getEnumComment(Namespace ns, JavaParameter p) {
+	private String getEnumComment(Namespace ns, JavaAttribute attr) {
 		final StringBuilder sb = new StringBuilder();
-		if (p.isEnum()) {
-			if (p.getEnum().isArray()) {
+		if (attr.isEnum()) {
+			if (attr.getEnum().isArray()) {
 				sb.append(" One or more of: ");
 			} else {
 				sb.append(" One of: ");
 			}
-			renderEnumValues(sb, p.getEnum());
-			if (!p.getEnum().isInner()) {
-				sb.append(" See constants at {@link ").append(getEnumReference(ns, p.getEnum())).append("}.");
+			renderEnumValues(sb, attr.getEnum());
+			if (!attr.getEnum().isInner()) {
+				sb.append(" See constants at {@link ").append(getEnumReference(ns, attr.getEnum())).append("}.");
 			}
 			
-		} else if (p.getType().isEnumArray()) {
+		} else if (attr.getType().isEnumArray()) {
 			sb.append(" One or more of: ");
-			renderEnumValues(sb, p.getType().getEnumArray());
-			sb.append(" See constants at {@link ").append(getEnumReference(ns, p.getType().getEnumArray())).append("}.");
+			renderEnumValues(sb, attr.getType().getEnumArray());
+			sb.append(" See constants at {@link ").append(getEnumReference(ns, attr.getType().getEnumArray())).append("}.");
 		}
 		return sb.toString();
 	}
 	
-	// TODO abstract JavaMember and JavaParameter with interface.
-	private String getEnumComment(Namespace ns, JavaMember m) {
-		final StringBuilder sb = new StringBuilder();
-		if (m.isEnum()) {
-			if (m.getEnum().isArray()) {
-				sb.append(" One or more of: ");
-			} else {
-				sb.append(" One of: ");
-			}
-			renderEnumValues(sb, m.getEnum());
-			if (!m.getEnum().isInner()) {
-				sb.append(" See constants at {@link ").append(getEnumReference(ns, m.getEnum())).append("}.");
-			}
-			
-		} else if (m.getType().isEnumArray()) {
-			sb.append(" One or more of: ");
-			renderEnumValues(sb, m.getType().getEnumArray());
-			sb.append(" See constants at {@link ").append(getEnumReference(ns, m.getType().getEnumArray())).append("}.");
-		}
-		return sb.toString();
-	}
 }

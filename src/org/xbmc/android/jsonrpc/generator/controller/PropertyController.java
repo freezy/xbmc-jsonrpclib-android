@@ -28,10 +28,10 @@ import org.xbmc.android.jsonrpc.generator.introspect.Param;
 import org.xbmc.android.jsonrpc.generator.introspect.Property;
 import org.xbmc.android.jsonrpc.generator.introspect.Type;
 import org.xbmc.android.jsonrpc.generator.introspect.wrapper.ExtendsWrapper;
+import org.xbmc.android.jsonrpc.generator.model.JavaAttribute;
 import org.xbmc.android.jsonrpc.generator.model.JavaClass;
 import org.xbmc.android.jsonrpc.generator.model.JavaConstructor;
 import org.xbmc.android.jsonrpc.generator.model.JavaEnum;
-import org.xbmc.android.jsonrpc.generator.model.JavaMember;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 
 /**
@@ -240,7 +240,7 @@ public class PropertyController {
 				final Property prop = property.getProperties().get(propertyName);
 				
 				final MemberController mc = new MemberController(propertyName, prop);
-				final JavaMember member = mc.getMember(namespace, klass);
+				final JavaAttribute member = mc.getMember(namespace, klass);
 				
 				// if type is inner or enum, reference here so it can properly rendered
 				if (member.isInner()) {
@@ -250,7 +250,7 @@ public class PropertyController {
 					klass.linkInnerEnum(member.getEnum());
 				}
 				
-				if (member.isArray()) {
+				if (member.isArray() && !member.isEnum()) {
 					final JavaClass arrayType = member.getType().getArrayType();
 					if (!arrayType.isNative() && !arrayType.isGlobal()) {
 						klass.linkInnerType(arrayType);

@@ -23,10 +23,9 @@ package org.xbmc.android.jsonrpc.generator.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.xbmc.android.jsonrpc.generator.model.JavaConstructor;
+import org.xbmc.android.jsonrpc.generator.model.JavaAttribute;
 import org.xbmc.android.jsonrpc.generator.model.JavaClass;
-import org.xbmc.android.jsonrpc.generator.model.JavaMember;
-import org.xbmc.android.jsonrpc.generator.model.JavaParameter;
+import org.xbmc.android.jsonrpc.generator.model.JavaConstructor;
 
 /**
  * Produces a list of {@link JavaConstructor}s for a given {@link JavaClass}.
@@ -47,11 +46,11 @@ public class ConstructorController {
 		// for non-multitype, just create one constructor with all properties
 		if (!type.isMultiType()) {
 			final JavaConstructor c = new JavaConstructor(type);
-			for (JavaMember m : type.getMembers()) {
+			for (JavaAttribute m : type.getMembers()) {
 				if (m.isEnum()) {
-					c.addParameter(new JavaParameter(m.getName(), m.getEnum()));
+					c.addParameter(new JavaAttribute(m.getName(), m.getEnum()));
 				} else {
-					c.addParameter(new JavaParameter(m.getName(), m.getType()));
+					c.addParameter(new JavaAttribute(m.getName(), m.getType()));
 				}
 			}
 			constructors.add(c);
@@ -59,12 +58,12 @@ public class ConstructorController {
 		// for multitypes, we need a constructor per type (member)	
 		} else {
 			
-			for (JavaMember m : type.getMembers()) {
+			for (JavaAttribute m : type.getMembers()) {
 				final JavaConstructor c = new JavaConstructor(type);
 				if (m.isEnum()) {
-					c.addParameter(new JavaParameter(m.getName(), m.getEnum()));
+					c.addParameter(new JavaAttribute(m.getName(), m.getEnum()));
 				} else {
-					c.addParameter(new JavaParameter(m.getName(), m.getType()));
+					c.addParameter(new JavaAttribute(m.getName(), m.getType()));
 				}
 				constructors.add(c);
 			}

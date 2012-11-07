@@ -89,7 +89,7 @@ public class JavaClass {
 	private boolean resolved = false;
 
 	private final List<JavaConstructor> constructors = new ArrayList<JavaConstructor>();
-	private final List<JavaMember> members = new ArrayList<JavaMember>();
+	private final List<JavaAttribute> members = new ArrayList<JavaAttribute>();
 	private final List<JavaClass> innerTypes = new ArrayList<JavaClass>();
 	private final List<JavaEnum> innerEnums = new ArrayList<JavaEnum>();
 
@@ -297,7 +297,7 @@ public class JavaClass {
 		}
 
 		// ..and members
-		for (JavaMember m : members) {
+		for (JavaAttribute m : members) {
 			m.resolveType();
 		}
 
@@ -393,7 +393,7 @@ public class JavaClass {
 	 */
 	public void setUsedAsParameter() {
 		usedAsParameter = true;
-		for (JavaMember m : members) {
+		for (JavaAttribute m : members) {
 			if (!m.isEnum()) {
 				m.getType().setUsedAsParameter();
 			}
@@ -484,7 +484,7 @@ public class JavaClass {
 	 * 
 	 * @param member New class member
 	 */
-	public void addMember(JavaMember member) {
+	public void addMember(JavaAttribute member) {
 		if (unresolved) {
 			throw new RuntimeException("Unresolved.");
 		}
@@ -677,14 +677,14 @@ public class JavaClass {
 	 * Returns all added members of this class.
 	 * @return All class members
 	 */
-	public List<JavaMember> getMembers() {
+	public List<JavaAttribute> getMembers() {
 		if (unresolved) {
 			throw new RuntimeException("Unresolved.");
 		}
 		// sort before return.
-		Collections.sort(members, new Comparator<JavaMember>() {
+		Collections.sort(members, new Comparator<JavaAttribute>() {
 			@Override
-			public int compare(JavaMember o1, JavaMember o2) {
+			public int compare(JavaAttribute o1, JavaAttribute o2) {
 				return o1.getName().compareTo(o2.getName());
 			}
 		});
@@ -859,7 +859,7 @@ public class JavaClass {
 		}
 	}
 	
-	public List<JavaMember> getParentMembers() {
+	public List<JavaAttribute> getParentMembers() {
 		return getParentMembers(false);
 	}
 	
@@ -867,9 +867,9 @@ public class JavaClass {
 	 * Returns the members plus all parent members.
 	 * @return
 	 */
-	private List<JavaMember> getParentMembers(boolean includeOwnMembers) {
+	private List<JavaAttribute> getParentMembers(boolean includeOwnMembers) {
 		if (doesExtend()) {
-			final List<JavaMember> members = parentClass.getParentMembers(true); 
+			final List<JavaAttribute> members = parentClass.getParentMembers(true); 
 			if (includeOwnMembers) {
 				members.addAll(this.members);
 			}
@@ -878,7 +878,7 @@ public class JavaClass {
 			if (includeOwnMembers) {
 				return this.members;
 			} else {
-				return new ArrayList<JavaMember>(0);
+				return new ArrayList<JavaAttribute>(0);
 			}
 		}
 	}
@@ -897,7 +897,7 @@ public class JavaClass {
 		// own imports
 		imports.addAll(this.imports);
 		// members
-		for (JavaMember m : members) {
+		for (JavaAttribute m : members) {
 			if (!m.isEnum()) {
 				imports.addAll(m.getType().getImports());
 			}

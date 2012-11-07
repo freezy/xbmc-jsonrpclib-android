@@ -25,11 +25,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.xbmc.android.jsonrpc.generator.model.JavaAttribute;
 import org.xbmc.android.jsonrpc.generator.model.JavaClass;
 import org.xbmc.android.jsonrpc.generator.model.JavaConstructor;
-import org.xbmc.android.jsonrpc.generator.model.JavaMember;
 import org.xbmc.android.jsonrpc.generator.model.JavaMethod;
-import org.xbmc.android.jsonrpc.generator.model.JavaParameter;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 import org.xbmc.android.jsonrpc.generator.view.AbstractView;
 import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
@@ -78,7 +77,7 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 		if (method.hasDescription()) {
 			sb.append(indent).append(" * ").append(getDescription(method)).append("\n");
 		}
-		for (JavaParameter p : constructor.getParameters()) {
+		for (JavaAttribute p : constructor.getParameters()) {
 			sb.append(indent).append(" * @param ");
 			sb.append(p.getName());
 			sb.append(getDescription(ns, p));
@@ -90,9 +89,9 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 		sb.append(indent).append("public ");
 		sb.append(getClassName(method));
 		sb.append("(");
-		Iterator<JavaParameter> it = constructor.getParameters().iterator();
+		Iterator<JavaAttribute> it = constructor.getParameters().iterator();
 		while (it.hasNext()) {
-			final JavaParameter p = it.next();
+			final JavaAttribute p = it.next();
 			if (!it.hasNext() && p.isArray()) {
 				// if enum != null, we know it's an enum array, otherwise isArray() woulnd't have returned true.
 				// in all other cases, p.getType() != null.
@@ -120,7 +119,7 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 		
 		// body
 		sb.append(indent).append("	super();\n");
-		for (JavaParameter p : constructor.getParameters()) {
+		for (JavaAttribute p : constructor.getParameters()) {
 			sb.append(indent).append("	addParameter(\"");
 			sb.append(p.getName());
 			sb.append("\", ");
@@ -240,7 +239,7 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 		final Set<String> imports = new HashSet<String>();
 		
 		// members
-		for (JavaMember member : klass.getMembers()) {
+		for (JavaAttribute member : klass.getMembers()) {
 			if (!member.isEnum()) {
 				final JavaClass memberType = member.getType();
 				if (memberType.isGlobal() && memberType.isVisible()) {
@@ -251,7 +250,7 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 		
 		// params in constructors
 		for (JavaConstructor constructor : klass.getConstructors()) {
-			for (JavaParameter param : constructor.getParameters()) {
+			for (JavaAttribute param : constructor.getParameters()) {
 				if (!param.isEnum()) {
 					final JavaClass paramType = param.getType();
 					if (paramType.isGlobal() && !paramType.isNative() && paramType.hasName()) {
