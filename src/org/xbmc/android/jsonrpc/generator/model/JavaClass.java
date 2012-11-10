@@ -944,6 +944,7 @@ public class JavaClass {
 			if (parentModule != null) {
 				imports.addAll(parentModule.getImports(this));
 			}
+			
 		}
 	}
 	
@@ -984,6 +985,7 @@ public class JavaClass {
 
 		// own imports
 		imports.addAll(this.imports);
+
 		// members
 		for (JavaAttribute m : members) {
 			if (!m.isEnum()) {
@@ -1000,6 +1002,10 @@ public class JavaClass {
 			imports.add("java.util.Set");
 			imports.add("java.util.Arrays");
 		}
+		// map
+		if (isTypeMap()) {
+			imports.add("java.util.HashMap");
+		}		
 		return imports;
 	}
 	

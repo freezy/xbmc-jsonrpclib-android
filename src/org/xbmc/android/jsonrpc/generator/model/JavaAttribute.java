@@ -158,6 +158,14 @@ public class JavaAttribute {
 	}
 	
 	/**
+	 * Returns true if the variable is a map ("additionalProperties").
+	 * @return
+	 */
+	public boolean isMap() {
+		return type != null && type.isTypeMap();
+	}
+	
+	/**
 	 * Returns true if the variable is a type (not enum) and the type is a 
 	 * global type (not inner).
 	 * @return

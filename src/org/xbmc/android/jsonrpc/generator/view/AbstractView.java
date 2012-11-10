@@ -63,6 +63,8 @@ public abstract class AbstractView {
 			return getArrayType(ns, klass, asArray);
 		} else if (klass.isEnumArray()) {
 			return getArrayEnum(asArray);
+		} else if (klass.isTypeMap()) {
+			return getMapType(klass.getMapType());
 		} else if (klass.isInner()) {
 			if (klass.getOuterType() == null) {
 				throw new IllegalStateException("Outer class of " + klass.getName() + " cannot be null.");
@@ -181,6 +183,10 @@ public abstract class AbstractView {
 		return asArray ? "String[]" : "List<String>";
 	}
 
+	protected String getMapType(JavaClass klass) {
+		return "HashMap<String, " + getClassName(klass) + ">";
+	}
+	
 	/**
 	 * Returns a Java class name based on a global class.
 	 * 

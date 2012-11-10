@@ -22,10 +22,13 @@
 package org.xbmc.android.jsonrpc.api;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.node.ObjectNode;
+import org.json.JSONException;
 
 import android.os.Parcelable;
 
@@ -106,5 +109,19 @@ public abstract class AbstractModel implements JsonSerializable, Parcelable {
 		}
 		return new ArrayList<Integer>(0);
 	}
+	
+	public static HashMap<String, String> getStringMap(ObjectNode node, String key) {
+		if (node.has(key)) {
+			final ObjectNode n = (ObjectNode)node.get(key);
+			final HashMap<String, String> m = new HashMap<String, String>();
+			final Iterator<String> it = n.getFieldNames();
+			while (it.hasNext()) {
+				final String fieldName = it.next();
+				m.put(fieldName, n.get(fieldName).getValueAsText());
+			}
+		}
+		return new HashMap<String, String>();
+	}
+
 	
 }

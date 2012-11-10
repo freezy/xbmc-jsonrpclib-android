@@ -283,6 +283,36 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 				renderNodeSetter(sb, member, arrayName);
 				sb.append(";\n");
 				
+			} else if (klass.isTypeMap()) {
+				final String mapName = member.getName() + "Map";
+				
+				// like: final ArrayNode dependencyArray = OM.createArrayNode();
+				sb.append(indent).append("final ObjectNode ");
+				sb.append(mapName);
+				sb.append(" = OM.createObjectNode();\n");
+				
+				// like: for (Dependencies item : dependencies) {
+				sb.append(indent).append("for (String key : ");
+				sb.append(member.getName());
+				sb.append(".values()) {\n");
+				
+				// like: dependenciesArray.add(item.toJsonNode());
+				sb.append(indent).append("\t");
+				sb.append(mapName);
+				sb.append(".put(key, ");
+				sb.append(member.getName());
+				if (klass.getMapType().isNative()) {
+					sb.append(".get(key)");
+				} else {
+					sb.append(".get(key).toJsonNode()");
+				}
+				sb.append(");\n");
+				
+				sb.append(indent).append("}\n");
+				sb.append(indent);
+				renderNodeSetter(sb, member, mapName);
+				sb.append(";\n");
+				
 			} else {
 				// like: node.put(BROKEN, broken.toJsonNode());
 				sb.append(indent);
@@ -311,6 +341,15 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 				
 			} else if (klass.isNative()) {
 				renderOptionalNativeNodeGetter(sb, member.getName(), NATIVE_OPTIONAL_NODE_GETTER.get(klass.getName()));
+				
+			} else if (klass.isTypeMap()) {
+				if (!klass.getMapType().isNative()) {
+					throw new IllegalStateException("For additionalProperties, only native types are supported yet.");
+				}
+				if (!klass.getMapType().getName().equals("string")) {
+					throw new IllegalStateException("For additionalProperties, string types are supported.");
+				}
+				renderOptionalNativeNodeGetter(sb, member.getName(), "getStringMap");
 				
 			} else if (klass.isTypeArray()) { // native arrays
 				final JavaClass arrayType = klass.getArrayType();
@@ -436,7 +475,6 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 		
 		sb.append(indent).append("}\n");
 	}
-
 	
 	/**
 	 * Returns something like <tt>node.get(ALBUMID).getIntValue();</tt>
