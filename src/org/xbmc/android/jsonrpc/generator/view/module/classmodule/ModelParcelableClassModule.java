@@ -111,6 +111,7 @@ public class ModelParcelableClassModule extends AbstractView implements IClassMo
 			
 			final JavaClass klass = member.getType();
 			if (klass.isTypeArray()) {
+				
 				final JavaClass arrayType = klass.getArrayType();
 				
 				// like: parcel.writeInt(genre.size());
@@ -135,7 +136,31 @@ public class ModelParcelableClassModule extends AbstractView implements IClassMo
 				
 				sb.append(indent).append("}\n");
 				
-			} else {
+				} else if (klass.isTypeMap()) {
+					final JavaClass mapType = klass.getMapType();
+					
+					// like: parcel.writeInt(uniqueid.size());
+					sb.append(indent).append("parcel.writeInt(");
+					sb.append(member.getName());
+					sb.append(".size());\n");
+					
+					// like: for (String key : uniqueid.values()) {
+					sb.append(indent).append("for (String key : ");
+					sb.append(member.getName());
+					sb.append(".values()) {\n");
+					
+					// like: parcel.writeValue(key); parcel.writeValue(uniqueid.get(key));
+					sb.append(indent).append("	parcel.writeValue(key);\n");
+					sb.append(indent).append("	parcel.");
+					if (mapType.isNative()) {
+						sb.append("writeValue(").append(member.getName()).append(".get(key));\n");
+					} else {
+						sb.append("writeParcelable(").append(member.getName()).append(", flags);\n");
+					}
+					
+					sb.append(indent).append("}\n");
+					
+				} else {
 				// like: parcel.writeInt(muted ? 1 : 0);
 				if (klass.isNative() && klass.getName().equals("boolean")) {
 					sb.append(indent).append("parcel.writeInt(");
@@ -226,6 +251,35 @@ public class ModelParcelableClassModule extends AbstractView implements IClassMo
 				sb.append(member.getName());
 				sb.append(".add(parcel.");
 				sb.append(getUnparcelStatement(ns, arrayType));
+				sb.append(");\n");
+				
+				sb.append(indent).append("}\n");
+				
+				
+			} else if (klass.isTypeMap()) {
+				final JavaClass mapType = klass.getMapType();
+				
+				// like: final int uniqueidSize = parcel.readInt();
+				sb.append(indent).append("final int ");
+				sb.append(member.getName());
+				sb.append("Size = parcel.readInt();\n");
+				
+				// like: uniqueid = new HashMap<String, String>();
+				sb.append(indent).append(member.getName());
+				sb.append(" = new HashMap<String, ");
+				sb.append(getClassReference(ns, mapType));
+				sb.append(">();\n");
+				
+				// like: for (int i = 0; i < uniqueidSize; i++) {
+				sb.append(indent).append("for (int i = 0; i < ");
+				sb.append(member.getName());
+				sb.append("Size; i++) {\n");
+				
+				// like: genre.add(parcel.readString());
+				sb.append(indent).append("\t");
+				sb.append(member.getName());
+				sb.append(".put(parcel.readString(), parcel.");
+				sb.append(getUnparcelStatement(ns, mapType));
 				sb.append(");\n");
 				
 				sb.append(indent).append("}\n");
