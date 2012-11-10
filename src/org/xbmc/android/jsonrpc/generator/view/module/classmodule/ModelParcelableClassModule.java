@@ -36,19 +36,18 @@ import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
  */
 public class ModelParcelableClassModule extends AbstractView implements IClassModule {
 
-	
 	@Override
 	public void render(StringBuilder sb, Namespace ns, JavaClass klass, int idt) {
-		
+
 		// writeToParcel()
 		renderWriteToParcel(sb, ns, klass, idt);
-		
+
 		// class constructor via parcel
 		renderParcelConstructor(sb, ns, klass, idt);
-		
+
 		// static final Parcelable.Creator<?> CREATOR
 		renderParcelableCreator(sb, ns, klass, idt);
-		
+
 		// describeContents()
 		renderDescribeContents(sb, idt);
 	}
@@ -60,9 +59,10 @@ public class ModelParcelableClassModule extends AbstractView implements IClassMo
 		imports.add("android.os.Parcelable");
 		return imports;
 	}
-	
+
 	/**
 	 * Generates the parcel serializator.
+	 * 
 	 * @param sb Current StringBuilder
 	 * @param ns Current namespace
 	 * @param klass Class to render
@@ -70,7 +70,7 @@ public class ModelParcelableClassModule extends AbstractView implements IClassMo
 	 */
 	private void renderWriteToParcel(StringBuilder sb, Namespace ns, JavaClass klass, int idt) {
 		final String indent = getIndent(idt);
-		
+
 		// method header
 		sb.append("\n");
 		sb.append(indent).append("/**\n");
@@ -78,7 +78,7 @@ public class ModelParcelableClassModule extends AbstractView implements IClassMo
 		sb.append(indent).append(" * @param parcel the Parcel in which the object should be written.\n");
 		sb.append(indent).append(" * @param flags additional flags about how the object should be written.\n");
 		sb.append(indent).append(" */\n");
-		
+
 		// signature
 		sb.append(indent).append("@Override\n");
 		sb.append(indent).append("public void writeToParcel(Parcel parcel, int flags) {\n");
@@ -92,9 +92,10 @@ public class ModelParcelableClassModule extends AbstractView implements IClassMo
 		}
 		sb.append(indent).append("}\n");
 	}
-	
+
 	/**
 	 * Generates the parcel serializator for one member.
+	 * 
 	 * @param sb Current StringBuilder
 	 * @param ns Current namespace
 	 * @param member Member to render
@@ -102,30 +103,30 @@ public class ModelParcelableClassModule extends AbstractView implements IClassMo
 	 */
 	private void renderWriteToParcel(StringBuilder sb, Namespace ns, JavaAttribute member, int idt) {
 		final String indent = getIndent(idt);
-		
+
 		if (member.isEnum()) {
 			sb.append(indent).append("parcel.writeValue(");
 			sb.append(member.getName());
 			sb.append("); // enum\n");
 		} else {
-			
+
 			final JavaClass klass = member.getType();
 			if (klass.isTypeArray()) {
-				
+
 				final JavaClass arrayType = klass.getArrayType();
-				
+
 				// like: parcel.writeInt(genre.size());
 				sb.append(indent).append("parcel.writeInt(");
 				sb.append(member.getName());
 				sb.append(".size());\n");
-				
+
 				// like: for (String item : genre) {
 				sb.append(indent).append("for (");
 				sb.append(getClassReference(ns, arrayType));
 				sb.append(" item : ");
 				sb.append(member.getName());
 				sb.append(") {\n");
-				
+
 				// like: parcel.writeValue(item);
 				sb.append(indent).append("	parcel.");
 				if (arrayType.isNative()) {
@@ -133,53 +134,55 @@ public class ModelParcelableClassModule extends AbstractView implements IClassMo
 				} else {
 					sb.append("writeParcelable(item, flags);\n");
 				}
-				
+
 				sb.append(indent).append("}\n");
-				
-				} else if (klass.isTypeMap()) {
-					final JavaClass mapType = klass.getMapType();
-					
-					// like: parcel.writeInt(uniqueid.size());
-					sb.append(indent).append("parcel.writeInt(");
-					sb.append(member.getName());
-					sb.append(".size());\n");
-					
-					// like: for (String key : uniqueid.values()) {
-					sb.append(indent).append("for (String key : ");
-					sb.append(member.getName());
-					sb.append(".values()) {\n");
-					
-					// like: parcel.writeValue(key); parcel.writeValue(uniqueid.get(key));
-					sb.append(indent).append("	parcel.writeValue(key);\n");
-					sb.append(indent).append("	parcel.");
-					if (mapType.isNative()) {
-						sb.append("writeValue(").append(member.getName()).append(".get(key));\n");
-					} else {
-						sb.append("writeParcelable(").append(member.getName()).append(", flags);\n");
-					}
-					
-					sb.append(indent).append("}\n");
-					
+
+			} else if (klass.isTypeMap()) {
+				final JavaClass mapType = klass.getMapType();
+
+				// like: parcel.writeInt(uniqueid.size());
+				sb.append(indent).append("parcel.writeInt(");
+				sb.append(member.getName());
+				sb.append(".size());\n");
+
+				// like: for (String key : uniqueid.values()) {
+				sb.append(indent).append("for (String key : ");
+				sb.append(member.getName());
+				sb.append(".values()) {\n");
+
+				// like: parcel.writeValue(key);
+				// parcel.writeValue(uniqueid.get(key));
+				sb.append(indent).append("	parcel.writeValue(key);\n");
+				sb.append(indent).append("	parcel.");
+				if (mapType.isNative()) {
+					sb.append("writeValue(").append(member.getName()).append(".get(key));\n");
 				} else {
+					sb.append("writeParcelable(").append(member.getName()).append(", flags);\n");
+				}
+
+				sb.append(indent).append("}\n");
+
+			} else {
 				// like: parcel.writeInt(muted ? 1 : 0);
 				if (klass.isNative() && klass.getName().equals("boolean")) {
 					sb.append(indent).append("parcel.writeInt(");
 					sb.append(member.getName());
 					sb.append(" ? 1 : 0);\n");
-				
-				// like: parcel.writeValue(data);
+
+					// like: parcel.writeValue(data);
 				} else {
 					sb.append(indent).append("parcel.writeValue(");
 					sb.append(member.getName());
 					sb.append(");\n");
 				}
 			}
-			
+
 		}
 	}
-	
+
 	/**
 	 * Generates the constructor via parcel
+	 * 
 	 * @param sb Current StringBuilder
 	 * @param ns Current namespace
 	 * @param klass Class to render
@@ -187,13 +190,13 @@ public class ModelParcelableClassModule extends AbstractView implements IClassMo
 	 */
 	private void renderParcelConstructor(StringBuilder sb, Namespace ns, JavaClass klass, int idt) {
 		final String indent = getIndent(idt);
-		
+
 		// header
 		sb.append("\n");
 		sb.append(indent).append("/**\n");
 		sb.append(indent).append(" * Construct via parcel.\n");
 		sb.append(indent).append(" */\n");
-		
+
 		// signature
 		sb.append(indent).append("protected ");
 		sb.append(getClassName(klass));
@@ -208,9 +211,10 @@ public class ModelParcelableClassModule extends AbstractView implements IClassMo
 		}
 		sb.append(indent).append("}\n");
 	}
-	
+
 	/**
 	 * Generates the parcel de-serializator for one member.
+	 * 
 	 * @param sb Current StringBuilder
 	 * @param ns Current namespace
 	 * @param member Member to render
@@ -218,21 +222,21 @@ public class ModelParcelableClassModule extends AbstractView implements IClassMo
 	 */
 	private void renderParcelConstructor(StringBuilder sb, Namespace ns, JavaAttribute member, int idt) {
 		final String indent = getIndent(idt);
-		
+
 		if (member.isEnum()) {
 			sb.append(indent).append(member.getName());
 			sb.append(" = parcel.readString(); // enum\n");
 		} else {
-			
+
 			final JavaClass klass = member.getType();
 			if (klass.isTypeArray()) {
 				final JavaClass arrayType = klass.getArrayType();
-				
+
 				// like: final int genreSize = parcel.readInt();
 				sb.append(indent).append("final int ");
 				sb.append(member.getName());
 				sb.append("Size = parcel.readInt();\n");
-				
+
 				// like: genre = new ArrayList<String>(genreSize);
 				sb.append(indent).append(member.getName());
 				sb.append(" = new ArrayList<");
@@ -240,50 +244,49 @@ public class ModelParcelableClassModule extends AbstractView implements IClassMo
 				sb.append(">(");
 				sb.append(member.getName());
 				sb.append("Size);\n");
-				
+
 				// like: for (int i = 0; i < genreSize; i++) {
 				sb.append(indent).append("for (int i = 0; i < ");
 				sb.append(member.getName());
 				sb.append("Size; i++) {\n");
-				
+
 				// like: genre.add(parcel.readString());
 				sb.append(indent).append("\t");
 				sb.append(member.getName());
 				sb.append(".add(parcel.");
 				sb.append(getUnparcelStatement(ns, arrayType));
 				sb.append(");\n");
-				
+
 				sb.append(indent).append("}\n");
-				
-				
+
 			} else if (klass.isTypeMap()) {
 				final JavaClass mapType = klass.getMapType();
-				
+
 				// like: final int uniqueidSize = parcel.readInt();
 				sb.append(indent).append("final int ");
 				sb.append(member.getName());
 				sb.append("Size = parcel.readInt();\n");
-				
+
 				// like: uniqueid = new HashMap<String, String>();
 				sb.append(indent).append(member.getName());
 				sb.append(" = new HashMap<String, ");
 				sb.append(getClassReference(ns, mapType));
 				sb.append(">();\n");
-				
+
 				// like: for (int i = 0; i < uniqueidSize; i++) {
 				sb.append(indent).append("for (int i = 0; i < ");
 				sb.append(member.getName());
 				sb.append("Size; i++) {\n");
-				
+
 				// like: genre.add(parcel.readString());
 				sb.append(indent).append("\t");
 				sb.append(member.getName());
 				sb.append(".put(parcel.readString(), parcel.");
 				sb.append(getUnparcelStatement(ns, mapType));
 				sb.append(");\n");
-				
+
 				sb.append(indent).append("}\n");
-				
+
 			} else {
 				// like: artist = parcel.readString();
 				sb.append(indent).append(member.getName());
@@ -293,9 +296,10 @@ public class ModelParcelableClassModule extends AbstractView implements IClassMo
 			}
 		}
 	}
-	
+
 	/**
 	 * Returns the right unparcel statement for a given type.
+	 * 
 	 * @param ns Namespace reference
 	 * @param k Given type
 	 * @return
@@ -305,26 +309,26 @@ public class ModelParcelableClassModule extends AbstractView implements IClassMo
 			final String typeName = k.getName();
 			if (typeName.equals("integer")) {
 				return "readInt()";
-				
+
 			} else if (typeName.equals("string") || typeName.equals("any")) {
 				return "readString()";
-				
+
 			} else if (typeName.equals("boolean")) {
 				return "readInt() == 1";
 
 			} else if (typeName.equals("number")) {
 				return "readDouble()";
-				
+
 			}
-				
+
 		} else {
 			final String classRef = getClassReference(ns, k);
 			return "<" + classRef + ">readParcelable(" + classRef + ".class.getClassLoader())";
 		}
-		
+
 		throw new IllegalArgumentException("Don't know how to unparcel Class " + k.getName() + ".");
 	}
-	
+
 	/**
 	 * Generates the static CREATOR class that creates an object from parcel
 	 * (basically just calls the constructor that does the work.)
@@ -337,13 +341,13 @@ public class ModelParcelableClassModule extends AbstractView implements IClassMo
 	private void renderParcelableCreator(StringBuilder sb, Namespace ns, JavaClass klass, int idt) {
 		final String indent = getIndent(idt);
 		final String n = getClassName(klass);
-		
+
 		// variable comment block
 		sb.append("\n");
 		sb.append(indent).append("/**\n");
 		sb.append(indent).append(" * Generates instances of this Parcelable class from a Parcel.\n");
 		sb.append(indent).append(" */\n");
-		
+
 		// signature & body
 		sb.append(indent).append("public static final Parcelable.Creator<").append(n).append("> CREATOR = new Parcelable.Creator<").append(n).append(">() {\n");
 		sb.append(indent).append("	@Override\n");
@@ -365,5 +369,5 @@ public class ModelParcelableClassModule extends AbstractView implements IClassMo
 		sb.append(indent).append("	return 0;\n");
 		sb.append(indent).append("}\n");
 	}
-	
+
 }
