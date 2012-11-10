@@ -212,6 +212,17 @@ public class PropertyController {
 		} else if (property.getType() != null && property.getType().isObject() && property.getType().getObj().isRef()) {
 			klass = new JavaClass(property.getType().getObj().getRef());
 			
+		// only additional props.	
+		} else if (property.hasAdditionalProperties() && !property.hasProperties()) {
+			final TypeWrapper tw = property.getAdditionalProperties().getType();
+			if (!tw.isObject()) {
+				throw new IllegalStateException("Expected additionalProperties data to be an object.");
+			}
+			final PropertyController pc = new PropertyController(null, tw.getObj());
+			klass = new JavaClass(namespace, className);
+			klass.setMap(pc.getClass(namespace, className, klass));
+				
+
 		// create class from global type
 		} else if (property instanceof Type) {
 			final Type type = (Type)property;
@@ -230,17 +241,7 @@ public class PropertyController {
 			klass = new JavaClass(namespace, className);
 			klass.setInner(outerType);
 
-		// only additional props.	
-		} else if (property.hasAdditionalProperties()) {
-			final TypeWrapper tw = property.getAdditionalProperties().getType();
-			if (!tw.isObject()) {
-				throw new IllegalStateException("Expected additionalProperties data to be an object.");
-			}
-			final PropertyController pc = new PropertyController(null, tw.getObj());
-			klass = new JavaClass(namespace, className);
-			klass.setMap(pc.getClass(namespace, className, klass));
-			
-		// wtf!
+		// w00t!
 		} else {
 			throw new IllegalStateException("Unexpected property type. Put breakpoint and check code :p");
 		}

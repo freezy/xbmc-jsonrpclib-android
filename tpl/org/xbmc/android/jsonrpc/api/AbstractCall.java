@@ -23,6 +23,7 @@ package org.xbmc.android.jsonrpc.api;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
 import org.codehaus.jackson.JsonNode;
@@ -310,6 +311,22 @@ public abstract class AbstractCall<T> implements Parcelable {
 		final ArrayNode props = OM.createArrayNode();
 		for (int i = 0; i < values.length; i++) {
 			props.add(values[i]);
+		}
+		getParameters().put(name, props);
+	}
+	
+	/**
+	 * Adds a hashmap of strings to the request object (only if not null and not empty).
+	 * @param name Name of the parmeter
+	 * @param map String map
+	 */
+	protected void addParameter(String name, HashMap<String, String> map) {
+		if (map == null || map.size() == 0) {
+			return;
+		}
+		final ObjectNode props = OM.createObjectNode();
+		for (String key : map.values()) {
+			props.put(key, map.get(key));
 		}
 		getParameters().put(name, props);
 	}

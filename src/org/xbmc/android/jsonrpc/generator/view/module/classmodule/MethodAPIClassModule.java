@@ -259,6 +259,9 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 								+ "." + paramType.getNamespace().getName());
 					}
 				}
+				if (param.isMap()) {
+					imports.add("java.util.HashMap");
+				}
 			}
 		}
 		
