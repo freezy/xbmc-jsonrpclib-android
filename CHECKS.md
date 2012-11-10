@@ -17,5 +17,5 @@ Methods
  
 * `Video.Details.Episode` contains field `uniqueid` which is an object that 
   exclusively has `additionalProperties` defined.
-  
+* `Global.Toggle`: Multitype where one type is an enum.  
   

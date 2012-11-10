@@ -1045,6 +1045,9 @@ public class JavaClass {
 	
 	@Override
 	public boolean equals(Object obj) {
+		if (!(obj instanceof JavaClass)) {
+			return false;
+		}
 		final JavaClass c = (JavaClass)obj;
 		if (c.name != null && !c.name.equals(name)) {
 			return false;

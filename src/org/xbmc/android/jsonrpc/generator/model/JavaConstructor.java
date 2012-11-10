@@ -87,6 +87,9 @@ public class JavaConstructor {
 		}
 		
 		for (int i = 0; i < parameters.size(); i++) {
+			if (parameters.get(i).isEnum() != jc.getParameters().get(i).isEnum()) {
+				return false;
+			}
 			final JavaClass class1 = parameters.get(i).getType();
 			final JavaClass class2 = jc.getParameters().get(i).getType();
 			

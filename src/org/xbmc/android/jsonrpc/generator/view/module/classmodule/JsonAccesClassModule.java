@@ -98,6 +98,8 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 					if ("number".equals(member.getType().getName())) {
 						imports.add("org.codehaus.jackson.node.DoubleNode");
 					}
+				} else {
+					imports.add("org.codehaus.jackson.node.TextNode");
 				}
 			}
 		}
@@ -181,7 +183,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 			for (JavaAttribute member : klass.getMembers()) {
 				sb.append(indent).append("	if (").append(member.getName()).append(" != null) {\n");
 				if (member.isEnum()) {
-					// TODO
+					sb.append(indent).append("		return new TextNode(").append(member.getName()).append("); // 3num\n");
 				} else {
 					
 					// native

@@ -33,6 +33,7 @@ import org.xbmc.android.jsonrpc.generator.introspect.wrapper.TypeWrapper;
 import org.xbmc.android.jsonrpc.generator.model.JavaAttribute;
 import org.xbmc.android.jsonrpc.generator.model.JavaClass;
 import org.xbmc.android.jsonrpc.generator.model.JavaConstructor;
+import org.xbmc.android.jsonrpc.generator.model.JavaEnum;
 import org.xbmc.android.jsonrpc.generator.model.JavaMethod;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 
@@ -99,9 +100,12 @@ public class MethodController {
 		for (Param p : method.getParams()) {
 			
 			if (p.isEnum()) {
-				// TODO
+				final JavaAttribute jp = getParam(p.getName(), p, namespace, klass);
+				for (JavaConstructor jc : constructors) {
+					jc.addParameter(jp);
+				}
 			} else if (p.isArray() && p.getItems().isEnum()) {
-				// TODO
+				throw new UnsupportedOperationException("No support for params that are arrays of enums yet.");
 			} else {
 				
 				final TypeWrapper tr = p.getType();
@@ -277,26 +281,35 @@ public class MethodController {
 	 * @return
 	 */
 	private JavaAttribute getParam(String name, Property p, Namespace namespace, JavaClass klass) {
+		final JavaAttribute jp;
 		final PropertyController pc = new PropertyController(name, p);
-		final JavaClass type = pc.getClass(namespace, name, klass);
-		final JavaAttribute jp = new JavaAttribute(name, type);
-		jp.setDescription(p.getDescription());
-		type.setUsedAsParameter();
-		if (type.isInner()) {
-			final String k = type.getName();
-			if (innerClassDupes.containsKey(k)) {
-				if (innerClassDupes.get(k) != null) {
-					// update "old" type with new name and set null
-					innerClassDupes.get(k).suffixName(getSuffixFromMembers(innerClassDupes.get(k)));
-					innerClassDupes.put(k, null);
-				} 
-				// update type with new name
-				type.suffixName(getSuffixFromMembers(type));
-			} else {
-				innerClassDupes.put(k, type);
+		if (p.isEnum()) {
+			final JavaEnum e = pc.getEnum(namespace, name);
+			e.setInner(true);
+			jp = new JavaAttribute(name, e);
+			klass.linkInnerEnum(e);
+		} else {
+			final JavaClass type = pc.getClass(namespace, name, klass);
+			jp = new JavaAttribute(name, type);
+			
+			type.setUsedAsParameter();
+			if (type.isInner()) {
+				final String k = type.getName();
+				if (innerClassDupes.containsKey(k)) {
+					if (innerClassDupes.get(k) != null) {
+						// update "old" type with new name and set null
+						innerClassDupes.get(k).suffixName(getSuffixFromMembers(innerClassDupes.get(k)));
+						innerClassDupes.put(k, null);
+					} 
+					// update type with new name
+					type.suffixName(getSuffixFromMembers(type));
+				} else {
+					innerClassDupes.put(k, type);
+				}
+				klass.linkInnerType(type);
 			}
-			klass.linkInnerType(type);
 		}
+		jp.setDescription(p.getDescription());
 		return jp;
 	}
 	
