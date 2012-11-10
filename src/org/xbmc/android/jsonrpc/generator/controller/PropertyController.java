@@ -28,6 +28,7 @@ import org.xbmc.android.jsonrpc.generator.introspect.Param;
 import org.xbmc.android.jsonrpc.generator.introspect.Property;
 import org.xbmc.android.jsonrpc.generator.introspect.Type;
 import org.xbmc.android.jsonrpc.generator.introspect.wrapper.ExtendsWrapper;
+import org.xbmc.android.jsonrpc.generator.introspect.wrapper.TypeWrapper;
 import org.xbmc.android.jsonrpc.generator.model.JavaAttribute;
 import org.xbmc.android.jsonrpc.generator.model.JavaClass;
 import org.xbmc.android.jsonrpc.generator.model.JavaConstructor;
@@ -225,9 +226,19 @@ public class PropertyController {
 			}
 		
 		// create class from (non-global) object	
-		} else if (property.hasProperties() ) {
+		} else if (property.hasProperties()) {
 			klass = new JavaClass(namespace, className);
 			klass.setInner(outerType);
+
+		// only additional props.	
+		} else if (property.hasAdditionalProperties()) {
+			final TypeWrapper tw = property.getAdditionalProperties().getType();
+			if (!tw.isObject()) {
+				throw new IllegalStateException("Expected additionalProperties data to be an object.");
+			}
+			final PropertyController pc = new PropertyController(null, tw.getObj());
+			klass = new JavaClass(namespace, className);
+			klass.setMap(pc.getClass(namespace, className, klass));
 			
 		// wtf!
 		} else {

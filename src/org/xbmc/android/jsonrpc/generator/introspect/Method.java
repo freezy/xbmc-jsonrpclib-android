@@ -31,30 +31,45 @@ import org.xbmc.android.jsonrpc.generator.introspect.wrapper.TypeWrapper;
  * 
  * @author freezy <freezy@xbmc.org>
  */
-@JsonIgnoreProperties( { "type" }) // type is always "method"
+@JsonIgnoreProperties({ "type" }) // type is always "method"
 public class Method {
 
 	private String description;
-	
+
 	private List<Param> params;
 	private TypeWrapper returns;
+	private String permission;
 
 	public String getDescription() {
 		return description;
 	}
+
 	public void setDescription(String description) {
 		this.description = description;
 	}
+
 	public List<Param> getParams() {
 		return params;
 	}
+
 	public void setParams(List<Param> params) {
 		this.params = params;
 	}
+
 	public TypeWrapper getReturns() {
 		return returns;
 	}
+
 	public void setReturns(TypeWrapper returns) {
 		this.returns = returns;
 	}
+
+	public String getPermission() {
+		return permission;
+	}
+
+	public void setPermission(String permission) {
+		this.permission = permission;
+	}
+
 }

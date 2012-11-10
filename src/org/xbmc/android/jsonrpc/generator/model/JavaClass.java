@@ -50,8 +50,46 @@ public class JavaClass {
 	private boolean isInner = false; // = !isGlobal
 	private Nature nature = null;
 
+	/**
+	 * Defines the nature of this type.
+	 * @author freezy <freezy@xbmc.org>
+	 */
 	public enum Nature {
-		NATIVE, MULTITYPE, TYPEARRAY, ENUMARRAY;
+		/**
+		 * Native type.
+		 * Currently supported is: <tt>integer</tt>, <tt>string</tt>,
+		 * <tt>boolean</tt>, <tt>number</tt>.
+		 * 
+		 * @see JavaClass#getName()
+		 */
+		NATIVE,
+		
+		/**
+		 * A type that can be multiple different types. For every type, a 
+		 * member is used, so all members but one is always null.
+		 * @see JavaClass#getMembers()
+		 */
+		MULTITYPE, 
+		
+		/**
+		 * An array of types.
+		 * @see JavaClass#getArrayType()
+		 */
+		TYPEARRAY, 
+		
+		/**
+		 * An array of enums.
+		 * @see JavaClass#getEnumArray()
+		 */
+		ENUMARRAY, 
+		
+		/**
+		 * A dictionary (or {@link Map}).
+		 * Result of <tt>additionalProperties</tt> being set. The key is always
+		 * a String, value is defined by mapType.
+		 * @see
+		 */
+		TYPEMAP;
 	}
 
 	/**
@@ -67,13 +105,18 @@ public class JavaClass {
 	 */
 	private JavaEnum arrayEnum = null;
 	/**
+	 * If this is a type map, the type is set here.
+	 */
+	private JavaClass mapType = null;
+	/**
 	 * If this is an inner class, the outer class is set here.
 	 */
 	private JavaClass outerType = null; // set if isInner == true.
 	
 	/**
 	 * True if this is used in any call as parameter and the user needs
-	 * to instantiate it.
+	 * to instantiate it (needed so we know we need to be able to construct it 
+	 * with its member values).
 	 */
 	private boolean usedAsParameter = false;
 	
@@ -270,7 +313,7 @@ public class JavaClass {
 			parentClass = resolveNonNull(this.parentClass);
 		}
 
-		// ..and array type
+		// and array type
 		if (arrayType != null) {
 			final JavaClass type = resolve(arrayType);
 			if (type == null) {
@@ -285,6 +328,14 @@ public class JavaClass {
 			}
 		}
 
+		// ..and map type
+		if (mapType != null) {
+			final JavaClass type = resolve(mapType);
+			if (type == null) {
+				throw new IllegalStateException("Cannot resolve map type \"" + name + "\".");
+			}
+		}
+		
 		// inner classes
 		final ListIterator<JavaClass> iterator = innerTypes.listIterator();
 		while (iterator.hasNext()) {
@@ -324,7 +375,7 @@ public class JavaClass {
 	}
 
 	/**
-	 * Returnes true if the class is a type array. In this case,
+	 * Returns true if the class is a type array. In this case,
 	 * {@link #getArrayType()} will return an object.
 	 * 
 	 * @see #getArrayType()
@@ -336,7 +387,7 @@ public class JavaClass {
 	}
 	
 	/**
-	 * Returnes true if the class is an enum array. In this case,
+	 * Returns true if the class is an enum array. In this case,
 	 * {@link #getEnumArray()} will return an object.
 	 * 
 	 * @see #getArrayType()
@@ -345,6 +396,15 @@ public class JavaClass {
 	 */
 	public boolean isEnumArray() {
 		return nature == Nature.ENUMARRAY;
+	}
+	
+	/**
+	 * Returns true if the class is a type map. In this case,
+	 * {@link #getMapType()} will return an object.
+	 * @return
+	 */
+	public boolean isTypeMap() {
+		return nature == Nature.TYPEMAP;
 	}
 
 	/**
@@ -568,6 +628,22 @@ public class JavaClass {
 		this.nature = Nature.TYPEARRAY;
 		this.arrayType = arrayType;
 	}
+	
+	/**
+	 * Marks the class as a type map.
+	 * 
+	 * @param mapType Type of the map value (key is String)
+	 */
+	public void setMap(JavaClass mapType) {
+		if (unresolved) {
+			throw new RuntimeException("Unresolved.");
+		}
+		if (nature != null) {
+			throw new IllegalStateException("Cannot set nature if already set.");
+		}
+		this.nature = Nature.TYPEMAP;
+		this.mapType = mapType;
+	}
 
 	/**
 	 * Marks the class as a global class.
@@ -617,6 +693,18 @@ public class JavaClass {
 			throw new RuntimeException("Unresolved.");
 		}
 		return arrayEnum;
+	}
+	
+	/**
+	 * Returns the map type in case of a dictionary. This only returns a
+	 * non-null object if {@link #isTypeMap()} is true. 
+	 * @return Map type of this class.
+	 */
+	public JavaClass getMapType() {
+		if (unresolved) {
+			throw new RuntimeException("Unresolved.");
+		}
+		return mapType;
 	}
 
 	/**
@@ -925,6 +1013,10 @@ public class JavaClass {
 				sb.append("array: ");
 				sb.append(arrayType.toString());
 				break;
+			case TYPEMAP:
+				sb.append("map<string, ");
+				sb.append(mapType.toString());
+				sb.append(">");
 			case MULTITYPE:
 				sb.append("multi ");
 				break;
