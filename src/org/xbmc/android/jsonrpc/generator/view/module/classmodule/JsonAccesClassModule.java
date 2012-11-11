@@ -64,24 +64,31 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 	@Override
 	public void render(StringBuilder sb, Namespace ns, JavaClass klass, int idt) {
 
-		// 1. render class constructor
-		renderNodeConstructor(sb, ns, klass, idt);
+		// render class constructor
+		if (klass.isUsedAsResult()) {
+			renderNodeConstructor(sb, ns, klass, idt);
+		}
 		
 		// toObjectNode()
 		renderToJsonNode(sb, klass, ns, idt);
 		
 		// render list getter
-		renderListGetter(sb, klass, ns, idt);
+		if (klass.isUsedAsResult()) {
+			renderListGetter(sb, klass, ns, idt);
+		}
 	}
 
 	@Override
 	public Set<String> getImports(JavaClass klass) {
 		final Set<String> imports = new HashSet<String>();
 		imports.add("org.codehaus.jackson.JsonNode");
-		imports.add("org.codehaus.jackson.node.ArrayNode");
 		imports.add("org.codehaus.jackson.node.ObjectNode");
-		imports.add("java.util.List");
-		imports.add("java.util.ArrayList");
+		
+		if (klass.isUsedAsResult()) {
+			imports.add("org.codehaus.jackson.node.ArrayNode");
+			imports.add("java.util.List");
+			imports.add("java.util.ArrayList");
+		}
 		
 		if (klass.isMultiType()) {
 			for (JavaAttribute member : klass.getMembers()) {

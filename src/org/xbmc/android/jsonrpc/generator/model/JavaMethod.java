@@ -41,6 +41,7 @@ public class JavaMethod extends JavaClass {
 
 	public void setReturnType(JavaClass returnType) {
 		this.returnType = returnType;
+		this.returnType.setUsedAsResult();
 	}
 	
 	public boolean hasReturnProperty() {

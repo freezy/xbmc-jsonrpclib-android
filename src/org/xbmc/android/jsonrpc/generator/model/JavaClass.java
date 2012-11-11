@@ -119,6 +119,11 @@ public class JavaClass {
 	 * with its member values).
 	 */
 	private boolean usedAsParameter = false;
+	/**
+	 * True if this type is returned by the API and it has to be de-serialized
+	 * from an JSON node.
+	 */
+	private boolean usedAsResult = false;
 	
 	/**
 	 * If true, this is just a place holder and the "real" object has yet to be
@@ -292,6 +297,9 @@ public class JavaClass {
 			if (klass.isUsedAsParameter()) {
 				resolvedClass.setUsedAsParameter();
 			}
+			if (klass.isUsedAsResult()) {
+				resolvedClass.setUsedAsResult();
+			}
 		} else {
 			resolvedClass = klass;
 		}
@@ -452,14 +460,53 @@ public class JavaClass {
 	 * Marks this class as used as parameter.
 	 */
 	public void setUsedAsParameter() {
+		if (usedAsParameter) {
+			return;
+		}
 		usedAsParameter = true;
+		if (parentClass != null) {
+			parentClass.setUsedAsParameter();
+		}
+		if (arrayType != null) {
+			arrayType.setUsedAsParameter();
+		}
+		if (mapType != null) {
+			mapType.setUsedAsParameter();
+		}
+		for (JavaClass c : innerTypes) {
+			c.setUsedAsParameter();
+		}
 		for (JavaAttribute m : members) {
 			if (!m.isEnum()) {
 				m.getType().setUsedAsParameter();
 			}
 		}
-		if (doesExtend()) {
-			parentClass.setUsedAsParameter();
+	}
+	
+	/**
+	 * Marks this class as used as result
+	 */
+	public void setUsedAsResult() {
+		if (usedAsResult) {
+			return;
+		}
+		usedAsResult = true;
+		if (parentClass != null) {
+			parentClass.setUsedAsResult();
+		}
+		if (arrayType != null) {
+			arrayType.setUsedAsResult();
+		}
+		if (mapType != null) {
+			mapType.setUsedAsResult();
+		}
+		for (JavaClass c : innerTypes) {
+			c.setUsedAsResult();
+		}
+		for (JavaAttribute m : members) {
+			if (!m.isEnum()) {
+				m.getType().setUsedAsResult();
+			}
 		}
 	}
 	
@@ -469,6 +516,14 @@ public class JavaClass {
 	 */
 	public boolean isUsedAsParameter() {
 		return usedAsParameter;
+	}
+	
+	/**
+	 * Returns true if this type is used as result, false otherwise.
+	 * @return
+	 */
+	public boolean isUsedAsResult() {
+		return usedAsResult;
 	}
 
 	/**

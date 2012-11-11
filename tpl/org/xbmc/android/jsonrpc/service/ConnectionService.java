@@ -231,7 +231,11 @@ public class ConnectionService extends IntentService {
 			final JsonParser jp = jf.createJsonParser(socket.getInputStream());
 			JsonNode node = null;
 			while ((node = OM.readTree(jp)) != null) {
-				Log.i(TAG, "READ: " + node.toString().substring(0, 80) + "...");
+				if (node.toString().length() > 80) {
+					Log.i(TAG, "READ: " + node.toString().substring(0, 80) + "...");
+				} else {
+					Log.i(TAG, "READ: " + node.toString());
+				}
 				notifyClients(node);
 			}
 			mOut.close();
