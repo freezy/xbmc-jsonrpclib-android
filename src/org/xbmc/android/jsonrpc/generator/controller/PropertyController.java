@@ -258,10 +258,7 @@ public class PropertyController {
 				if (member.isInner()) {
 					klass.linkInnerType(member.getType());
 				}
-				if (member.isEnum()) {
-					klass.linkInnerEnum(member.getEnum());
-				}
-				
+
 				if (member.isArray() && !member.isEnum()) {
 					final JavaClass arrayType = member.getType().getArrayType();
 					if (!arrayType.isNative() && !arrayType.isGlobal()) {

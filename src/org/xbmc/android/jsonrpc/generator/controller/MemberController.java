@@ -51,7 +51,7 @@ public class MemberController {
 			
 			final PropertyController pc = new PropertyController(name, obj);
 			final JavaEnum e = pc.getEnum(namespace, name);
-			e.setInner(true);
+			parentType.linkInnerEnum(e);
 			member = new JavaAttribute(name, e);
 
 		} else {

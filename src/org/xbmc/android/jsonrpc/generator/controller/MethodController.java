@@ -285,7 +285,6 @@ public class MethodController {
 		final PropertyController pc = new PropertyController(name, p);
 		if (p.isEnum()) {
 			final JavaEnum e = pc.getEnum(namespace, name);
-			e.setInner(true);
 			jp = new JavaAttribute(name, e);
 			klass.linkInnerEnum(e);
 		} else {

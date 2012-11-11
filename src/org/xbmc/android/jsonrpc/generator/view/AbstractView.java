@@ -59,17 +59,22 @@ public abstract class AbstractView {
 		}
 		if (klass.isNative()) {
 			return getNativeType(klass);
+			
 		} else if (klass.isTypeArray()) {
 			return getArrayType(ns, klass, asArray);
+			
 		} else if (klass.isEnumArray()) {
 			return getArrayEnum(asArray);
+			
 		} else if (klass.isTypeMap()) {
 			return getMapType(klass.getMapType());
+			
 		} else if (klass.isInner()) {
 			if (klass.getOuterType() == null) {
 				throw new IllegalStateException("Outer class of " + klass.getName() + " cannot be null.");
 			}
 			return getInnerType(klass.getName(), klass.getOuterType().getName());
+			
 		} else {
 			return getGlobalType(klass);
 		}
@@ -259,7 +264,7 @@ public abstract class AbstractView {
 	protected String getInnerType(String type, String outerType) {
 
 		String name = getPlural(type);
-		final String suffix = outerType.equals(type) ? "Value" : "";
+		final String suffix = outerType.equalsIgnoreCase(type) ? "Value" : "";
 
 		// capitalize first letter
 		name = name.substring(0, 1).toUpperCase() + name.substring(1);
@@ -344,6 +349,14 @@ public abstract class AbstractView {
 			renderEnumValues(sb, attr.getEnum());
 			if (!attr.getEnum().isInner()) {
 				sb.append(" See constants at {@link ").append(getEnumReference(ns, attr.getEnum())).append("}.");
+			} else {
+				sb.append(" See constants at {@link ");
+				sb.append(ns.getName());
+				sb.append(".");
+				sb.append(getClassName(attr.getEnum().getOuterType()));
+				sb.append(".");
+				sb.append(getEnumName(attr.getEnum()));
+				sb.append("}.");
 			}
 			
 		} else if (attr.getType().isEnumArray()) {

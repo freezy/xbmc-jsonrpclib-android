@@ -502,7 +502,7 @@ public class JavaClass {
 			throw new RuntimeException("Unresolved.");
 		}
 		innerEnums.add(e);
-		e.setOuterType(this);
+		e.setInner(this);
 	}
 
 	/**

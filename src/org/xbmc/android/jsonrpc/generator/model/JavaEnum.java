@@ -102,16 +102,13 @@ public class JavaEnum {
 		return isInner;
 	}
 
-	public void setInner(boolean isInner) {
-		this.isInner = isInner;
-	}
-
 	public JavaClass getOuterType() {
 		return outerType;
 	}
 
-	public void setOuterType(JavaClass outerType) {
+	public void setInner(JavaClass outerType) {
 		this.outerType = outerType;
+		this.isInner = true;
 	}
 	
 	public JavaEnum setArray() {
