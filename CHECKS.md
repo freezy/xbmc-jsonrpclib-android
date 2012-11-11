@@ -11,6 +11,7 @@ Methods
 * `Player.Open`: A real bitch. Two args, first one 4-way multitype (`item`), 
   second inner object (`options`) which second member `resume` is a 3-way 
   multitype.
+* `PVR.GetChannels` returns an array of (referenced) enums.
   
  Types
  -----

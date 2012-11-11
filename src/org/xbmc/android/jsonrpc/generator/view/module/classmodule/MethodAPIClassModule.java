@@ -93,17 +93,19 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 		while (it.hasNext()) {
 			final JavaAttribute p = it.next();
 			if (!it.hasNext() && p.isArray()) {
-				// if enum != null, we know it's an enum array, otherwise isArray() woulnd't have returned true.
+				// if enum != null, we know it's an enum array, otherwise isArray() wouldn't have returned true.
 				// in all other cases, p.getType() != null.
-				if (p.getEnum() != null || p.getType().isEnumArray()) {
-					sb.append("String...");
+				if (p.getEnum() != null) {
+					sb.append(p.getEnum().getTypeName());
+				} else if (p.getType().isEnumArray()) {
+					sb.append("String");
 				} else {
 					sb.append(getClassReference(ns, p.getType().getArrayType()));
-					sb.append("...");
 				}
+				sb.append("...");
 			} else {
 				if (p.isEnum()) {
-					sb.append("String");
+					sb.append(p.getEnum().getTypeName());
 				} else {
 					sb.append(getClassReference(ns, p.getType(), true));
 				}

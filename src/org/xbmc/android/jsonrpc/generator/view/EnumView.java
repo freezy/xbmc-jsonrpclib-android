@@ -55,16 +55,24 @@ public class EnumView extends AbstractView {
 		
 		// enumns
 		for (String enumValue : e.getValues()) {
-			sb.append(prefix).append("	public final String ");
+			sb.append(prefix).append("	public final ");
+			sb.append(e.getTypeName());
+			sb.append(" ");
 			sb.append(getName(enumValue));
-			sb.append(" = \"");
+			sb.append(" = ");
+			if (e.isString()) {
+				sb.append("\"");
+			}
 			sb.append(enumValue);
-			sb.append("\";\n");
+			if (e.isString()) {
+				sb.append("\"");
+			}
+			sb.append(";\n");
 		}
 		
 		// array public final Set<String> values = new HashSet<String>(Arrays.asList(Type.UNKNOWN, Type.XBMC_ADDON_AUDIO));
 		sb.append("\n");
-		sb.append(prefix).append("	public final static Set<String> values = new HashSet<String>(Arrays.asList(");
+		sb.append(prefix).append("	public final static Set<").append(e.getTypeName()).append("> values = new HashSet<").append(e.getTypeName()).append(">(Arrays.asList(");
 		if (!e.getValues().isEmpty()) {
 			for (String enumValue : e.getValues()) {
 				sb.append(getName(enumValue));
@@ -77,7 +85,18 @@ public class EnumView extends AbstractView {
 	}
 	
 	private String getName(String enumValue) {
-		return enumValue.replaceAll("\\.",  "_").toUpperCase();
+		if (e.isString()) {
+			return enumValue.replaceAll("\\.",  "_").toUpperCase();
+		} else {
+			if (enumValue.equals("0")) {
+				return "ZERO";
+			}
+			if (enumValue.startsWith("-")) {
+				return "MINUS_" + enumValue.substring(1);
+			} else {
+				return "PLUS_" + enumValue;
+			}
+		}
 	}
 	
 	

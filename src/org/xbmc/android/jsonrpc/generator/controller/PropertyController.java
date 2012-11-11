@@ -364,7 +364,16 @@ public class PropertyController {
 	 * @return Enum object
 	 */
 	public JavaEnum getEnum(Namespace ns, String enumName) {
-		final JavaEnum e = new JavaEnum(ns, enumName, name);
+		if (!property.getType().isNative()) {
+			throw new IllegalStateException("Enums with non-native type doesn't make any sense!");
+		}
+		final JavaEnum.NativeType t;
+		if (property.getType().getName().equals("integer")) {
+			t = JavaEnum.NativeType.INTEGER;
+		} else {
+			t = JavaEnum.NativeType.STRING;
+		}
+		final JavaEnum e = new JavaEnum(ns, enumName, name, t);
 		List<String> enums = property.isArray() ? property.getItems().getEnums() : property.getEnums();
 		
 		if (property.obj().isArray()) {

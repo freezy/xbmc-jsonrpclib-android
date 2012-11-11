@@ -37,16 +37,33 @@ public class JavaEnum {
 	private final String name;
 	private final Namespace namespace;  
 	private final String apiType;
+	private final NativeType nativeType;
 	private final List<String> values = new ArrayList<String>();
 
 	private boolean isInner = false;
 	private boolean isArray = false;
 	private JavaClass outerType = null; // set if isInner == true
+	
+	public enum NativeType {
+		STRING {
+			@Override
+			public String toString() {
+				return "String";
+			}
+		}, 
+		INTEGER {
+			@Override
+			public String toString() {
+				return "Integer";
+			}
+		}
+	}
 
-	public JavaEnum(Namespace namespace, String name, String apiType) {
+	public JavaEnum(Namespace namespace, String name, String apiType, NativeType nativeType) {
 		this.name = name;
 		this.namespace = namespace;
 		this.apiType = apiType;
+		this.nativeType = nativeType;
 		
 		if (apiType != null) {
 			GLOBALS.put(apiType, this);
@@ -64,6 +81,9 @@ public class JavaEnum {
 
 	public String getName() {
 		return name;
+	}
+	public String getTypeName() {
+		return nativeType.toString();
 	}
 	
 	public Namespace getNamespace() {
@@ -97,6 +117,14 @@ public class JavaEnum {
 	public JavaEnum setArray() {
 		this.isArray = true;
 		return this;
+	}
+	
+	public boolean isInt() {
+		return nativeType == NativeType.INTEGER;
+	}
+	
+	public boolean isString() {
+		return nativeType == NativeType.STRING;
 	}
 	
 	/**
