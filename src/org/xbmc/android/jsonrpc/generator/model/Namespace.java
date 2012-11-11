@@ -94,10 +94,18 @@ public class Namespace {
 	/**
 	 * Goes through all classes in the namespace and resolves them.
 	 */
-	public void resolveClasses() {
-		final ListIterator<JavaClass> iterator = classes.listIterator();
-		while (iterator.hasNext()) {
-			iterator.set(JavaClass.resolveNonNull(iterator.next()));
+	public void resolveChildren() {
+		
+		// classes
+		final ListIterator<JavaClass> classIterator = classes.listIterator();
+		while (classIterator.hasNext()) {
+			classIterator.set(JavaClass.resolveNonNull(classIterator.next()));
+		}
+		
+		// enums
+		final ListIterator<JavaEnum> enumIterator = enums.listIterator();
+		while (enumIterator.hasNext()) {
+			enumIterator.set(JavaEnum.resolve(enumIterator.next()));
 		}
 	}
 	

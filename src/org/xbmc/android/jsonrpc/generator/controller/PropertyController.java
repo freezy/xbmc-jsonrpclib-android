@@ -106,7 +106,9 @@ public class PropertyController {
 			 * the enums somewhere, so we ignore the type and treat
 			 * the array type.
 			 */
-			final PropertyController pc = new PropertyController(name, type.getItems());
+			final Property itemsProperty = type.getItems();
+			itemsProperty.setExtends(type.getExtends()); // copy over the extends attribute
+			final PropertyController pc = new PropertyController(name, itemsProperty);
 			ns.addEnum(pc.getEnum(ns, strippedName).setArray());
 			
 		} else {
@@ -364,22 +366,35 @@ public class PropertyController {
 		if (!property.getType().isNative()) {
 			throw new IllegalStateException("Enums with non-native type doesn't make any sense!");
 		}
+		// set native type
 		final JavaEnum.NativeType t;
 		if (property.getType().getName().equals("integer")) {
 			t = JavaEnum.NativeType.INTEGER;
 		} else {
 			t = JavaEnum.NativeType.STRING;
 		}
+		
+		// create enum and set values
 		final JavaEnum e = new JavaEnum(ns, enumName, name, t);
 		List<String> enums = property.isArray() ? property.getItems().getEnums() : property.getEnums();
-		
-		if (property.obj().isArray()) {
-			e.setArray();
-		}
-			
 		for (String enumValue : enums) {
 			e.addValue(enumValue);
 		}
+		
+		// mark as array if necessary
+		if (property.obj().isArray()) {
+			e.setArray();
+		}
+		
+		// set parent
+		if (property.doesExtend()) {
+			final ExtendsWrapper parent = property.getExtends();
+			if (parent.isList()) {
+				throw new UnsupportedOperationException("Multiple inheritage of enums is not yet supported.");
+			}
+			e.setParentEnum(new JavaEnum(property.getExtends().getName()));
+		}
+			
 		return e;
 	}
 }

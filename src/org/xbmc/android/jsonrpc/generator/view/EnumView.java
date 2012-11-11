@@ -29,33 +29,39 @@ import org.xbmc.android.jsonrpc.generator.model.JavaEnum;
  */
 public class EnumView extends AbstractView {
 	
-	public final static String DISPLAY_ONLY = "";
-	
 	private final JavaEnum e;
 	
 	public EnumView(JavaEnum e) {
 		this.e = e;
 	}
 	
-	public void render(StringBuilder sb, int indent, boolean force) {
-		
-		// debug
-		if (!force && !DISPLAY_ONLY.isEmpty() && !e.getApiType().equals(DISPLAY_ONLY)) {
-			return;
-		}
+	public void render(StringBuilder sb, int idt, boolean force) {
 		
 		// init
-		final String prefix = getIndent(indent);
+		final String indent = getIndent(idt);
+		
+		// class header comment
+		sb.append("\n");
+		sb.append(indent).append("/**\n");
+		if (e.getApiType() != null) {
+			sb.append(indent).append(" * API Name: <tt>");
+			sb.append(e.getApiType());
+			sb.append("</tt>\n");
+		}
+		sb.append(indent).append(" */\n");
 		
 		// signature
-		sb.append("\n");
-		sb.append(prefix).append("public interface ");
+		sb.append(indent).append("public interface ");
 		sb.append(getEnumName(e));
+		if (e.doesExtend()) {
+			sb.append(" extends ");
+			sb.append(getEnumName(e.getParentEnum()));
+		}
 		sb.append(" {\n\n");
 		
-		// enumns
+		// enums
 		for (String enumValue : e.getValues()) {
-			sb.append(prefix).append("	public final ");
+			sb.append(indent).append("	public final ");
 			sb.append(e.getTypeName());
 			sb.append(" ");
 			sb.append(getName(enumValue));
@@ -72,7 +78,7 @@ public class EnumView extends AbstractView {
 		
 		// array public final Set<String> values = new HashSet<String>(Arrays.asList(Type.UNKNOWN, Type.XBMC_ADDON_AUDIO));
 		sb.append("\n");
-		sb.append(prefix).append("	public final static Set<").append(e.getTypeName()).append("> values = new HashSet<").append(e.getTypeName()).append(">(Arrays.asList(");
+		sb.append(indent).append("	public final static Set<").append(e.getTypeName()).append("> values = new HashSet<").append(e.getTypeName()).append(">(Arrays.asList(");
 		if (!e.getValues().isEmpty()) {
 			for (String enumValue : e.getValues()) {
 				sb.append(getName(enumValue));
@@ -81,7 +87,7 @@ public class EnumView extends AbstractView {
 			sb.delete(sb.length() - 2, sb.length());
 			sb.append("));\n");
 		}
-		sb.append(prefix).append("}\n");
+		sb.append(indent).append("}\n");
 	}
 	
 	private String getName(String enumValue) {
@@ -97,57 +103,6 @@ public class EnumView extends AbstractView {
 				return "PLUS_" + enumValue;
 			}
 		}
-	}
-	
-	
-	/**
-	 * Renders as a Java enum.
-	 * 
-	 * @deprecated Model uses enum heritate which isn't possible in Java
-	 * @param sb
-	 * @param indent
-	 * @param force
-	 */
-	public void renderEnum(StringBuilder sb, int indent, boolean force) {
-		
-		// debug
-		if (!force && !DISPLAY_ONLY.isEmpty() && !e.getApiType().equals(DISPLAY_ONLY)) {
-			return;
-		}
-		
-		// init
-		String prefix = "";
-		for (int i = 0; i < indent; i++) {
-			prefix += "\t";
-		}
-		
-		// signature
-		sb.append("\n");
-		sb.append(prefix).append("public static enum ");
-		sb.append(getEnumName(e));
-		sb.append(" {\n\n");
-		
-		// enumns
-		for (String enumValue : e.getValues()) {
-			sb.append(prefix).append("\t");
-			sb.append(enumValue.replaceAll("\\.",  "_").toUpperCase());
-			sb.append("(\"");
-			sb.append(enumValue);
-			sb.append("\"),\n");
-		}
-		sb.delete(sb.length() - 2, sb.length());
-		sb.append(";\n\n");
-		
-		// accessors
-		sb.append(prefix).append("	private final String name;\n");
-		sb.append(prefix).append("	private ").append(getEnumName(e)).append("(String name) {\n");
-		sb.append(prefix).append("		this.name = name;\n");
-		sb.append(prefix).append("	}\n");
-		sb.append(prefix).append("	public String getName() {\n");
-		sb.append(prefix).append("		return name;\n");
-		sb.append(prefix).append("	}\n");
-
-		sb.append(prefix).append("}\n");
 	}
 
 }

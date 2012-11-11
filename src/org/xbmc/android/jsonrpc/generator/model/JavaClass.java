@@ -318,7 +318,7 @@ public class JavaClass {
 
 		// resolve parent class
 		if (parentClass != null) {
-			parentClass = resolveNonNull(this.parentClass);
+			parentClass = resolveNonNull(parentClass);
 		}
 
 		// and array type
@@ -533,7 +533,7 @@ public class JavaClass {
 	 */
 	public void linkInnerType(JavaClass innerType) {
 		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
+			throw new IllegalStateException("Unresolved.");
 		}
 		innerType.setInner(this);
 		innerTypes.add(innerType);
@@ -546,7 +546,7 @@ public class JavaClass {
 	 */
 	public void setInner(JavaClass outerType) {
 		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
+			throw new IllegalStateException("Unresolved.");
 		}
 		this.isInner = true;
 		this.outerType = outerType;
@@ -554,7 +554,7 @@ public class JavaClass {
 
 	public void linkInnerEnum(JavaEnum e) {
 		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
+			throw new IllegalStateException("Unresolved.");
 		}
 		innerEnums.add(e);
 		e.setInner(this);
@@ -568,7 +568,7 @@ public class JavaClass {
 	 */
 	public boolean isVisible() {
 		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
+			throw new IllegalStateException("Unresolved.");
 		}
 		return !(isNative() || (isTypeArray() && !arrayType.isVisible()));
 	}
@@ -580,7 +580,7 @@ public class JavaClass {
 	 */
 	public void addConstructor(JavaConstructor c) {
 		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
+			throw new IllegalStateException("Unresolved.");
 		}
 		constructors.add(c);
 	}
@@ -601,7 +601,7 @@ public class JavaClass {
 	 */
 	public void addMember(JavaAttribute member) {
 		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
+			throw new IllegalStateException("Unresolved.");
 		}
 		members.add(member);
 	}
@@ -613,7 +613,7 @@ public class JavaClass {
 	 */
 	public void addImport(String i) {
 		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
+			throw new IllegalStateException("Unresolved.");
 		}
 		this.imports.add(i);
 	}
@@ -625,7 +625,7 @@ public class JavaClass {
 	 */
 	public boolean hasInnerTypes() {
 		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
+			throw new IllegalStateException("Unresolved.");
 		}
 		return !innerTypes.isEmpty();
 	}
@@ -637,7 +637,7 @@ public class JavaClass {
 	 */
 	public boolean hasInnerEnums() {
 		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
+			throw new IllegalStateException("Unresolved.");
 		}
 		return !innerEnums.isEmpty();
 	}
@@ -647,7 +647,7 @@ public class JavaClass {
 	 */
 	public void setNative() {
 		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
+			throw new IllegalStateException("Unresolved.");
 		}
 		if (nature != null) {
 			throw new IllegalStateException("Cannot set nature if already set.");
@@ -660,7 +660,7 @@ public class JavaClass {
 	 */
 	public void setMultiType() {
 		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
+			throw new IllegalStateException("Unresolved.");
 		}
 		if (nature != null) {
 			throw new IllegalStateException("Cannot set nature if already set.");
@@ -675,7 +675,7 @@ public class JavaClass {
 	 */
 	public void setArray(JavaClass arrayType) {
 		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
+			throw new IllegalStateException("Unresolved.");
 		}
 		if (nature != null) {
 			throw new IllegalStateException("Cannot set nature if already set.");
@@ -691,7 +691,7 @@ public class JavaClass {
 	 */
 	public void setMap(JavaClass mapType) {
 		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
+			throw new IllegalStateException("Unresolved.");
 		}
 		if (nature != null) {
 			throw new IllegalStateException("Cannot set nature if already set.");
@@ -705,7 +705,7 @@ public class JavaClass {
 	 */
 	public void setGlobal() {
 		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
+			throw new IllegalStateException("Unresolved.");
 		}
 		isInner = false;
 	}
@@ -717,7 +717,7 @@ public class JavaClass {
 	 */
 	public boolean isMultiType() {
 		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
+			throw new IllegalStateException("Unresolved.");
 		}
 		return nature == Nature.MULTITYPE;
 	}
@@ -731,7 +731,7 @@ public class JavaClass {
 	 */
 	public JavaClass getArrayType() {
 		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
+			throw new IllegalStateException("Unresolved.");
 		}
 		return arrayType;
 	}
@@ -745,7 +745,7 @@ public class JavaClass {
 	 */
 	public JavaEnum getEnumArray() {
 		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
+			throw new IllegalStateException("Unresolved.");
 		}
 		return arrayEnum;
 	}
@@ -757,7 +757,7 @@ public class JavaClass {
 	 */
 	public JavaClass getMapType() {
 		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
+			throw new IllegalStateException("Unresolved.");
 		}
 		return mapType;
 	}
@@ -772,7 +772,7 @@ public class JavaClass {
 	 */
 	public String getName() {
 		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
+			throw new IllegalStateException("Unresolved.");
 		}
 		return name;
 	}
@@ -786,7 +786,7 @@ public class JavaClass {
 	 */
 	public void suffixName(String suffix) {
 		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
+			throw new IllegalStateException("Unresolved.");
 		}
 		if (!isInner) {
 			throw new IllegalStateException("Can only suffix name for inner classes.");
@@ -800,7 +800,7 @@ public class JavaClass {
 	 */
 	public Namespace getNamespace() {
 		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
+			throw new IllegalStateException("Unresolved.");
 		}
 		return namespace;
 	}
@@ -811,7 +811,7 @@ public class JavaClass {
 	 */
 	public List<JavaConstructor> getConstructors() {
 		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
+			throw new IllegalStateException("Unresolved.");
 		}
 		return constructors;
 	}
@@ -822,7 +822,7 @@ public class JavaClass {
 	 */
 	public List<JavaAttribute> getMembers() {
 		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
+			throw new IllegalStateException("Unresolved.");
 		}
 		// sort before return.
 		Collections.sort(members, new Comparator<JavaAttribute>() {
@@ -840,7 +840,7 @@ public class JavaClass {
 	 */
 	public List<JavaClass> getInnerTypes() {
 		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
+			throw new IllegalStateException("Unresolved.");
 		}
 		return innerTypes;
 	}
@@ -851,7 +851,7 @@ public class JavaClass {
 	 */
 	public List<JavaEnum> getInnerEnums() {
 		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
+			throw new IllegalStateException("Unresolved.");
 		}
 		return innerEnums;
 	}
@@ -865,7 +865,7 @@ public class JavaClass {
 	 */
 	public JavaClass getOuterType() {
 		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
+			throw new IllegalStateException("Unresolved.");
 		}
 		return outerType;
 	}
@@ -879,7 +879,7 @@ public class JavaClass {
 	 */
 	public JavaClass getParentClass() {
 		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
+			throw new IllegalStateException("Unresolved.");
 		}
 		return parentClass;
 	}
@@ -891,7 +891,7 @@ public class JavaClass {
 	 */
 	public void setParentClass(JavaClass parentClass) {
 		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
+			throw new IllegalStateException("Unresolved.");
 		}
 		if (this.parentClass != null) {
 			throw new IllegalStateException("Cannot re-attach an class to a different parent.");
@@ -906,7 +906,7 @@ public class JavaClass {
 	 */
 	public boolean hasParentModule() {
 		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
+			throw new IllegalStateException("Unresolved.");
 		}
 		return getParentModule() != null;
 	}
@@ -919,7 +919,7 @@ public class JavaClass {
 	 */
 	public IParentModule getParentModule() {
 		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
+			throw new IllegalStateException("Unresolved.");
 		}
 		return isInner ? namespace.getInnerParentModule() : namespace.getParentModule();
 	}
@@ -931,7 +931,7 @@ public class JavaClass {
 	 */
 	public Collection<IClassModule> getClassModules() {
 		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
+			throw new IllegalStateException("Unresolved.");
 		}
 		return isInner ? namespace.getInnerClassModules() : namespace.getClassModules();
 	}
@@ -985,7 +985,7 @@ public class JavaClass {
 	 */
 	public void findModuleImports(Collection<IClassModule> modules, IParentModule parentModule) {
 		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
+			throw new IllegalStateException("Unresolved.");
 		}
 		if (isVisible()) {
 			// class render modules
@@ -1034,7 +1034,7 @@ public class JavaClass {
 	 */
 	public Set<String> getImports() {
 		if (unresolved) {
-			throw new RuntimeException("Unresolved.");
+			throw new IllegalStateException("Unresolved.");
 		}
 		final Set<String> imports = new HashSet<String>();
 

@@ -39,9 +39,11 @@ public class JavaEnum {
 	private final String apiType;
 	private final NativeType nativeType;
 	private final List<String> values = new ArrayList<String>();
+	private final boolean unresolved;
 
 	private boolean isInner = false;
 	private boolean isArray = false;
+	private JavaEnum parentEnum = null;
 	private JavaClass outerType = null; // set if isInner == true
 	
 	public enum NativeType {
@@ -64,10 +66,22 @@ public class JavaEnum {
 		this.namespace = namespace;
 		this.apiType = apiType;
 		this.nativeType = nativeType;
+		this.unresolved = false;
 		
 		if (apiType != null) {
 			GLOBALS.put(apiType, this);
 		}
+	}
+	
+	public JavaEnum(String apiType) {
+		if (apiType == null) {
+			throw new IllegalArgumentException("API type must not be null when creating unresolved enum references.");
+		}
+		this.name = null;
+		this.namespace = null;
+		this.apiType = apiType;
+		this.nativeType = null;
+		this.unresolved = true;
 	}
 	
 	/**
@@ -76,51 +90,115 @@ public class JavaEnum {
 	private final static Map<String, JavaEnum> GLOBALS = new HashMap<String, JavaEnum>();
 
 	public void addValue(String value) {
+		if (unresolved) {
+			throw new IllegalStateException("Unresolved.");
+		}
 		values.add(value);
 	}
 
 	public String getName() {
+		if (unresolved) {
+			throw new IllegalStateException("Unresolved.");
+		}
 		return name;
 	}
 	public String getTypeName() {
+		if (unresolved) {
+			throw new IllegalStateException("Unresolved.");
+		}
 		return nativeType.toString();
 	}
 	
 	public Namespace getNamespace() {
+		if (unresolved) {
+			throw new IllegalStateException("Unresolved.");
+		}
 		return namespace;
 	}
 
 	public String getApiType() {
+		if (unresolved) {
+			throw new IllegalStateException("Unresolved.");
+		}
 		return apiType;
 	}
 
 	public List<String> getValues() {
+		if (unresolved) {
+			throw new IllegalStateException("Unresolved.");
+		}
 		return values;
 	}
 
 	public boolean isInner() {
+		if (unresolved) {
+			throw new IllegalStateException("Unresolved.");
+		}
 		return isInner;
+	}
+	
+	public boolean isUnresolved() {
+		return unresolved;
 	}
 
 	public JavaClass getOuterType() {
+		if (unresolved) {
+			throw new IllegalStateException("Unresolved.");
+		}
 		return outerType;
 	}
 
 	public void setInner(JavaClass outerType) {
+		if (unresolved) {
+			throw new IllegalStateException("Unresolved.");
+		}
 		this.outerType = outerType;
 		this.isInner = true;
 	}
 	
+	public JavaEnum getParentEnum() {
+		if (unresolved) {
+			throw new IllegalStateException("Unresolved.");
+		}
+		return parentEnum;
+	}
+
+	public void setParentEnum(JavaEnum parentEnum) {
+		if (unresolved) {
+			throw new IllegalStateException("Unresolved.");
+		}
+		if (this.parentEnum != null) {
+			throw new IllegalStateException("Cannot re-attach an enum to a different parent.");
+		}
+		this.parentEnum = parentEnum;
+	}
+	
+	public boolean doesExtend() {
+		if (unresolved) {
+			throw new IllegalStateException("Unresolved.");
+		}
+		return parentEnum != null;
+	}
+	
 	public JavaEnum setArray() {
+		if (unresolved) {
+			throw new IllegalStateException("Unresolved.");
+		}
 		this.isArray = true;
 		return this;
 	}
 	
 	public boolean isInt() {
+		if (unresolved) {
+			throw new IllegalStateException("Unresolved.");
+		}
 		return nativeType == NativeType.INTEGER;
 	}
 	
 	public boolean isString() {
+		if (unresolved) {
+			throw new IllegalStateException("Unresolved.");
+		}
 		return nativeType == NativeType.STRING;
 	}
 	
@@ -131,7 +209,18 @@ public class JavaEnum {
 	 * @return
 	 */
 	public boolean isArray() {
+		if (unresolved) {
+			throw new IllegalStateException("Unresolved.");
+		}
 		return isArray;
+	}
+	
+	protected void resolve() {
+		
+		// resolve parent class
+		if (parentEnum != null) {
+			parentEnum = resolve(parentEnum);
+		}
 	}
 	
 
@@ -163,6 +252,26 @@ public class JavaEnum {
 		}
 
 		return GLOBALS.get(klass.getApiType());
+	}
+	
+	public static JavaEnum resolve(JavaEnum e) {
+
+		final JavaEnum resolvedEnum;
+
+		// resolve enum itself
+		if (e.isUnresolved()) {
+			if (!GLOBALS.containsKey(e.apiType)) {
+				return null;
+			}
+			resolvedEnum = GLOBALS.get(e.apiType);
+		} else {
+			resolvedEnum = e;
+		}
+
+		// resolve referenced classes
+		resolvedEnum.resolve();
+
+		return resolvedEnum;
 	}
 
 }
