@@ -33,6 +33,7 @@ public class JavaMethod extends JavaClass {
 	
 	public JavaMethod(Namespace namespace, String name, String apiType) {
 		super(namespace, name, apiType);
+		usedAsMethod = true;
 	}
 
 	public JavaClass getReturnType() {

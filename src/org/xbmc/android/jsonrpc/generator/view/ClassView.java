@@ -54,14 +54,18 @@ public class ClassView extends AbstractView {
 			sb.append("</tt>\n");
 			sb.append(indent).append(" * <p/>\n");
 		}
-		if (klass.isUsedAsParameter() && klass.isUsedAsResult()) {
-			sb.append(indent).append(" * Note: This class is used as parameter as well as result.<br/>\n");
-		} else if (!klass.isUsedAsParameter() && klass.isUsedAsResult()) {
-			sb.append(indent).append(" * Note: This class is used as result only.<br/>\n");
-		} else if (klass.isUsedAsParameter() && !klass.isUsedAsResult()) {
-			sb.append(indent).append(" * Note: This class is used as parameter only.<br/>\n");
-		} else if (!klass.isUsedAsParameter() && !klass.isUsedAsResult()) {
-			sb.append(indent).append(" * Note: Seems this class isn't used yet in the API.<br/>\n");
+		if (klass.isUsedAsMethod()) {
+			sb.append(indent).append(" * Note: This class represents an API method.<br/>\n");
+		} else {
+			if (klass.isUsedAsParameter() && klass.isUsedAsResult()) {
+				sb.append(indent).append(" * Note: This class is used as parameter as well as result.<br/>\n");
+			} else if (!klass.isUsedAsParameter() && klass.isUsedAsResult()) {
+				sb.append(indent).append(" * Note: This class is used as result only.<br/>\n");
+			} else if (klass.isUsedAsParameter() && !klass.isUsedAsResult()) {
+				sb.append(indent).append(" * Note: This class is used as parameter only.<br/>\n");
+			} else if (!klass.isUsedAsParameter() && !klass.isUsedAsResult()) {
+				sb.append(indent).append(" * Note: Seems this class isn't used yet in the API.<br/>\n");
+			}
 		}
 		sb.append(indent).append(" * <i>This class was generated automatically from XBMC's JSON-RPC introspect.</i>\n");
 		sb.append(indent).append(" */\n");

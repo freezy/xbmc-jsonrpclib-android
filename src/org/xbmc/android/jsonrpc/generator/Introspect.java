@@ -109,7 +109,7 @@ public class Introspect {
 	}
 	
 	/**
-	 * Main programm
+	 * Main program
 	 * @param args none
 	 */
 	public static void main(String[] args) {

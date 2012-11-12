@@ -129,6 +129,10 @@ public class JavaClass {
 	 * from an JSON node.
 	 */
 	private boolean usedAsResult = false;
+	/**
+	 * True if this type respresents an API method.
+	 */
+	protected boolean usedAsMethod = false;
 	
 	/**
 	 * If true, this is just a place holder and the "real" object has yet to be
@@ -386,9 +390,9 @@ public class JavaClass {
 		}
 		
 		// now we're sure we have all fields, create contructors.
-		final ConstructorController cc = new ConstructorController(this);
-		for (JavaConstructor c : cc.getConstructors()) {
-			this.addConstructor(c);
+		if (!usedAsMethod) {
+			final ConstructorController cc = new ConstructorController(this);
+			constructors.addAll(cc.getConstructors());
 		}
 	}
 
@@ -555,6 +559,14 @@ public class JavaClass {
 	public boolean isUsedAsResult() {
 		return usedAsResult;
 	}
+	
+	/**
+	 * Returns true if this type is used as API method, false otherwise.
+	 * @return
+	 */
+	public boolean isUsedAsMethod() {
+		return usedAsMethod;
+	}
 
 	/**
 	 * Adds type to inner types and updates the reference back to this instance.
@@ -603,18 +615,6 @@ public class JavaClass {
 		return !(isNative() || (isTypeArray() && !arrayType.isVisible()));
 	}
 
-	/**
-	 * Adds a new class constructor to this class.
-	 * 
-	 * @param c New class constructor
-	 */
-	public void addConstructor(JavaConstructor c) {
-		if (unresolved) {
-			throw new IllegalStateException("Unresolved.");
-		}
-		constructors.add(c);
-	}
-	
 	/**
 	 * Sets all class constructors.
 	 * @param constructors
