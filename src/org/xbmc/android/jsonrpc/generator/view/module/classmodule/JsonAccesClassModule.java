@@ -440,6 +440,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 				}
 			} else {
 				// TODO check what's returned and see if we can match by name rather than type
+				// ==> no such case for objects that are deserialized from JSON yet.
 				sb.append("if (node.isObject()) { // check what's returned and see if we can match by name rather than type.\n");
 				for (JavaAttribute m : allMembers) {
 					sb.append(indent).append("\t");

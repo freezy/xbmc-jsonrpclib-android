@@ -31,6 +31,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.xbmc.android.jsonrpc.generator.controller.ConstructorController;
 import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
 import org.xbmc.android.jsonrpc.generator.view.module.IParentModule;
 
@@ -96,6 +97,10 @@ public class JavaClass {
 	 * Parent class, set if property "extends" something.
 	 */
 	private JavaClass parentClass = null;
+	/**
+	 * Multiple heritage reference before they are resolved.
+	 */
+	private List<String> parentReferences = new ArrayList<String>();
 	/**
 	 * If this is a type array, the type is set here.
 	 */
@@ -314,6 +319,11 @@ public class JavaClass {
 	 * Resolves classes attached to this class.
 	 */
 	protected void resolve() {
+		
+		// skip if already resolved
+		if (resolved) {
+			return;
+		}
 		resolved = true;
 
 		// resolve parent class
@@ -359,7 +369,27 @@ public class JavaClass {
 		for (JavaAttribute m : members) {
 			m.resolveType();
 		}
-
+		
+		// copy all members from parent classes if multiple inheritance
+		if (!parentReferences.isEmpty()) {
+			// since these references may have a common ancestor (Media.Details.Base), we need to check for duplicate fields.
+			final Set<String> fields = new HashSet<String>();
+			for (String parentRef : parentReferences) {
+				final JavaClass parentClass = resolveNonNull(new JavaClass(parentRef));
+				for (JavaAttribute param : parentClass.getAllParentMembers()) {
+					if (!fields.contains(param.getName())) {
+						members.add(param);
+						fields.add(param.getName());
+					}
+				}
+			}
+		}
+		
+		// now we're sure we have all fields, create contructors.
+		final ConstructorController cc = new ConstructorController(this);
+		for (JavaConstructor c : cc.getConstructors()) {
+			this.addConstructor(c);
+		}
 	}
 
 	/**
@@ -898,8 +928,16 @@ public class JavaClass {
 		}
 		this.parentClass = parentClass;
 	}
-
+	
 	/**
+	 * Sets the parent references that are resolved later.
+	 * @param references
+	 */
+	public void setParentReferences(List<String> references) {
+		this.parentReferences = references;
+	}
+
+ 	/**
 	 * Returns true if the class has a registered render module for rendering
 	 * the super class.
 	 * @return True if parent render module defined, false otherwise.
@@ -1003,8 +1041,20 @@ public class JavaClass {
 		}
 	}
 	
+	/**
+	 * Returns all parent members (own members exclusive) of this class.
+	 * @return
+	 */
 	public List<JavaAttribute> getParentMembers() {
 		return getParentMembers(false);
+	}
+	
+	/**
+	 * Returns all parent member (own members inclusive) of this class.
+	 * @return
+	 */
+	public List<JavaAttribute> getAllParentMembers() {
+		return getParentMembers(true);
 	}
 	
 	/**
@@ -1013,7 +1063,8 @@ public class JavaClass {
 	 */
 	private List<JavaAttribute> getParentMembers(boolean includeOwnMembers) {
 		if (doesExtend()) {
-			final List<JavaAttribute> members = parentClass.getParentMembers(true); 
+			final List<JavaAttribute> members = new ArrayList<JavaAttribute>();
+			members.addAll(parentClass.getParentMembers(true)); 
 			if (includeOwnMembers) {
 				members.addAll(this.members);
 			}

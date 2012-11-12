@@ -31,7 +31,6 @@ import org.xbmc.android.jsonrpc.generator.introspect.wrapper.ExtendsWrapper;
 import org.xbmc.android.jsonrpc.generator.introspect.wrapper.TypeWrapper;
 import org.xbmc.android.jsonrpc.generator.model.JavaAttribute;
 import org.xbmc.android.jsonrpc.generator.model.JavaClass;
-import org.xbmc.android.jsonrpc.generator.model.JavaConstructor;
 import org.xbmc.android.jsonrpc.generator.model.JavaEnum;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 
@@ -282,7 +281,7 @@ public class PropertyController {
 		if (property.doesExtend()) {
 			final ExtendsWrapper ew = property.getExtends();
 			if (ew.isList()) {
-				// TODO multiple heritage
+				klass.setParentReferences(ew.getList());
 			} else {
 				klass.setParentClass(new JavaClass(property.getExtends().getName()));
 			}
@@ -290,14 +289,6 @@ public class PropertyController {
 		
 		// description
 		klass.setDescription(property.getDescription());
-		
-		// create constructor(s)
-		if (!klass.isUnresolved()) { 
-			final ConstructorController cc = new ConstructorController(klass);
-			for (JavaConstructor c : cc.getConstructors()) {
-				klass.addConstructor(c);
-			}
-		}
 		
 		return klass;
 	}

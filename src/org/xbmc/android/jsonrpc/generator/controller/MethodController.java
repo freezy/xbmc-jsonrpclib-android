@@ -285,11 +285,11 @@ public class MethodController {
 		final PropertyController pc = new PropertyController(name, p);
 		if (p.isEnum()) {
 			final JavaEnum e = pc.getEnum(namespace, name);
-			jp = new JavaAttribute(name, e);
+			jp = new JavaAttribute(name, e, klass);
 			klass.linkInnerEnum(e);
 		} else {
 			final JavaClass type = pc.getClass(namespace, name, klass);
-			jp = new JavaAttribute(name, type);
+			jp = new JavaAttribute(name, type, klass);
 			
 			type.setUsedAsParameter();
 			if (type.isInner()) {

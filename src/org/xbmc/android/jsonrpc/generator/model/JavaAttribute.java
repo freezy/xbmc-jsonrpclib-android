@@ -44,6 +44,7 @@ public class JavaAttribute {
 	private JavaClass type;
 	private JavaEnum e;
 	private final List<JavaClass> multitypes = new ArrayList<JavaClass>();
+	private final JavaClass parent;
 	
 	// additional attributes
 	private boolean required = false;
@@ -54,7 +55,7 @@ public class JavaAttribute {
 	 * @param name Variable name
 	 * @param type Associated type
 	 */
-	public JavaAttribute(String name, JavaClass type) {
+	public JavaAttribute(String name, JavaClass type, JavaClass parent) {
 		if (name == null) {
 			throw new IllegalArgumentException("Member name cannot be null.");
 		}
@@ -64,6 +65,7 @@ public class JavaAttribute {
 		this.name = name;
 		this.type = type;
 		this.e = null;
+		this.parent = parent;
 	}
 
 	/**
@@ -71,7 +73,7 @@ public class JavaAttribute {
 	 * @param name Variable name
 	 * @param e Associated enum
 	 */
-	public JavaAttribute(String name, JavaEnum e) {
+	public JavaAttribute(String name, JavaEnum e, JavaClass parent) {
 		if (name == null) {
 			throw new IllegalArgumentException("Member name cannot be null.");
 		}
@@ -81,6 +83,7 @@ public class JavaAttribute {
 		this.name = name;
 		this.type = null;
 		this.e = e;
+		this.parent = parent;
 	}
 
 	/**
@@ -88,11 +91,12 @@ public class JavaAttribute {
 	 * @param name Variable name
 	 * @param multitypes List of types defining multitype
 	 */
-	public JavaAttribute(String name, List<JavaClass> multitypes) {
+	public JavaAttribute(String name, List<JavaClass> multitypes, JavaClass parent) {
 		this.name = name;
 		this.e = null;
 		this.type = null;
 		this.multitypes.addAll(multitypes);
+		this.parent = parent;
 	}
 	
 	/**
@@ -223,6 +227,14 @@ public class JavaAttribute {
 	public JavaEnum getEnum() {
 		return e;
 	}
+	
+	/**
+	 * Returns the parent class.
+	 * @return
+	 */
+	public JavaClass getParent() {
+		return parent;
+	}
 
 	/**
 	 * Returns true if the variable is marked as "required", in case of a
@@ -247,5 +259,10 @@ public class JavaAttribute {
 	@Override
 	public boolean equals(Object obj) {
 		return ((JavaAttribute)obj).getName().equals(name);
+	}
+	
+	@Override
+	public String toString() {
+		return name;
 	}
 }

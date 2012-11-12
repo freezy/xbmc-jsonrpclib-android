@@ -48,9 +48,9 @@ public class ConstructorController {
 			final JavaConstructor c = new JavaConstructor(type);
 			for (JavaAttribute m : type.getMembers()) {
 				if (m.isEnum()) {
-					c.addParameter(new JavaAttribute(m.getName(), m.getEnum()));
+					c.addParameter(new JavaAttribute(m.getName(), m.getEnum(), type));
 				} else {
-					c.addParameter(new JavaAttribute(m.getName(), m.getType()));
+					c.addParameter(new JavaAttribute(m.getName(), m.getType(), type));
 				}
 			}
 			constructors.add(c);
@@ -61,9 +61,9 @@ public class ConstructorController {
 			for (JavaAttribute m : type.getMembers()) {
 				final JavaConstructor c = new JavaConstructor(type);
 				if (m.isEnum()) {
-					c.addParameter(new JavaAttribute(m.getName(), m.getEnum()));
+					c.addParameter(new JavaAttribute(m.getName(), m.getEnum(), type));
 				} else {
-					c.addParameter(new JavaAttribute(m.getName(), m.getType()));
+					c.addParameter(new JavaAttribute(m.getName(), m.getType(), type));
 				}
 				constructors.add(c);
 			}

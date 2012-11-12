@@ -57,6 +57,13 @@ public class MemberDeclarationClassModule extends AbstractView implements IClass
 		sb.append("\n").append(indent).append("// class members\n");
 		for (JavaAttribute member : klass.getMembers()) {
 			final MemberView memberView = new MemberView(member);
+			if (!klass.equals(member.getParent())) {
+				sb.append(indent).append("/**\n");
+				sb.append(indent).append(" * Multiple inheritage: copied from <tt>");
+				sb.append(member.getParent().getApiType());
+				sb.append("</tt>.\n");
+				sb.append(indent).append(" */\n");
+			}
 			memberView.renderDeclaration(sb, klass.getNamespace(), idt);
 		}
 		
