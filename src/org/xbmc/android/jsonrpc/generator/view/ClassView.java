@@ -49,14 +49,16 @@ public class ClassView extends AbstractView {
 			sb.append(indent).append(" * <p/>\n");
 		}
 		if (klass.isGlobal()) {
-			sb.append(indent).append(" * API Name: <tt>");
+			if (klass.isUsedAsMethod()) {
+				sb.append(indent).append(" * This class represents the API method <tt>");
+			} else {
+				sb.append(indent).append(" * API Name: <tt>");
+			}
 			sb.append(klass.getApiType());
 			sb.append("</tt>\n");
 			sb.append(indent).append(" * <p/>\n");
 		}
-		if (klass.isUsedAsMethod()) {
-			sb.append(indent).append(" * Note: This class represents an API method.<br/>\n");
-		} else {
+		if (!klass.isUsedAsMethod()) {
 			if (klass.isUsedAsParameter() && klass.isUsedAsResult()) {
 				sb.append(indent).append(" * Note: This class is used as parameter as well as result.<br/>\n");
 			} else if (!klass.isUsedAsParameter() && klass.isUsedAsResult()) {

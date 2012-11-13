@@ -101,11 +101,13 @@ public class MethodController {
 			
 			if (p.isEnum()) {
 				final JavaAttribute jp = getParam(p.getName(), p, namespace, klass);
+				// add parameter to all constructor
 				for (JavaConstructor jc : constructors) {
 					jc.addParameter(jp);
 				}
 			} else if (p.isArray() && p.getItems().isEnum()) {
 				throw new UnsupportedOperationException("No support for params that are arrays of enums yet.");
+				
 			} else {
 				
 				final TypeWrapper tr = p.getType();
@@ -119,7 +121,8 @@ public class MethodController {
 						properties = jp;
 						continue;
 					}
-
+					
+					// add parameter to all constructor
 					for (JavaConstructor jc : constructors) {
 						jc.addParameter(jp);
 					}
