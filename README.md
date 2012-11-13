@@ -18,24 +18,23 @@ Java application, no Android is actually needed to execute.
 Status
 ------
 
-Work in progress. Generated code compiles and the type structure should be
-fine. Also the methods render fine now and a first test with actually
-using the generated lib with XBMC was successful.
-
-TODO is mainly multi-type related stuff which is tricky in Java.
+Let's call it beta. Generated code works and fetches data from XBMC. Next 
+phase is integration with the remote and then we'll see if it's actually 
+usable or needs more tweaking.
 
 Usage
 -----
 
 Set up an empty Android Eclipse (library) project. Then open up `Introspect.java`
-and update the path. Running it will create the entire library into the project. 
+and update the path where stuff will be generated to. Running the main method
+will create the entire library to the specified path. 
 
 Library Example
 ---------------
 
-So the generated Java library should be able to do everything the API provides.
-A complicated example would be fetching all albums where the genre equals `Jazz`
-OR genre contains `Rock`:
+The generated Java library should be able to do everything the API provides,
+even the complicated shit. Such an example would be fetching all albums where 
+the genre equals `Jazz` OR genre contains `Rock`:
 
 ```java
 // init connection manager
