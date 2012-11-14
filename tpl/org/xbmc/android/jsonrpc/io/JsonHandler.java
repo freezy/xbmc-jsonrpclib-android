@@ -33,12 +33,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
-import com.sun.xml.internal.ws.handler.HandlerException;
-
 /**
  * Abstract class that handles reading and parsing an JSON-serialized API
  * response into a set of ContentProviderOperation. It catches
- * recoverable network exceptions and re-throws them as {@link HandlerException}. 
+ * recoverable network exceptions and re-throws them as {@link ApiException}. 
  * Any local {@link ContentProvider} exceptions are considered unrecoverable.
  * <p>
  * This class is only designed to handle simple one-way synchronization.
@@ -65,7 +63,7 @@ public abstract class JsonHandler implements Parcelable {
 	 * 
 	 * @param response HTTP response body
 	 * @param resolver Content resolver
-	 * @throws HandlerException Re-thrown errors
+	 * @throws ApiException Re-thrown errors
 	 */
 	public void applyResult(JsonNode result, ContentResolver resolver) throws ApiException {
 		try {

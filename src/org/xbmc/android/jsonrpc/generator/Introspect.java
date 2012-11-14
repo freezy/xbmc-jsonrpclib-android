@@ -20,10 +20,13 @@
  */
 package org.xbmc.android.jsonrpc.generator;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
@@ -62,8 +65,7 @@ import org.xbmc.android.jsonrpc.generator.view.module.parentmodule.MethodParentM
 /**
  * Main program. To make this work, update:
  * 
- * <ul><li>{@link #OUTPUT_FOLDER} where you want the java files placed (your
- *         source folder)</li>
+ * <ul><li>{@link #OUTPUT_FOLDER} where you want the java files placed (your source folder)</li>
  *      <li>{@link #MODEL_PACKAGE} in which package you want your model files</li>
  * </ul>
  * 
@@ -83,6 +85,12 @@ public class Introspect {
 	
 	public final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 	
+	// date: git show -s --format="%ci" 9cdc29e
+	public final static String XBMC_VERSION_HASH = "9cdc29e";
+	public final static String XBMC_VERSION_DATE = "2012-11-10 09:33:15 +0100";
+	public final static String XBMC_VERSION_BRANCH = "Branch.MASTER";
+	public final static String XBMC_VERSION_TYPE = "Type.NIGHTLY";
+	
 	private static Result RESULT;
 	
 	private final static String MODEL_PACKAGE = "org.xbmc.android.jsonrpc.api.model";
@@ -91,7 +99,7 @@ public class Introspect {
 	private final static String MODEL_CLASS_SUFFIX = "Model";
 	private final static String CALL_CLASS_SUFFIX  = "";
 	
-	private final static String OUTPUT_FOLDER = "D:/dev/xbmc-jsonrpclib-android-output";
+	private final static String OUTPUT_FOLDER = "D:/dev/xbmc-jsonrpclib-android";
 //	private final static String OUTPUT_FOLDER = "S:/Development/xbmc-jsonrpclib-android-output";
 
 	private final static List<String> IGNORED_METHODS = new ArrayList<String>();
@@ -195,6 +203,13 @@ public class Introspect {
 			}
 			FileUtils.copyFile(new File("libs/jackson-core-asl-1.8.8.jar"), new File(OUTPUT_FOLDER + "/libs/jackson-core-asl-1.8.8.jar"));
 			FileUtils.copyFile(new File("libs/jackson-mapper-asl-1.8.8.jar"), new File(OUTPUT_FOLDER + "/libs/jackson-mapper-asl-1.8.8.jar"));
+			
+			// 5. update version file
+			final File versionFile = new File(OUTPUT_FOLDER + "/src/org/xbmc/android/jsonrpc/api/Version.java");
+			replaceInFile("%hash%", XBMC_VERSION_HASH, versionFile);
+			replaceInFile("%date%", XBMC_VERSION_DATE, versionFile);
+			replaceInFile("Branch.UNKNOWN", XBMC_VERSION_BRANCH, versionFile);
+			replaceInFile("Type.UNKNOWN", XBMC_VERSION_TYPE, versionFile);
 
 			System.out.println("Done in " + (System.currentTimeMillis() - started) + "ms.");
 
@@ -270,6 +285,21 @@ public class Introspect {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private static void replaceInFile(String oldstring, String newstring, File f) throws IOException {
+		final BufferedReader reader = new BufferedReader(new FileReader(f));
+		final StringBuilder sb = new StringBuilder();
+		String line = null;
+		while ((line = reader.readLine()) != null) {
+			sb.append(line.replaceAll(oldstring, newstring));
+			sb.append("\r\n");
+		}
+		reader.close();
+		
+		final PrintWriter writer = new PrintWriter(new FileWriter(f));
+		writer.print(sb.toString());
+		writer.close();
 	}
 	
 	public static Property find(String name) {
