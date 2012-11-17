@@ -55,6 +55,7 @@ import org.xbmc.android.jsonrpc.generator.view.EnumView;
 import org.xbmc.android.jsonrpc.generator.view.NamespaceView;
 import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
 import org.xbmc.android.jsonrpc.generator.view.module.classmodule.CallParcelableClassModule;
+import org.xbmc.android.jsonrpc.generator.view.module.classmodule.ConvenienceExtensionsClassModule;
 import org.xbmc.android.jsonrpc.generator.view.module.classmodule.JsonAccesClassModule;
 import org.xbmc.android.jsonrpc.generator.view.module.classmodule.MemberDeclarationClassModule;
 import org.xbmc.android.jsonrpc.generator.view.module.classmodule.MethodAPIClassModule;
@@ -133,7 +134,8 @@ public class Introspect {
 			final IClassModule[] typeClassModules = { 
 				new MemberDeclarationClassModule(), 
 				new JsonAccesClassModule(), 
-				new ModelParcelableClassModule() 
+				new ModelParcelableClassModule(),
+				new ConvenienceExtensionsClassModule()
 			};
 
 			// register types

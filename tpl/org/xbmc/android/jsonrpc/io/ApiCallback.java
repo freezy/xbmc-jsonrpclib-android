@@ -40,9 +40,9 @@ public interface ApiCallback<T> {
 	 * Use {@link AbstractCall#getResult()} or {@link AbstractCall#getResults()}
 	 * in order to obtain the result of the API call.
 	 * 
-	 * @param apiCall Original API call containing the response.
+	 * @param call Original API call containing the response.
 	 */
-	public abstract void onResponse(AbstractCall<T> apiCall);
+	public abstract void onResponse(AbstractCall<T> call);
 	
 	/**
 	 * An error has occurred.
