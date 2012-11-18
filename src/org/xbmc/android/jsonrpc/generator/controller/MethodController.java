@@ -23,6 +23,7 @@ package org.xbmc.android.jsonrpc.generator.controller;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.xbmc.android.jsonrpc.generator.introspect.Method;
@@ -98,7 +99,7 @@ public class MethodController {
 		
 		// 1. parameters
 		for (Param p : method.getParams()) {
-			
+
 			if (p.isEnum()) {
 				final JavaAttribute jp = getParam(p.getName(), p, namespace, klass);
 				// add parameter to all constructor
@@ -141,12 +142,14 @@ public class MethodController {
 						if (i == 0) {
 							// first multitype: just add param to current constructors.
 							final JavaAttribute jp = getParam(p.getName(), t, namespace, klass);
+							jp.setRequired(p.isRequired());
 							for (JavaConstructor jc : constructors) {
 								jc.addParameter(jp);
 							}
 						} else {
 							// second..nth multitype: for each previously saved constructor, copy then add param
 							final JavaAttribute jp = getParam(p.getName(), t, namespace, klass);
+							jp.setRequired(p.isRequired());
 							for (JavaConstructor jc : copiedConstructors) {
 								final JavaConstructor jjc = jc.copy();
 								jjc.addParameter(jp);
@@ -163,6 +166,39 @@ public class MethodController {
 						}
 						i++;
 					}
+				}
+			}
+		}
+		
+		// create constructor aliases without non-required args
+		final int size = constructors.size();
+		for (int j = 0; j < size; j++) {
+			final JavaConstructor jc = constructors.get(j);
+			final int numParams = jc.getParameters().size();
+			if (numParams > 5) {
+				continue;
+			}
+			final long n = (int)Math.pow(2, numParams) - 2;
+			// l is a bitmask and counting down means getting all combinations
+			for (Long l = n; l >= 0; l--) {
+				final JavaConstructor alias = new JavaConstructor(jc.getType());
+				// retrieve params
+				for (int i = 0; i < numParams; i++) {
+					long b = ((l >> i) & 1); // bit at position i
+					final JavaAttribute param = jc.getParameters().get(i);
+					if (b == 1 || param.isRequired()) {
+						alias.addParameter(param);
+					}
+				}
+				// check signature already there
+				boolean found = false;
+				for (JavaConstructor jjc : constructors) {
+					if (jjc.hasSameParams(alias)) {
+						found = true;
+					}
+				}
+				if (!found) {
+					constructors.add(alias);
 				}
 			}
 		}
@@ -312,6 +348,7 @@ public class MethodController {
 			}
 		}
 		jp.setDescription(p.getDescription());
+		jp.setRequired(p.isRequired());
 		return jp;
 	}
 	
@@ -324,7 +361,7 @@ public class MethodController {
 		final StringBuilder sb = new StringBuilder();
 		for (JavaAttribute m : klass.getMembers()) {
 			final String name = m.getName().replace("id", "Id");
-			sb.append(name.substring(0, 1).toUpperCase());
+			sb.append(name.substring(0, 1).toUpperCase(Locale.ENGLISH));
 			sb.append(name.substring(1));
 		}
 		return sb.toString();

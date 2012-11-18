@@ -26,6 +26,11 @@ import java.util.List;
 import org.xbmc.android.jsonrpc.generator.introspect.Property;
 import org.xbmc.android.jsonrpc.generator.introspect.Type;
 
+/**
+ * Contains helper routines.
+ * 
+ * @author freezy <freezy@xbmc.org>
+ */
 public class Helper {
 	
 	/**

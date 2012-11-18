@@ -280,6 +280,10 @@ public class Property {
 		return ref != null;
 //		return ref != null || (type != null && type.isObject() && type.getObj().isRef());
 	}
+	
+	public boolean isRequired() {
+		return required != null && required;
+	}
 
 	public void setRef(String ref) {
 		this.ref = ref;
