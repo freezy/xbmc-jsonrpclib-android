@@ -567,6 +567,18 @@ public class JavaClass {
 	public boolean isUsedAsMethod() {
 		return usedAsMethod;
 	}
+	
+	/**
+	 * Returns the name of the class.
+	 * <ul><li>If the class is native, this is the name of the native type (e.g. <tt>boolean</tt>, <tt>string</tt>)</li>
+	 *     <li>If the class is global, this is the ID of type (e.g. <tt>Addon.Details</tt>, <tt>Video.Details.Episode</tt>)</li>
+	 *     <li>If the class is a multitype, then this is the name of its parameter (e.g. <tt>Broken</tt>, <tt>And</tt>)</li>
+	 *  </ul>
+	 * @return
+	 */
+	public String getName() {
+		return name;
+	}
 
 	/**
 	 * Adds type to inner types and updates the reference back to this instance.
@@ -790,21 +802,6 @@ public class JavaClass {
 			throw new IllegalStateException("Unresolved.");
 		}
 		return mapType;
-	}
-
-	/**
-	 * Returns the name of the class.
-	 * <ul><li>If the class is native, this is the name of the native type (e.g. <tt>boolean</tt>, <tt>string</tt>)</li>
-	 *     <li>If the class is global, this is the ID of type (e.g. <tt>Addon.Details</tt>, <tt>Video.Details.Episode</tt>)</li>
-	 *     <li>If the class is a multitype, then this is the name of its parameter (e.g. <tt>Broken</tt>, <tt>And</tt>)</li>
-	 *  </ul>
-	 * @return
-	 */
-	public String getName() {
-		if (unresolved) {
-			throw new IllegalStateException("Unresolved.");
-		}
-		return name;
 	}
 	
 	/**

@@ -101,6 +101,31 @@ public class JavaConstructor {
 			}
 		}
 		return true;
-		
+	}
+	
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder();
+		sb.append(type.getName());
+		sb.append("(");
+		for (JavaAttribute p : parameters) {
+			if (p.isEnum()) {
+				sb.append("enum");
+			} else {
+				if (p.getType().getApiType() != null) {
+					sb.append(p.getType().getApiType());
+				} else {
+					sb.append(p.getType().getName());
+				}
+			}
+			sb.append(" ");
+			sb.append(p.getName());
+			sb.append(", ");
+		}
+		if (parameters.size() > 0) {
+			sb.delete(sb.length() - 2, sb.length());
+		}
+		sb.append(")");
+		return sb.toString();
 	}
 }

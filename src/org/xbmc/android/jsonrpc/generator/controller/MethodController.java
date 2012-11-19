@@ -179,8 +179,8 @@ public class MethodController {
 				continue;
 			}
 			final long n = (int)Math.pow(2, numParams) - 2;
-			// l is a bitmask and counting down means getting all combinations
-			for (Long l = n; l >= 0; l--) {
+			// l is a bitmask and counting up means getting all combinations
+			for (Long l = 0L; l < n; l++) {
 				final JavaConstructor alias = new JavaConstructor(jc.getType());
 				// retrieve params
 				for (int i = 0; i < numParams; i++) {
@@ -349,6 +349,7 @@ public class MethodController {
 		}
 		jp.setDescription(p.getDescription());
 		jp.setRequired(p.isRequired());
+		jp.resolveType();
 		return jp;
 	}
 	
