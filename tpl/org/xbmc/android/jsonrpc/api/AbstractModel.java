@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.node.ObjectNode;
@@ -49,7 +50,7 @@ public abstract class AbstractModel implements JsonSerializable, Parcelable {
 	 * @return Integer value if found, -1 otherwise.
 	 * @throws JSONException
 	 */
-	public static int parseInt(ObjectNode node, String key) {
+	public static int parseInt(JsonNode node, String key) {
 		return node.has(key) ? node.get(key).getIntValue() : -1;
 	}
 	
@@ -61,7 +62,7 @@ public abstract class AbstractModel implements JsonSerializable, Parcelable {
 	 * @return String value if found, null otherwise.
 	 * @throws JSONException
 	 */
-	public static String parseString(ObjectNode node, String key) {
+	public static String parseString(JsonNode node, String key) {
 		return node.has(key) ? node.get(key).getTextValue() : null;
 	}
 	
@@ -73,7 +74,7 @@ public abstract class AbstractModel implements JsonSerializable, Parcelable {
 	 * @return String value if found, null otherwise.
 	 * @throws JSONException
 	 */
-	public static Boolean parseBoolean(ObjectNode node, String key) {
+	public static Boolean parseBoolean(JsonNode node, String key) {
 		final boolean hasKey = node.has(key);
 		if (hasKey) {
 			return node.get(key).getBooleanValue();
@@ -82,11 +83,11 @@ public abstract class AbstractModel implements JsonSerializable, Parcelable {
 		}
 	}
 	
-	public static Double parseDouble(ObjectNode node, String key) {
+	public static Double parseDouble(JsonNode node, String key) {
 		return node.has(key) ? node.get(key).getDoubleValue() : null;
 	}
 
-	public static ArrayList<String> getStringArray(ObjectNode node, String key) {
+	public static ArrayList<String> getStringArray(JsonNode node, String key) {
 		if (node.has(key)) {
 			final ArrayNode a = (ArrayNode)node.get(key);
 			final ArrayList<String> l = new ArrayList<String>(a.size());
@@ -98,7 +99,7 @@ public abstract class AbstractModel implements JsonSerializable, Parcelable {
 		return new ArrayList<String>(0);
 	}
 	
-	public static ArrayList<Integer> getIntegerArray(ObjectNode node, String key) {
+	public static ArrayList<Integer> getIntegerArray(JsonNode node, String key) {
 		if (node.has(key)) {
 			final ArrayNode a = (ArrayNode)node.get(key);
 			final ArrayList<Integer> l = new ArrayList<Integer>(a.size());
@@ -110,7 +111,7 @@ public abstract class AbstractModel implements JsonSerializable, Parcelable {
 		return new ArrayList<Integer>(0);
 	}
 	
-	public static HashMap<String, String> getStringMap(ObjectNode node, String key) {
+	public static HashMap<String, String> getStringMap(JsonNode node, String key) {
 		if (node.has(key)) {
 			final ObjectNode n = (ObjectNode)node.get(key);
 			final HashMap<String, String> m = new HashMap<String, String>();
