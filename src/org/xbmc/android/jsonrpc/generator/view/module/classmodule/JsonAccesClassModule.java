@@ -136,7 +136,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 		// signature
 		sb.append(indent).append("public ");
 		sb.append(getClassName(klass));
-		sb.append("(ObjectNode node) {\n");
+		sb.append("(JsonNode node) {\n");
 		
 		// call to super()
 		if (klass.doesExtend()) {
@@ -471,13 +471,13 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 		sb.append(name);
 		sb.append("> ");
 		sb.append(getListGetter(klass));
-		sb.append("(ObjectNode node, String key) {\n");
+		sb.append("(JsonNode node, String key) {\n");
 		
 		sb.append(indent).append("	if (node.has(key)) {\n");
 		sb.append(indent).append("		final ArrayNode a = (ArrayNode)node.get(key);\n");
 		sb.append(indent).append("		final List<").append(name).append("> l = new ArrayList<").append(name).append(">(a.size());\n");
 		sb.append(indent).append("		for (int i = 0; i < a.size(); i++) {\n");
-		sb.append(indent).append("			l.add(new ").append(name).append("((ObjectNode)a.get(i)));\n");
+		sb.append(indent).append("			l.add(new ").append(name).append("((JsonNode)a.get(i)));\n");
 		sb.append(indent).append("		}\n");
 		sb.append(indent).append("		return l;\n");
 		sb.append(indent).append("	}\n");
@@ -523,7 +523,7 @@ public class JsonAccesClassModule extends AbstractView implements IClassModule {
 	private void renderObjectNodeGetter(StringBuilder sb, Namespace ns, JavaClass klass, String name) {
 		sb.append("new ");
 		sb.append(getClassReference(ns, klass));
-		sb.append("((ObjectNode)node.get(");
+		sb.append("(node.get(");
 		sb.append(name.toUpperCase());
 		sb.append("))");
 	}
