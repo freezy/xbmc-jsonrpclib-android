@@ -86,9 +86,9 @@ public class Introspect {
 	
 	public final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 	
-	// date: git show -s --format="%ci" 9cdc29e
-	public final static String XBMC_VERSION_HASH = "9cdc29e";
-	public final static String XBMC_VERSION_DATE = "2012-11-10 09:33:15 +0100";
+	// date: git show -s --format="%ci" 99fa6fb
+	public final static String XBMC_VERSION_HASH = "99fa6fb";
+	public final static String XBMC_VERSION_DATE = "2012-11-28 08:57:45 +0100";
 	public final static String XBMC_VERSION_BRANCH = "Branch.MASTER";
 	public final static String XBMC_VERSION_TYPE = "Type.NIGHTLY";
 	
@@ -101,7 +101,7 @@ public class Introspect {
 	private final static String CALL_CLASS_SUFFIX  = "";
 	
 //	private final static String OUTPUT_FOLDER = "D:/dev/xbmc-jsonrpclib-android";
-	private final static String OUTPUT_FOLDER = "S:/Development/xbmc-jsonrpclib-android-output";
+	private final static String OUTPUT_FOLDER = "/home/tthomas/git/xbmc-jsonrpclib-android/";
 
 	private final static List<String> IGNORED_METHODS = new ArrayList<String>();
 	
