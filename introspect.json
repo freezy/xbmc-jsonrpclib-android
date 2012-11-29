@@ -5192,9 +5192,9 @@
                 "extends": "Audio.Details.Base",
                 "id": "Audio.Details.Artist",
                 "properties": {
-                    "artist": {
-                        "required": true,
-                        "type": "string"
+                    "label": {
+                        "type": "string",
+                        "required": true
                     },
                     "artistid": {
                         "$ref": "Library.Id",
