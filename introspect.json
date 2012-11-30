@@ -5192,9 +5192,9 @@
                 "extends": "Audio.Details.Base",
                 "id": "Audio.Details.Artist",
                 "properties": {
-                    "label": {
-                        "type": "string",
-                        "required": true
+                    "artist": {
+                        "required": true,
+                        "type": "string"
                     },
                     "artistid": {
                         "$ref": "Library.Id",
@@ -5565,7 +5565,6 @@
                 "type": "object"
             },
             "GUI.Window": {
-                "default": "home",
                 "enums": [
                     "home",
                     "programs",
@@ -5683,6 +5682,7 @@
                     "mediafilter"
                 ],
                 "id": "GUI.Window",
+                "required": true,
                 "type": "string"
             },
             "Global.IncrementDecrement": {
