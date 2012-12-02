@@ -5565,6 +5565,7 @@
                 "type": "object"
             },
             "GUI.Window": {
+                "default": "home",
                 "enums": [
                     "home",
                     "programs",
@@ -5682,7 +5683,6 @@
                     "mediafilter"
                 ],
                 "id": "GUI.Window",
-                "required": true,
                 "type": "string"
             },
             "Global.IncrementDecrement": {
@@ -5747,7 +5747,6 @@
                 ]
             },
             "Input.Action": {
-                "default": "left",
                 "enums": [
                     "left",
                     "right",
@@ -5923,6 +5922,7 @@
                     "noop"
                 ],
                 "id": "Input.Action",
+                "required": true,
                 "type": "string"
             },
             "Item.Details.Base": {
@@ -6507,7 +6507,6 @@
                 ]
             },
             "List.Filter.Operators": {
-                "default": "contains",
                 "enums": [
                     "contains",
                     "doesnotcontain",
@@ -6526,6 +6525,7 @@
                     "between"
                 ],
                 "id": "List.Filter.Operators",
+                "required": true,
                 "type": "string"
             },
             "List.Filter.Rule": {
