@@ -1656,12 +1656,32 @@
                 "type": "method"
             },
             "JSONRPC.Version": {
-                "description": "Retrieve the jsonrpc protocol version",
+                "description": "Retrieve the JSON-RPC protocol version.",
                 "params": [
 
                 ],
                 "returns": {
-                    "type": "string"
+                    "properties": {
+                        "major": {
+                            "description": "Bumped on backwards incompatible changes to the API definition",
+                            "minimum": 0,
+                            "required": true,
+                            "type": "integer"
+                        },
+                        "minor": {
+                            "description": "Bumped on backwards compatible additions/changes to the API definition",
+                            "minimum": 0,
+                            "required": true,
+                            "type": "integer"
+                        },
+                        "patch": {
+                            "description": "Bumped on any changes to the internal implementation but not to the API definition",
+                            "minimum": 0,
+                            "required": true,
+                            "type": "integer"
+                        }
+                    },
+                    "type": "object"
                 },
                 "type": "method"
             },
@@ -5747,6 +5767,7 @@
                 ]
             },
             "Input.Action": {
+                "default": "left",
                 "enums": [
                     "left",
                     "right",
@@ -5922,7 +5943,6 @@
                     "noop"
                 ],
                 "id": "Input.Action",
-                "required": true,
                 "type": "string"
             },
             "Item.Details.Base": {
@@ -6361,7 +6381,6 @@
                 "type": "string"
             },
             "List.Filter.Fields.MusicVideos": {
-                "default": "title",
                 "enums": [
                     "title",
                     "genre",
@@ -6387,6 +6406,7 @@
                     "playlist"
                 ],
                 "id": "List.Filter.Fields.MusicVideos",
+                "required": true,
                 "type": "string"
             },
             "List.Filter.Fields.Songs": {
@@ -6507,6 +6527,7 @@
                 ]
             },
             "List.Filter.Operators": {
+                "default": "contains",
                 "enums": [
                     "contains",
                     "doesnotcontain",
@@ -6525,7 +6546,6 @@
                     "between"
                 ],
                 "id": "List.Filter.Operators",
-                "required": true,
                 "type": "string"
             },
             "List.Filter.Rule": {
@@ -8580,6 +8600,6 @@
                 "type": "object"
             }
         },
-        "version": 5
+        "version": "6.0.0"
     }
 }
