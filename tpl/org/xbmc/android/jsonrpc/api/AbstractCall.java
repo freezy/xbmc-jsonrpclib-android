@@ -225,7 +225,7 @@ public abstract class AbstractCall<T> implements Parcelable {
 	}
 	
 	protected ArrayNode parseResults(JsonNode obj, String key) {
-		if(obj instanceof NullNode) {
+		if(obj.get(key) instanceof NullNode) {
 			return null;
 		}
 		return (ArrayNode)obj.get(key);
