@@ -6381,6 +6381,7 @@
                 "type": "string"
             },
             "List.Filter.Fields.MusicVideos": {
+                "default": "title",
                 "enums": [
                     "title",
                     "genre",
@@ -6406,7 +6407,6 @@
                     "playlist"
                 ],
                 "id": "List.Filter.Fields.MusicVideos",
-                "required": true,
                 "type": "string"
             },
             "List.Filter.Fields.Songs": {

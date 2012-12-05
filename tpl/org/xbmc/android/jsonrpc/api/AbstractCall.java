@@ -30,6 +30,7 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ArrayNode;
+import org.codehaus.jackson.node.NullNode;
 import org.codehaus.jackson.node.ObjectNode;
 
 import android.os.Parcel;
@@ -224,6 +225,9 @@ public abstract class AbstractCall<T> implements Parcelable {
 	}
 	
 	protected ArrayNode parseResults(JsonNode obj, String key) {
+		if(obj instanceof NullNode) {
+			return null;
+		}
 		return (ArrayNode)obj.get(key);
 	}
 	

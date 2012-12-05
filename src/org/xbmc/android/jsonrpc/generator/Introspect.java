@@ -74,7 +74,7 @@ import org.xbmc.android.jsonrpc.generator.view.module.parentmodule.MethodParentM
  * <ul><li>If you want to dump just one namespace, set {@link NamespaceView#DISPLAY_ONLY}.</li>
  *     <li>If you want to dump only one type, set {@link ClassView#DISPLAY_ONLY}
  *         ({@link NamespaceView#DISPLAY_ONLY} must be set also, otherwise it 
- *         will be skipped).</li>
+ *         will be skipped).</li>3a2c959
  *     <li>Same for enums, see {@link EnumView#DISPLAY_ONLY}.</li>
  * </u>
  * 
@@ -87,8 +87,8 @@ public class Introspect {
 	public final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 	
 	// date: git show -s --format="%ci" 99fa6fb
-	public final static String XBMC_VERSION_HASH = "c7b5a6e";
-	public final static String XBMC_VERSION_DATE = "2012-12-01 14:42:33 -0500";
+	public final static String XBMC_VERSION_HASH = "3a2c959";
+	public final static String XBMC_VERSION_DATE = "2012-12-05 02:04:55 -0800";
 	public final static String XBMC_VERSION_BRANCH = "Branch.MASTER";
 	public final static String XBMC_VERSION_TYPE = "Type.NIGHTLY";
 	
