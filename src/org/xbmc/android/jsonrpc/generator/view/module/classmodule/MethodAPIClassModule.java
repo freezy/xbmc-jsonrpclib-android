@@ -151,8 +151,12 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 		if (method.getReturnType().isTypeArray()) {
 			final String returnType = getClassReference(ns, method.getReturnType().getArrayType());
 			final String returnProp = method.getReturnProperty() != null ? method.getReturnProperty() : "results";
-			sb.append(indent).append("protected ArrayList<").append(returnType).append("> parseMany(ObjectNode node) {\n");
-			sb.append(indent).append("	final ArrayNode ").append(returnProp).append(" = parseResults(node, RESULT);\n");
+			sb.append(indent).append("protected ArrayList<").append(returnType).append("> parseMany(JsonNode node) {\n");
+			if (method.hasReturnProperty()) {
+				sb.append(indent).append("	final ArrayNode ").append(returnProp).append(" = parseResults(node, RESULT);\n");
+			} else {
+				sb.append(indent).append("	final ArrayNode ").append(returnProp).append(" = (ArrayNode) node;\n");
+			}
 			sb.append(indent).append("	if (").append(returnProp).append(" != null) {\n");
 			sb.append(indent).append("		final ArrayList<").append(returnType).append("> ret = new ArrayList<").append(returnType).append(">(").append(returnProp).append(".size());\n");
 			sb.append(indent).append("		for (int i = 0; i < ").append(returnProp).append(".size(); i++) {\n");
@@ -167,7 +171,7 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 			
 		} else {
 			final String returnType = getClassReference(ns, method.getReturnType());
-			sb.append(indent).append("protected ").append(returnType).append(" parseOne(ObjectNode node) {\n");
+			sb.append(indent).append("protected ").append(returnType).append(" parseOne(JsonNode node) {\n");
 			sb.append(indent).append("\t");
 			if (method.getReturnType().isNative()) {
 				if (!JsonAccesClassModule.NATIVE_REQUIRED_NODE_GETTER.containsKey(method.getReturnType().getName())) {
@@ -228,6 +232,7 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 			imports.add("org.codehaus.jackson.node.ArrayNode");
 		}
 		imports.add("org.codehaus.jackson.node.ObjectNode");
+		imports.add("org.codehaus.jackson.JsonNode");
 		
 		return imports;
 	}
