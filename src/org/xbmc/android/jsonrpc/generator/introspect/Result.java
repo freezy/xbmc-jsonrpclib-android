@@ -35,7 +35,7 @@ public class Result {
 	private HashMap<String, Method> methods;
 	private HashMap<String, Notification> notifications;
 	private HashMap<String, Type> types;
-	private Integer version;
+	private String version;
 	
 	public String getDescription() {
 		return description;
@@ -67,10 +67,10 @@ public class Result {
 	public void setTypes(HashMap<String, Type> types) {
 		this.types = types;
 	}
-	public Integer getVersion() {
+	public String getVersion() {
 		return version;
 	}
-	public void setVersion(Integer version) {
+	public void setVersion(String version) {
 		this.version = version;
 	}
 	

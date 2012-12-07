@@ -30,6 +30,7 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ArrayNode;
+import org.codehaus.jackson.node.NullNode;
 import org.codehaus.jackson.node.ObjectNode;
 
 import android.os.Parcel;
@@ -159,9 +160,9 @@ public abstract class AbstractCall<T> implements Parcelable {
 	 */
 	public void setResponse(JsonNode response) {
 		if (returnsList()) {
-			mResults = parseMany((ObjectNode)response.get(RESULT));
+			mResults = parseMany(response.get(RESULT));
 		} else {
-			mResult = parseOne((ObjectNode)response.get(RESULT));
+			mResult = parseOne(response.get(RESULT));
 		}
 	}
 	
@@ -219,11 +220,14 @@ public abstract class AbstractCall<T> implements Parcelable {
 	 * @param obj
 	 * @return
 	 */
-	protected ObjectNode parseResult(ObjectNode obj) {
-		return (ObjectNode)obj.get(RESULT);
+	protected JsonNode parseResult(JsonNode obj) {
+		return obj.get(RESULT);
 	}
 	
-	protected ArrayNode parseResults(ObjectNode obj, String key) {
+	protected ArrayNode parseResults(JsonNode obj, String key) {
+		if(obj.get(key) instanceof NullNode) {
+			return null;
+		}
 		return (ArrayNode)obj.get(key);
 	}
 	
@@ -236,7 +240,7 @@ public abstract class AbstractCall<T> implements Parcelable {
 	 * @param obj The <tt>result</tt> node of the JSON response object.
 	 * @return Result of the API call
 	 */
-	protected T parseOne(ObjectNode obj) {
+	protected T parseOne(JsonNode obj) {
 		return null;
 	}
 	
@@ -249,7 +253,7 @@ public abstract class AbstractCall<T> implements Parcelable {
 	 * @param obj The <tt>result</tt> node of the JSON response object.
 	 * @return Result of the API call
 	 */
-	protected ArrayList<T> parseMany(ObjectNode obj) {
+	protected ArrayList<T> parseMany(JsonNode obj) {
 		return null;
 	}
 	
