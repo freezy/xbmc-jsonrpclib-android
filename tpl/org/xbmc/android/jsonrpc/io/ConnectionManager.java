@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.node.ObjectNode;
 import org.xbmc.android.jsonrpc.api.AbstractCall;
 import org.xbmc.android.jsonrpc.api.AbstractModel;
 import org.xbmc.android.jsonrpc.config.HostConfig;
@@ -54,51 +55,53 @@ import android.util.Log;
  * It is used for two things:
  * <ol><li>Query JSON-API via persistent TCP socket or HTTP.</li>
  *     <li>Subscribe to notification events from XBMC.</li></ol>
- * 
+ *
  * The TCP connection is managed by {@link ConnectionService}. The manager uses
  * a {@link Messenger} to communicate with the service using a {@link Handler}
  * on both sides (see {@link IncomingHandler}).
  * <p/>
- * 
+ *
  * <h3>Serialization</h3>
- * Since we're dealing with a service, objects sent to and received by the 
+ * Since we're dealing with a service, objects sent to and received by the
  * service must be either native types or {@link Parcelable}. For this reason,
  * our entire JSON-RPC library implements {@link Parcelable}. That includes
  * all classes extending {@link AbstractCall} as well as {@link AbstractModel}.
  * <p/>
- * Once the service receives the API call object, it queries XBMC with the 
+ * Once the service receives the API call object, it queries XBMC with the
  * given JSON data and uses the Jackson parser to serialize the response
  * directly into a {@link JsonNode}. Since <tt>JsonNode</tt> is not parcelable,
  * the service directly converts it into our object model using the API call
- * object. The updated API call object is then sent back to 
+ * object. The updated API call object is then sent back to
  * <tt>ConnectionManager</tt>.
- * 
+ *
  * <h3>Synchronization</h3>
  * When syncing the local database we want to avoid the parcelization happening
  * when sending the response back from <tt>ConnectionService</tt> to
- * <tt>ConnectionManager</tt>. Therefore, <tt>call()</tt> can additionally 
+ * <tt>ConnectionManager</tt>. Therefore, <tt>call()</tt> can additionally
  * provide a {@link JsonHandler}, which will synchronize the local DB and only
  * respond with a status code instead of the whole response.
- * 
+ *
  * <h3>Notifications</h3>
- * Every instance of {@link ConnectionManager} appears as a client on the 
+ * Every instance of {@link ConnectionManager} appears as a client on the
  * service's side. Upon reception of a notification, the service announces all
- * connected clients. If {@link ConnectionManager} has any registered 
+ * connected clients. If {@link ConnectionManager} has any registered
  * observers, they will be notified, otherwise the notification is dropped.
- * 
+ *
  * <h3>Destruction</h3>
  * When an instance of ConnectionManager is not needed anymore, be sure to run
  * {@link #disconnect()} in order to un-bind the service and shut down the TCP
  * connection when it's not needed anymore. Re-using a disconnected instance
- * will re-bind automatically. Note that on error, the service is always 
+ * will re-bind automatically. Note that on error, the service is always
  * disconnected automatically.
- * 
+ *
  * @author freezy <freezy@xbmc.org>
  */
 public class ConnectionManager {
-	
+
 	private static final String TAG = ConnectionManager.class.getSimpleName();
-	
+
+	private final static String HTTP_PATH = "/jsonrpc";
+
 	/**
 	 * Reference to context
 	 */
@@ -114,7 +117,7 @@ public class ConnectionManager {
 	/**
 	 * The reference through which we send messages to the service
 	 */
-	private Messenger mService = null;	
+	private Messenger mService = null;
 	/**
 	 * List of observers listening to notifications.
 	 */
@@ -129,18 +132,23 @@ public class ConnectionManager {
 	 */
 	private final HashMap<String, CallRequest<?>> mCallRequests = new HashMap<String, CallRequest<?>>();
 	/**
-	 * When posting request data and the service isn't started yet, we need to 
+	 * When posting request data and the service isn't started yet, we need to
 	 * reschedule the post until the service is available. This list contains
-	 * the requests that are to sent upon service startup. 
+	 * the requests that are to sent upon service startup.
 	 */
 	private final LinkedList<AbstractCall<?>> mPendingCalls = new LinkedList<AbstractCall<?>>();
 	private final HashMap<String, JsonHandler> mPendingHandlers = new HashMap<String, JsonHandler>();
-	
+
 	/**
 	 * XBMC host configuration
 	 */
 	private final HostConfig mHost;
-	
+
+	/**
+	 * If true and HTTP port is set, use HTTP requests instead of the TCP service.
+	 */
+	private boolean mPreferHTTP = false;
+
 	/**
 	 * Class constructor.
 	 * @param c Needed if the service needs to be started
@@ -149,38 +157,59 @@ public class ConnectionManager {
 		mContext = c;
 		mHost = host;
 	}
-	
+
 	/**
 	 * Executes a JSON-RPC request with the full result in the callback.
 	 * @param call Call to execute
-	 * @param callback 
+	 * @param callback
 	 * @return
 	 */
-	public <T> ConnectionManager call(AbstractCall<T> call, ApiCallback<T> callback) {
-		// start service if not yet started
-		bindService();
-		mCallRequests.put(call.getId(), new CallRequest<T>(call, callback));
-		sendCall(call);
+	public <T> ConnectionManager call(final AbstractCall<T> call, final ApiCallback<T> callback) {
+
+		if (mPreferHTTP) {
+
+			// spawn another thread for this
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					// synchronously post, retrieve and parse response.
+					try {
+						call.setResponse(JsonApiRequest.execute(getUrl(), call.getRequest()));
+						callback.onResponse(call);
+					} catch (ApiException e) {
+						callback.onError(e.getCode(), e.getMessage(), null);
+					}
+				}
+			}).start();
+
+		} else {
+
+			// start service if not yet started
+			bindService();
+			mCallRequests.put(call.getId(), new CallRequest<T>(call, callback));
+			sendCall(call);
+		}
 		return this;
 	}
-	
+
 	/**
 	 * Executes a JSON-RPC request where the handler is executed at the service
 	 * and the callback gets a status code only.
-	 * 
+	 *
 	 * @param call Call to execute
 	 * @param handler Handler to treat result
 	 * @param callback Callback to handle result, can be null.
 	 * @return
 	 */
 	public ConnectionManager call(AbstractCall<?> call, JsonHandler handler, HandlerCallback callback) {
+
 		// start service if not yet started
 		bindService();
 		mHandlerCallbacks.put(call.getId(), callback);
 		sendCall(call, handler);
 		return this;
 	}
-	
+
 	/**
 	 * Adds a new notification observer.
 	 * @param observer New observer
@@ -192,7 +221,7 @@ public class ConnectionManager {
 		mObservers.add(observer);
 		return this;
 	}
-	
+
 	/**
 	 * Removes a previously added observer.
 	 * @param observer Observer to remove
@@ -209,8 +238,25 @@ public class ConnectionManager {
 			Log.w(TAG, "Still stuff waiting, not unbinding.");
 		}
 		return this;
-	}	
-	
+	}
+
+	/**
+	 * Returns true if HTTP is used instead of a permanent TCP socket.
+	 * @return True if HTTP is used, false otherwise.
+	 */
+	public boolean prefersHTTP() {
+		return mPreferHTTP;
+	}
+
+	/**
+	 * Makes the connection manager use HTTP requests instead of the connection
+	 * service, which uses a permanent TCP socket.
+	 * @param preferHTTP
+	 */
+	public void setPreferHTTP(boolean preferHTTP) {
+		mPreferHTTP = preferHTTP;
+	}
+
 	/**
 	 * Binds the connection to the notification service if not yet bound.
 	 */
@@ -222,13 +268,13 @@ public class ConnectionManager {
 			connectionServiceIntent.putExtra(ConnectionService.EXTRA_ADDRESS, mHost.getAddress());
 			connectionServiceIntent.putExtra(ConnectionService.EXTRA_HTTPPORT, mHost.getHttpPort());
 			connectionServiceIntent.putExtra(ConnectionService.EXTRA_TCPPORT, mHost.getTcpPort());
-			
+
 			mContext.startService(connectionServiceIntent);
 			mContext.bindService(connectionServiceIntent, mConnection, Context.BIND_AUTO_CREATE);
 			mIsBound = true;
-		}		
+		}
 	}
-	
+
 	/**
 	 * Unbinds the connection from the notification service. This is done by
 	 * notifying the service first and then terminating the connection.
@@ -256,7 +302,7 @@ public class ConnectionManager {
 			Log.d(TAG, "Not unbinding already unbound service.");
 		}
 	}
-	
+
 	/**
 	 * Posts a API call to the service.
 	 * @param apiCall API call
@@ -280,7 +326,7 @@ public class ConnectionManager {
 			mPendingCalls.add(apiCall);
 		}
 	}
-	
+
 	/**
 	 * Posts a new handled API call to the service.
 	 * @param apiCall API call
@@ -307,10 +353,10 @@ public class ConnectionManager {
 			mPendingHandlers.put(apiCall.getId(), handler);
 		}
 	}
-	
+
 	/**
 	 * Disconnects from the service.
-	 * 
+	 *
 	 * Run this as soon as there are no immediate calls to the API. Running it
 	 * when there are still requests in progress will cut off the callback (so
 	 * don't do that). However, notification listener will not be affected. Once
@@ -334,7 +380,7 @@ public class ConnectionManager {
 				final Message msg = Message.obtain(null, ConnectionService.MSG_REGISTER_CLIENT);
 				msg.replyTo = mMessenger;
 				mService.send(msg);
-				
+
 			} catch (RemoteException e) {
 				Log.e(TAG, "Error registering client: " + e.getMessage(), e);
 				// In this case the service has crashed before we could even do
@@ -363,13 +409,13 @@ public class ConnectionManager {
 			Log.i(TAG, "Service disconnected.");
 		}
 	};
-	
+
 	/**
 	 * The handler from the receiving service.
 	 * <p>
-	 * In here we add the logic of what happens when we get messages from the 
+	 * In here we add the logic of what happens when we get messages from the
 	 * notification service.
-	 * 
+	 *
 	 * @author freezy <freezy@xbmc.org>
 	 */
 	private class IncomingHandler extends Handler {
@@ -379,7 +425,7 @@ public class ConnectionManager {
 			final HashMap<String, CallRequest<?>> callrequests = mCallRequests;
 			final HashMap<String, HandlerCallback> handlercallbacks = mHandlerCallbacks;
 			switch (msg.what) {
-				
+
 				// fully updated API call object
 				case ConnectionService.MSG_RECEIVE_APICALL: {
 					final AbstractCall<?> returnedApiCall = msg.getData().getParcelable(ConnectionService.EXTRA_APICALL);
@@ -398,7 +444,7 @@ public class ConnectionManager {
 					}
 					break;
 				}
-					
+
 				// status code after handled api call
 				case ConnectionService.MSG_RECEIVE_HANDLED_APICALL: {
 					final Bundle b = msg.getData();
@@ -413,7 +459,7 @@ public class ConnectionManager {
 					}
 					break;
 				}
-					
+
 				// notification
 				case ConnectionService.MSG_RECEIVE_NOTIFICATION: {
 					final Bundle b = msg.getData();
@@ -446,13 +492,13 @@ public class ConnectionManager {
 					}
 					break;
 				}
-				
+
 				// service started connecting to socket
 				case ConnectionService.MSG_CONNECTING: {
 					// we don't care for this right now
 					break;
 				}
-					
+
 				// service is connected to socket
 				case ConnectionService.MSG_CONNECTED: {
 					final ArrayList<NotificationObserver> observers = mObservers;
@@ -461,7 +507,7 @@ public class ConnectionManager {
 					}
 					break;
 				}
-					
+
 				// shit happened
 				case ConnectionService.MSG_ERROR: {
 					final Bundle b = msg.getData();
@@ -469,10 +515,10 @@ public class ConnectionManager {
 					final String message = b.getString(ApiException.EXTRA_ERROR_MESSAGE);
 					final String hint = b.getString(ApiException.EXTRA_ERROR_HINT);
 					final String id = b.getString(ConnectionService.EXTRA_CALLID);
-					
+
 					final HashMap<String, HandlerCallback> handleCallbacks = mHandlerCallbacks;
 					final HashMap<String, CallRequest<?>> callRequests = mCallRequests;
-					
+
 					if (id != null && handleCallbacks.containsKey(id)) {
 						// if ID given and handler call back, announce to handler callback.
 						Log.e(TAG, "Error, notifying one handler callback.");
@@ -492,12 +538,12 @@ public class ConnectionManager {
 							}
 						}
 						handleCallbacks.clear();
-						
+
 						for (CallRequest<?> callreq : callRequests.values()) {
 							callreq.error(code, message, hint);
 						}
 						callRequests.clear();
-						
+
 						final ArrayList<NotificationObserver> observers = mObservers;
 						for (NotificationObserver observer : observers) {
 							observer.onError(code, message, hint);
@@ -512,7 +558,19 @@ public class ConnectionManager {
 			}
 		}
 	}
-	
+
+
+	/**
+	 * Returns the URL of XBMC to connect to.
+	 *
+	 * The URL already contains the JSON-RPC prefix, e.g.:
+	 * 		<code>http://192.168.0.100:8080/jsonrpc</code>
+	 * @return URL of JSON-RPC via HTTP
+	 */
+	private String getUrl() {
+		return "http://" + mHost.getAddress() + ":" + mHost.getHttpPort()+ HTTP_PATH;
+	}
+
 	/**
 	 * A call request bundles an API call and its callback of the same type.
 	 *
@@ -535,7 +593,7 @@ public class ConnectionManager {
 			mCallback.onError(code, message, hint);
 		}
 	}
-	
+
 	/**
 	 * Observer interface that handles arriving notifications.
 	 * @author freezy <freezy@xbmc.org>
@@ -543,10 +601,9 @@ public class ConnectionManager {
 	public static interface NotificationObserver {
 		/**
 		 * Handle an arriving notification in here.
-		 * @param notification
 		 */
 		public PlayerObserver getPlayerObserver();
-		
+
 		/**
 		 * The service is connected to JSON-RPC's TCP socket.
 		 * <p/>
@@ -554,9 +611,9 @@ public class ConnectionManager {
 		 * after registering the client.
 		 */
 		public void onConnected();
-		
+
 		/**
-		 * An error has occurred which resulted in the termination of the 
+		 * An error has occurred which resulted in the termination of the
 		 * connection.
 		 * @param code Error code, see constants at {@link ApiException}.
 		 * @param message Translated error message
@@ -564,7 +621,7 @@ public class ConnectionManager {
 		 */
 		public void onError(int code, String message, String hint);
 	}
-	
+
 	/**
 	 * When providing a {@link JsonHandler} to an API call, this interface
 	 * will inform the caller when processing has finished.
@@ -580,7 +637,7 @@ public class ConnectionManager {
 		 */
 		public void onFinish();
 		/**
-		 * Processing has failed. 
+		 * Processing has failed.
 		 * <p>
 		 * Note that the service has been automatically disconnected.
 		 * @param message Translated error message

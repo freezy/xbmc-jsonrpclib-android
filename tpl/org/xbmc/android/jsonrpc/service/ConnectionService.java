@@ -229,12 +229,13 @@ public class ConnectionService extends IntentService {
 			
 			final JsonFactory jf = OM.getJsonFactory();
 			final JsonParser jp = jf.createJsonParser(socket.getInputStream());
-			JsonNode node = null;
+			JsonNode node;
 			while ((node = OM.readTree(jp)) != null) {
-				if (node.toString().length() > 80) {
-					Log.i(TAG, "READ: " + node.toString().substring(0, 80) + "...");
+				final String debugDump = node.toString();
+				if (debugDump.length() > 80) {
+					Log.i(TAG, "READ: " + debugDump.substring(0, 80) + "...");
 				} else {
-					Log.i(TAG, "READ: " + node.toString());
+					Log.i(TAG, "READ: " + debugDump);
 				}
 				notifyClients(node);
 			}
@@ -269,13 +270,7 @@ public class ConnectionService extends IntentService {
 		Log.i(TAG, "Connection service bound to new client.");
 		return mMessenger.getBinder();
 	}
-	
-	@Override
-	public boolean onUnbind(Intent intent) {
-		final boolean ret = super.onUnbind(intent);
-		return ret;
-	}
-	
+
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
@@ -325,7 +320,7 @@ public class ConnectionService extends IntentService {
 	 * <p/>
 	 * Otherwise, the notification object is sent to all clients.
 	 * 
-	 * @param data JSON-serialized response
+	 * @param node JSON-serialized response
 	 */
 	private void notifyClients(JsonNode node) {
 		final ArrayList<Messenger> clients = mClients;
@@ -429,9 +424,8 @@ public class ConnectionService extends IntentService {
 	
 	/**
 	 * Sends an error to all clients.
-	 * @param code Error code, see ERROR_*
-	 * @param message Error message
-	 * @param e Exception
+	 * @param e Thrown API exception
+     * @param id ID of the request
 	 */
 	private void notifyError(ApiException e, String id) {
 

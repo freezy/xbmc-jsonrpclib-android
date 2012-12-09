@@ -38,31 +38,35 @@ import org.codehaus.jackson.node.ObjectNode;
 import android.util.Log;
 
 /**
- * Performs HTTP POST requests on the XBMC JSON API and handles the parsing from and to {@link ObjectNode}.
+ * Performs HTTP POST requests on the XBMC JSON API and handles the parsing from
+ * and to {@link ObjectNode}.
+ * <p/>
+ * <i>Note</i>: All in here is synchronous.
  *
  * @author Joel Stemmer <stemmertech@gmail.com>
+ * @author freezy <freezy@xbmc.org>
  */
 public class JsonApiRequest {
 
 	private static final String TAG = JsonApiRequest.class.getSimpleName();
-	
+
 	private static final int REQUEST_TIMEOUT = 5000; // 5 sec
 	private static final ObjectMapper OM = new ObjectMapper();
 
 	/**
-	 * Execute a POST request to the url using the JSON Object as request body 
-	 * and returns a JSONO bject if the response was successful.
+	 * Executes a POST request to the URL using the JSON Object as request body
+	 * and returns a JSON Object if the response was successful.
 	 *
-	 * @param url
-	 * @param entity
+	 * @param url Complete URL with schema, host, port if not default and path.
+	 * @param entity Object being serialized as message body
 	 * @return JSON Object of the JSON-RPC response.
-	 * @throws HandlerException
+	 * @throws ApiException
 	 */
 	public static ObjectNode execute(String url, ObjectNode entity) throws ApiException {
 		try {
 			String response = postRequest(new URL(url), entity.toString());
 			return parseResponse(response);
-		} catch(MalformedURLException e) {
+		} catch (MalformedURLException e) {
 			throw new ApiException(ApiException.MALFORMED_URL, e.getMessage(), e);
 		}
 	}
@@ -73,12 +77,12 @@ public class JsonApiRequest {
 	 * @param url
 	 * @param entity
 	 * @return The response as a string
-	 * @throws HandlerException
+	 * @throws ApiException
 	 * @throws IOException
 	 */
 	private static String postRequest(URL url, String entity) throws ApiException {
 		try {
-			final HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+			final HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
 			conn.setRequestMethod("POST");
 			conn.setRequestProperty("Content-Type", "application/json");
@@ -93,7 +97,7 @@ public class JsonApiRequest {
 				OutputStreamWriter output = new OutputStreamWriter(conn.getOutputStream(), "UTF-8");
 				output.write(entity);
 				output.close();
-			} catch(UnsupportedEncodingException e) {
+			} catch (UnsupportedEncodingException e) {
 				throw new ApiException(ApiException.UNSUPPORTED_ENCODING, "Unable to convert request to UTF-8", e);
 			}
 
@@ -106,10 +110,10 @@ public class JsonApiRequest {
 			try {
 				reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"), 8192);
 				String line;
-				while((line = reader.readLine()) != null) {
+				while ((line = reader.readLine()) != null) {
 					response.append(line);
 				}
-			} catch(UnsupportedEncodingException e) {
+			} catch (UnsupportedEncodingException e) {
 				throw new ApiException(ApiException.UNSUPPORTED_ENCODING, "Unable to convert HTTP response to UTF-8", e);
 			} finally {
 				if (reader != null) {
@@ -129,19 +133,20 @@ public class JsonApiRequest {
 	/**
 	 * Parses the JSON response string and returns a {@link ObjectNode}.
 	 *
-	 * If the response is not valid JSON, contained an error message or did not include a result then a HandlerException
-	 * is thrown.
+	 * If the response is not valid JSON, contained an error message or did not
+	 * include a result then a HandlerException is thrown.
 	 *
 	 * @param response
-	 * @return ObjectNode Root node of the server response, unserialized as ObjectNode.
-	 * @throws HandlerException
+	 * @return ObjectNode Root node of the server response, unserialized as
+	 *         ObjectNode.
+	 * @throws ApiException
 	 */
 	private static ObjectNode parseResponse(String response) throws ApiException {
 		try {
-			final ObjectNode node = (ObjectNode)OM.readTree(response.toString());
+			final ObjectNode node = (ObjectNode) OM.readTree(response.toString());
 
 			if (node.has("error")) {
-				final ObjectNode error = (ObjectNode)node.get("error");
+				final ObjectNode error = (ObjectNode) node.get("error");
 				Log.e(TAG, "[JSON-RPC] " + error.get("message").getTextValue());
 				Log.e(TAG, "[JSON-RPC] " + response);
 				throw new ApiException(ApiException.API_ERROR, "Error " + error.get("code").getIntValue() + ": " + error.get("message").getTextValue(), null);
@@ -151,7 +156,7 @@ public class JsonApiRequest {
 				Log.e(TAG, "[JSON-RPC] " + response);
 				throw new ApiException(ApiException.RESPONSE_ERROR, "Neither result nor error object found in response.", null);
 			}
-			
+
 			if (node.get("result").isNull()) {
 				return null;
 			}
@@ -166,11 +171,12 @@ public class JsonApiRequest {
 
 	/**
 	 * Build user agent used for the HTTP requests
+	 *
 	 * TODO: include version information
 	 *
 	 * @return String containing the user agent
 	 */
 	private static String buildUserAgent() {
-		return "XBMCRemote (1.0)";
+		return "xbmc-jsonrpclib-android";
 	}
 }
