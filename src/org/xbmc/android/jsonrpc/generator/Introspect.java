@@ -20,18 +20,6 @@
  */
 package org.xbmc.android.jsonrpc.generator;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
 import org.apache.commons.io.FileUtils;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.Version;
@@ -50,18 +38,17 @@ import org.xbmc.android.jsonrpc.generator.introspect.wrapper.AdditionalPropertie
 import org.xbmc.android.jsonrpc.generator.introspect.wrapper.ExtendsWrapper;
 import org.xbmc.android.jsonrpc.generator.introspect.wrapper.TypeWrapper;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
-import org.xbmc.android.jsonrpc.generator.view.ClassView;
-import org.xbmc.android.jsonrpc.generator.view.EnumView;
 import org.xbmc.android.jsonrpc.generator.view.NamespaceView;
 import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
-import org.xbmc.android.jsonrpc.generator.view.module.classmodule.CallParcelableClassModule;
-import org.xbmc.android.jsonrpc.generator.view.module.classmodule.ConvenienceExtensionsClassModule;
-import org.xbmc.android.jsonrpc.generator.view.module.classmodule.JsonAccesClassModule;
-import org.xbmc.android.jsonrpc.generator.view.module.classmodule.MemberDeclarationClassModule;
-import org.xbmc.android.jsonrpc.generator.view.module.classmodule.MethodAPIClassModule;
-import org.xbmc.android.jsonrpc.generator.view.module.classmodule.ModelParcelableClassModule;
+import org.xbmc.android.jsonrpc.generator.view.module.classmodule.*;
 import org.xbmc.android.jsonrpc.generator.view.module.parentmodule.ClassParentModule;
 import org.xbmc.android.jsonrpc.generator.view.module.parentmodule.MethodParentModule;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * Main program. To make this work, update:
@@ -69,14 +56,6 @@ import org.xbmc.android.jsonrpc.generator.view.module.parentmodule.MethodParentM
  * <ul><li>{@link #OUTPUT_FOLDER} where you want the java files placed (your source folder)</li>
  *      <li>{@link #MODEL_PACKAGE} in which package you want your model files</li>
  * </ul>
- * 
- * Debugging
- * <ul><li>If you want to dump just one namespace, set {@link NamespaceView#DISPLAY_ONLY}.</li>
- *     <li>If you want to dump only one type, set {@link ClassView#DISPLAY_ONLY}
- *         ({@link NamespaceView#DISPLAY_ONLY} must be set also, otherwise it 
- *         will be skipped).</li>3a2c959
- *     <li>Same for enums, see {@link EnumView#DISPLAY_ONLY}.</li>
- * </u>
  * 
  * Folders will be created. Program will crash if no write permissions.
  * 
@@ -100,8 +79,8 @@ public class Introspect {
 	private final static String MODEL_CLASS_SUFFIX = "Model";
 	private final static String CALL_CLASS_SUFFIX  = "";
 	
-//	private final static String OUTPUT_FOLDER = "D:/dev/xbmc-jsonrpclib-android";
-	private final static String OUTPUT_FOLDER = "/home/tthomas/git/xbmc-jsonrpclib-android/";
+	private final static String OUTPUT_FOLDER = "D:/dev/xbmc-jsonrpclib-android";
+//	private final static String OUTPUT_FOLDER = "/home/tthomas/git/xbmc-jsonrpclib-android/";
 
 	private final static List<String> IGNORED_METHODS = new ArrayList<String>();
 	
@@ -253,16 +232,16 @@ public class Introspect {
 	 * @return File handler
 	 */
 	private static File getFile(Namespace ns) {
-		final StringBuffer sb = new StringBuffer(OUTPUT_FOLDER.replace("\\", "/"));
-		final String[] paks = ns.getPackageName().split("\\.");
+		final StringBuilder sb = new StringBuilder(OUTPUT_FOLDER.replace("\\", "/"));
+		final String[] packages = ns.getPackageName().split("\\.");
 		if (!sb.toString().endsWith("/")) {
 			sb.append("/");
 		}
 		sb.append("src/");
-		for (int i = 0; i < paks.length; i++) {
-			sb.append(paks[i]);
-			sb.append("/");
-		}
+        for (String pak : packages) {
+            sb.append(pak);
+            sb.append("/");
+        }
 		sb.append(ns.getName());
 		sb.append(".java");
 		
@@ -294,12 +273,12 @@ public class Introspect {
 		}
 	}
 	
-	private static void replaceInFile(String oldstring, String newstring, File f) throws IOException {
+	private static void replaceInFile(String oldString, String newString, File f) throws IOException {
 		final BufferedReader reader = new BufferedReader(new FileReader(f));
 		final StringBuilder sb = new StringBuilder();
-		String line = null;
+		String line;
 		while ((line = reader.readLine()) != null) {
-			sb.append(line.replaceAll(oldstring, newstring));
+			sb.append(line.replaceAll(oldString, newString));
 			sb.append("\r\n");
 		}
 		reader.close();

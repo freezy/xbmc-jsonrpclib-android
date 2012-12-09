@@ -41,6 +41,11 @@ public class ConvenienceExtensionsClassModule extends AbstractView implements IC
 		if ("Global.Time".equals(klass.getApiType())) {
 			renderTime(sb, idt);
 		}
+		
+		if ("VersionResult".equals(klass.getName())) {
+			renderVersion(sb, idt);
+		}
+		
 	}
 
 	@Override
@@ -59,6 +64,26 @@ public class ConvenienceExtensionsClassModule extends AbstractView implements IC
 		sb.append(indent).append(" */\n");
 		sb.append(indent).append("public long getMilliseconds() {\n");
 		sb.append(indent).append("	return hours * 3600000 + minutes * 60000 + seconds * 1000 + milliseconds;\n");
+		sb.append(indent).append("}\n");
+	}
+	
+	private void renderVersion(StringBuilder sb, int idt) {
+		final String indent = getIndent(idt);
+		
+		sb.append("\n");
+		sb.append(indent).append("@Override\n");
+		sb.append(indent).append("public String toString() {\n");
+		sb.append(indent).append("	return major + \".\" + minor + \".\" + patch;\n");
+		sb.append(indent).append("}\n\n");
+		sb.append(indent).append("/**\n");
+		sb.append(indent).append(" * Returns a comparable integer by multiplying and adding the\n");
+		sb.append(indent).append(" * version parts. <br>\n");
+		sb.append(indent).append(" * Example:\n");
+		sb.append(indent).append(" * 	<tt>2.19.625</tt> becomes <tt>20190625</tt>\n");
+		sb.append(indent).append(" * @return\n");
+		sb.append(indent).append(" */\n");
+		sb.append(indent).append("public int toInt() {\n");
+		sb.append(indent).append("	return patch + minor * 10000 + major * 10000000;\n");
 		sb.append(indent).append("}\n");
 	}
 }
