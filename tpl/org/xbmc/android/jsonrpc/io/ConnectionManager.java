@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.node.ObjectNode;
 import org.xbmc.android.jsonrpc.api.AbstractCall;
 import org.xbmc.android.jsonrpc.api.AbstractModel;
 import org.xbmc.android.jsonrpc.config.HostConfig;
@@ -56,6 +55,11 @@ import android.util.Log;
  * <ol><li>Query JSON-API via persistent TCP socket or HTTP.</li>
  *     <li>Subscribe to notification events from XBMC.</li></ol>
  *
+ * TCP socket is used by default. If you want to force HTTP request, use
+ * {@link #setPreferHTTP()}, which will use HTTP as transport layer and
+ * not use the connection service but {@link JsonApiRequest}.
+ * <p/>
+ * 
  * The TCP connection is managed by {@link ConnectionService}. The manager uses
  * a {@link Messenger} to communicate with the service using a {@link Handler}
  * on both sides (see {@link IncomingHandler}).
@@ -172,8 +176,8 @@ public class ConnectionManager {
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
-					// synchronously post, retrieve and parse response.
 					try {
+						// synchronously post, retrieve and parse response.
 						call.setResponse(JsonApiRequest.execute(getUrl(), call.getRequest()));
 						callback.onResponse(call);
 					} catch (ApiException e) {
@@ -251,10 +255,9 @@ public class ConnectionManager {
 	/**
 	 * Makes the connection manager use HTTP requests instead of the connection
 	 * service, which uses a permanent TCP socket.
-	 * @param preferHTTP
 	 */
-	public void setPreferHTTP(boolean preferHTTP) {
-		mPreferHTTP = preferHTTP;
+	public void setPreferHTTP() {
+		mPreferHTTP = true;
 	}
 
 	/**
