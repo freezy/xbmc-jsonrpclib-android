@@ -87,8 +87,8 @@ public class Introspect {
 	public final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 	
 	// date: git show -s --format="%ci" 99fa6fb
-	public final static String XBMC_VERSION_HASH = "3a2c959";
-	public final static String XBMC_VERSION_DATE = "2012-12-05 02:04:55 -0800";
+	public final static String XBMC_VERSION_HASH = "7f49891";
+	public final static String XBMC_VERSION_DATE = "2012-12-09 07:19:22 -0800";
 	public final static String XBMC_VERSION_BRANCH = "Branch.MASTER";
 	public final static String XBMC_VERSION_TYPE = "Type.NIGHTLY";
 	

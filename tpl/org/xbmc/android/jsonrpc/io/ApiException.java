@@ -64,14 +64,19 @@ public class ApiException extends Exception {
 	
 	public ApiException(JsonNode node) {
 		super(node.get("error").get("message").getValueAsText());
-		this.code = API_ERROR;
 		final StringBuilder sb = new StringBuilder("API Error: ");
-		sb.append("Error in ");
-		sb.append(node.get("error").get("data").get("method").getValueAsText());
-		sb.append(" for ");
-		sb.append(node.get("error").get("data").get("stack").get("name").getValueAsText());
-		sb.append(": ");
-		sb.append(node.get("error").get("data").get("stack").get("property").get("message").getValueAsText());
+		try {
+			this.code = API_ERROR;
+			sb.append("Error in ");
+			sb.append(node.get("error").get("data").get("method").getValueAsText());
+			sb.append(" for ");
+			sb.append(node.get("error").get("data").get("stack").get("name").getValueAsText());
+			sb.append(": ");
+			sb.append(node.get("error").get("data").get("stack").get("property").get("message").getValueAsText());
+		} catch(NullPointerException e) {
+			// this message didn't conform to our expected format
+			throw new RuntimeException(node.toString());
+		}
 		Log.d(TAG, sb.toString());
 	}
 
