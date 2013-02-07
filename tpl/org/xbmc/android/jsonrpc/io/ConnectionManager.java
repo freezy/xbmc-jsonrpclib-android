@@ -147,6 +147,11 @@ public class ConnectionManager {
 	 * XBMC host configuration
 	 */
 	private final HostConfig mHost;
+	
+	/**
+	 * Path where data gets posted.
+	 */
+	private String mHttpPath = HTTP_PATH;
 
 	/**
 	 * If true and HTTP port is set, use HTTP requests instead of the TCP service.
@@ -412,6 +417,22 @@ public class ConnectionManager {
 			Log.i(TAG, "Service disconnected.");
 		}
 	};
+	
+	/**
+	 * Returns the path of the HTTP request. Default is {@link ConnectionManager#HTTP_PATH}.
+	 * @return HTTP path
+	 */
+	public String getHttpPath() {
+		return mHttpPath;
+	}
+
+	/**
+	 * Sets the path of the HTTP request. Should start with slash and end without.
+	 * @param httpPath
+	 */
+	public void setHttpPath(String httpPath) {
+		mHttpPath = httpPath;
+	}
 
 	/**
 	 * The handler from the receiving service.
@@ -571,7 +592,7 @@ public class ConnectionManager {
 	 * @return URL of JSON-RPC via HTTP
 	 */
 	private String getUrl() {
-		return "http://" + mHost.getAddress() + ":" + mHost.getHttpPort()+ HTTP_PATH;
+		return "http://" + mHost.getAddress() + ":" + mHost.getHttpPort()+ mHttpPath;
 	}
 
 	/**

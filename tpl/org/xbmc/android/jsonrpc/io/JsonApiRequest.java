@@ -34,6 +34,7 @@ import java.net.URL;
 import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
+import org.codehaus.jackson.node.TextNode;
 
 import android.util.Log;
 
@@ -146,10 +147,17 @@ public class JsonApiRequest {
 			final ObjectNode node = (ObjectNode) OM.readTree(response.toString());
 
 			if (node.has("error")) {
-				final ObjectNode error = (ObjectNode) node.get("error");
-				Log.e(TAG, "[JSON-RPC] " + error.get("message").getTextValue());
-				Log.e(TAG, "[JSON-RPC] " + response);
-				throw new ApiException(ApiException.API_ERROR, "Error " + error.get("code").getIntValue() + ": " + error.get("message").getTextValue(), null);
+				if (node.get("error").isTextual()) {
+					final TextNode error = (TextNode) node.get("error");
+					Log.e(TAG, "[JSON-RPC] " + error.getTextValue());
+					Log.e(TAG, "[JSON-RPC] " + response);
+					throw new ApiException(ApiException.API_ERROR, "Error: " + error.getTextValue(), null);
+				} else {
+					final ObjectNode error = (ObjectNode) node.get("error");
+					Log.e(TAG, "[JSON-RPC] " + error.get("message").getTextValue());
+					Log.e(TAG, "[JSON-RPC] " + response);
+					throw new ApiException(ApiException.API_ERROR, "Error " + error.get("code").getIntValue() + ": " + error.get("message").getTextValue(), null);
+				}
 			}
 
 			if (!node.has("result")) {
