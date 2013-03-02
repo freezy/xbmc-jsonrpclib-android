@@ -186,7 +186,7 @@ public class ConnectionManager {
 						call.setResponse(JsonApiRequest.execute(getUrl(), call.getRequest()));
 						callback.onResponse(call);
 					} catch (ApiException e) {
-						callback.onError(e.getCode(), e.getMessage(), null);
+						callback.onError(e.getCode(), e.getDisplayableMessage(mContext), e.getHint(mContext));
 					}
 				}
 			}).start();

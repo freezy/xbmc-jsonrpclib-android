@@ -23,6 +23,7 @@ package org.xbmc.android.jsonrpc.api;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * A class containing version information about a specific XBMC build.
@@ -58,7 +59,7 @@ public class Version {
 	 * @param type
 	 */
 	private Version(String hash, String date, Branch branch, Type type) {
-		final SimpleDateFormat sfd = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
+		final SimpleDateFormat sfd = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z", Locale.US);
 		this.hash = hash;
 		try {
 			this.date = sfd.parse(date);
@@ -99,7 +100,7 @@ public class Version {
 
 	@Override
 	public String toString() {
-		return hash + " (" + branch.toString().toLowerCase() + ")";
+		return hash + " (" + branch.toString().toLowerCase(Locale.US) + ")";
 	}
 
 	/**

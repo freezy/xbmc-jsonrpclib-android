@@ -107,23 +107,53 @@ public class JsonApiRequest {
 
 			StringBuilder response = new StringBuilder();
 			BufferedReader reader = null;
-
-			try {
-				reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"), 8192);
-				String line;
-				while ((line = reader.readLine()) != null) {
-					response.append(line);
+			
+			final int code = conn.getResponseCode();
+			if (code == 200) {
+				try {
+					reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"), 8192);
+					String line;
+					while ((line = reader.readLine()) != null) {
+						response.append(line);
+					}
+				} catch (UnsupportedEncodingException e) {
+					throw new ApiException(ApiException.UNSUPPORTED_ENCODING, "Unable to convert HTTP response to UTF-8", e);
+				} finally {
+					if (reader != null) {
+						reader.close();
+					}
 				}
-			} catch (UnsupportedEncodingException e) {
-				throw new ApiException(ApiException.UNSUPPORTED_ENCODING, "Unable to convert HTTP response to UTF-8", e);
-			} finally {
-				if (reader != null) {
-					reader.close();
+
+				Log.i(TAG, "POST response: " + response.toString());
+				return response.toString();
+				
+			} else {
+				switch (code) {
+					case 400:
+						throw new ApiException(ApiException.HTTP_BAD_REQUEST, "Server says \"400 Bad HTTP request\".");
+					case 401:
+						throw new ApiException(ApiException.HTTP_UNAUTHORIZED, "Server says \"401 Unauthorized\".");
+					case 403:
+						throw new ApiException(ApiException.HTTP_FORBIDDEN, "Server says \"403 Forbidden\".");
+					case 404:
+						throw new ApiException(ApiException.HTTP_NOT_FOUND, "Server says \"404 Not Found\".");
+					default:
+						if (code >= 100 && code < 200) {
+							throw new ApiException(ApiException.HTTP_INFO, "Server returned informational code " + code + " instead of 200.");
+						} else if (code >= 200 && code < 300) {
+							throw new ApiException(ApiException.HTTP_SUCCESS, "Server returned success code " + code + " instead of 200.");
+						} else if (code >= 300 && code < 400) {
+							throw new ApiException(ApiException.HTTP_REDIRECTION, "Server returned redirection code " + code + " instead of 200.");
+						} else if (code >= 400 && code < 500) {
+							throw new ApiException(ApiException.HTTP_CLIENT_ERROR, "Server returned client error " + code + ".");
+						} else if (code >= 500 && code < 600) {
+							throw new ApiException(ApiException.HTTP_SERVER_ERROR, "Server returned server error " + code + ".");
+						} else {
+							throw new ApiException(ApiException.HTTP_UNKNOWN, "Server returned unspecified code " + code + ".");
+						}
 				}
 			}
 
-			Log.i(TAG, "POST response: " + response.toString());
-			return response.toString();
 		} catch (SocketTimeoutException e) {
 			throw new ApiException(ApiException.IO_SOCKETTIMEOUT, e.getMessage(), e);
 		} catch (IOException e) {
