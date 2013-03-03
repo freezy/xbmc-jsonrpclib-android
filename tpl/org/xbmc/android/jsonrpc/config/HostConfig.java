@@ -80,6 +80,17 @@ public class HostConfig {
 	 * Creates a new XBMC host object.
 	 * @param address IP or host adress of XBMC
 	 * @param httpPort HTTP port where JSON-RPC sits (defaults to 8080 on any platform but Windows, where it's 80).
+	 * @param username Username, if authentication enabled.
+	 * @param password Password, if authentication enabled.
+	 */
+	public HostConfig(String address, int httpPort, String username, String password) {
+		this(address, httpPort, 9090, username, password);
+	}
+	
+	/**
+	 * Creates a new XBMC host object.
+	 * @param address IP or host adress of XBMC
+	 * @param httpPort HTTP port where JSON-RPC sits (defaults to 8080 on any platform but Windows, where it's 80).
 	 * @param tcpPort TCP port of JSON-RPC (defauls to 9090).
 	 * @param username Username, if authentication enabled.
 	 * @param password Password, if authentication enabled.

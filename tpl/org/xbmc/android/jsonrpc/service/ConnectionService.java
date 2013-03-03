@@ -166,7 +166,7 @@ public class ConnectionService extends IntentService {
 	 * Port where the TCP service is running (default 9090).
 	 */
 	private int mPort;
-	   
+	
 	/**
 	 * Class constructor must be empty for services.
 	 */

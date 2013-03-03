@@ -185,7 +185,6 @@ public class ApiException extends Exception {
 		return getHint(c.getResources(), code);
 	}
 	
-	
 	public static String getError(Resources r, int error) {
 		switch (error) {
 			case MALFORMED_URL:

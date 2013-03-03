@@ -36,6 +36,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
 import org.codehaus.jackson.node.TextNode;
 
+import android.util.Base64;
 import android.util.Log;
 
 /**
@@ -63,9 +64,9 @@ public class JsonApiRequest {
 	 * @return JSON Object of the JSON-RPC response.
 	 * @throws ApiException
 	 */
-	public static ObjectNode execute(String url, ObjectNode entity) throws ApiException {
+	public static ObjectNode execute(String url, String user, String pass, ObjectNode entity) throws ApiException {
 		try {
-			String response = postRequest(new URL(url), entity.toString());
+			String response = postRequest(new URL(url), user, pass, entity.toString());
 			return parseResponse(response);
 		} catch (MalformedURLException e) {
 			throw new ApiException(ApiException.MALFORMED_URL, e.getMessage(), e);
@@ -81,13 +82,18 @@ public class JsonApiRequest {
 	 * @throws ApiException
 	 * @throws IOException
 	 */
-	private static String postRequest(URL url, String entity) throws ApiException {
+	private static String postRequest(URL url, String user, String pass, String entity) throws ApiException {
 		try {
 			final HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
 			conn.setRequestMethod("POST");
 			conn.setRequestProperty("Content-Type", "application/json");
 			conn.setRequestProperty("User-Agent", buildUserAgent());
+			
+			// http basic authorization
+			if (user != null && !user.isEmpty() && pass != null && !pass.isEmpty()) {
+				conn.setRequestProperty("Authorization", "Basic " + Base64.encodeToString((user + ":" + pass).getBytes(), Base64.DEFAULT));
+			}
 
 			conn.setConnectTimeout(REQUEST_TIMEOUT);
 			conn.setReadTimeout(REQUEST_TIMEOUT);

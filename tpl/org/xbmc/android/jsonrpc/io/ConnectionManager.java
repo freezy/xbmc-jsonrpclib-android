@@ -183,7 +183,7 @@ public class ConnectionManager {
 				public void run() {
 					try {
 						// synchronously post, retrieve and parse response.
-						call.setResponse(JsonApiRequest.execute(getUrl(), call.getRequest()));
+						call.setResponse(JsonApiRequest.execute(getUrl(), mHost.getUsername(), mHost.getPassword(), call.getRequest()));
 						callback.onResponse(call);
 					} catch (ApiException e) {
 						callback.onError(e.getCode(), e.getDisplayableMessage(mContext), e.getHint(mContext));
