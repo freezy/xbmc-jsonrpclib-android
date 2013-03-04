@@ -36,7 +36,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
 import org.codehaus.jackson.node.TextNode;
 
-import android.util.Base64;
 import android.util.Log;
 
 /**
@@ -87,14 +86,15 @@ public class JsonApiRequest {
 			final HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
 			conn.setRequestMethod("POST");
-			conn.setRequestProperty("Content-Type", "application/json");
-			conn.setRequestProperty("User-Agent", buildUserAgent());
 			
 			// http basic authorization
 			if (user != null && !user.isEmpty() && pass != null && !pass.isEmpty()) {
-				conn.setRequestProperty("Authorization", "Basic " + Base64.encodeToString((user + ":" + pass).getBytes(), Base64.DEFAULT));
+				final String token = Base64.encodeToString((user + ":" + pass).getBytes(), false);
+				conn.setRequestProperty("Authorization", "Basic " + token);
 			}
-
+			conn.setRequestProperty("Content-Type", "application/json");
+			conn.setRequestProperty("User-Agent", buildUserAgent());
+			
 			conn.setConnectTimeout(REQUEST_TIMEOUT);
 			conn.setReadTimeout(REQUEST_TIMEOUT);
 

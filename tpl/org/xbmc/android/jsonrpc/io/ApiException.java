@@ -137,11 +137,13 @@ public class ApiException extends Exception {
 	public ApiException(int code, String message) {
 		super(message);
 		this.code = code;
+		Log.e(TAG, message, this);
 	}
 
 	public ApiException(int code, String message, Throwable cause) {
 		super(message, cause);
 		this.code = code;
+		Log.e(TAG, message, this);
 	}
 
 	public ApiException(JsonNode node) {
@@ -159,7 +161,7 @@ public class ApiException extends Exception {
 			// this message didn't conform to our expected format
 			throw new RuntimeException(node.toString());
 		}
-		Log.d(TAG, sb.toString());
+		Log.e(TAG, sb.toString());
 	}
 
 	public int getCode() {
