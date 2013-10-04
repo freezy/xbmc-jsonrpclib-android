@@ -13,16 +13,16 @@ public class MethodParentModule extends AbstractView implements IParentModule {
 
 	@Override
 	public void renderExtends(StringBuilder sb, JavaClass klass) {
-		
+
 		final JavaMethod m = getMethod(klass);
-		final JavaClass returnType = m.getReturnType().isTypeArray() ? m.getReturnType().getArrayType() : m.getReturnType();
-		
+		final JavaClass returnArrayType = m.getReturnType().isTypeArray() ? m.getReturnType().getArrayType() : m.getReturnType();
+
 		sb.append(" extends AbstractCall<");
-		
-		if (returnType.isInner()) {
-			sb.append(getInnerClassReference(klass, returnType));
+
+		if (returnArrayType.isInner()) {
+			sb.append(getInnerClassReference(klass, returnArrayType));
 		} else {
-			sb.append(getClassReference(klass.getNamespace(), returnType));
+			sb.append(getClassReference(klass.getNamespace(), returnArrayType));
 		}
 		sb.append(">");
 	}
@@ -36,25 +36,35 @@ public class MethodParentModule extends AbstractView implements IParentModule {
 			sb.append(".");
 		}
 		sb.append(className);
-		return sb.toString();	
+		return sb.toString();
 	}
 
 	@Override
 	public Set<String> getImports(JavaClass klass) {
 		final Set<String> imports = new HashSet<String>();
 		imports.add("org.xbmc.android.jsonrpc.api.AbstractCall");
-		
+
 		final JavaMethod m = getMethod(klass);
 		final JavaClass returnType = m.getReturnType();
+		final JavaClass returnArrayType = m.getReturnType().isTypeArray() ? m.getReturnType().getArrayType() : m.getReturnType();
+
 		final Namespace ns = returnType.isTypeArray() ? returnType.getArrayType().getNamespace() : returnType.getNamespace();
-		
+
 		if (!ns.equals(klass.getNamespace())) {
 			imports.add(ns.getPackageName() + "." + ns.getName());
 		}
-		
+
+		// dirty hack
+		final Set<String> arrayTypes = returnArrayType.getImports();
+/*		for (String t : arrayTypes) {
+			if (!t.endsWith("AbstractModel")) {
+				System.out.println(t);
+			}
+		}*/
+		imports.addAll(arrayTypes);
 		return imports;
 	}
-	
+
 	/**
 	 * Casts a class to method and asserts stuff.
 	 * @param klass

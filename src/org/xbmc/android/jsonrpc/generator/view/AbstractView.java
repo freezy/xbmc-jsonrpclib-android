@@ -29,7 +29,7 @@ import org.xbmc.android.jsonrpc.generator.model.Namespace;
  * Base class for all views. Contains useful stuff.
  * <p/>
  * More concretely, methods for getting class names out of various types.
- * 
+ *
  * @author freezy <freezy@xbmc.org>
  */
 public abstract class AbstractView {
@@ -49,7 +49,7 @@ public abstract class AbstractView {
 
 	/**
 	 * Returns the Java class name based on a class object.
-	 * 
+	 *
 	 * @param klass Given class
 	 * @return Java class name
 	 */
@@ -59,22 +59,22 @@ public abstract class AbstractView {
 		}
 		if (klass.isNative()) {
 			return getNativeType(klass);
-			
+
 		} else if (klass.isTypeArray()) {
 			return getArrayType(ns, klass, asArray);
-			
+
 		} else if (klass.isEnumArray()) {
 			return getArrayEnum(asArray);
-			
+
 		} else if (klass.isTypeMap()) {
 			return getMapType(klass.getMapType());
-			
+
 		} else if (klass.isInner()) {
 			if (klass.getOuterType() == null) {
 				throw new IllegalStateException("Outer class of " + klass.getName() + " cannot be null.");
 			}
 			return getInnerType(klass.getName(), klass.getOuterType().getName());
-			
+
 		} else {
 			return getGlobalType(klass);
 		}
@@ -83,16 +83,16 @@ public abstract class AbstractView {
 	/**
 	 * Sometimes, in declarations the class is different compared as what the
 	 * class is referred to by variables.
-	 * 
+	 *
 	 * Example: <h3>Video.Cast</h3>
 	 * <ul>
 	 * <li>In the declaration, it renders <tt>Cast</tt></li>
 	 * <li>In a direct reference, it renders <tt>VideoModel.Cast</tt></li>
 	 * <li>In a list, it renders <tt>List&lt;VideoModel.Cast&gt;</tt></li>
 	 * </ul>
-	 * 
+	 *
 	 * @param ns Namespace where class is being referenced to.
-	 * @param klass Class being referenced 
+	 * @param klass Class being referenced
 	 * @return Java reference depending on where it's referenced from.
 	 */
 	protected String getClassReference(Namespace ns, JavaClass klass, boolean asArray) {
@@ -102,16 +102,16 @@ public abstract class AbstractView {
 		if (!klass.isNative() && !ns.equals(klass.getNamespace())
 				// hacks
 				&& !className.startsWith("List") && !className.startsWith("String")) {
-			
+
 			sb.append(klass.getNamespace().getName());
 			sb.append(".");
 		}
 		sb.append(className);
 		return sb.toString();
 	}
-	
+
 	/**
-	 * Returns enum reference. 
+	 * Returns enum reference.
 	 * @param ns Namespace where the enum is being referenced to.
 	 * @param e Enum being referenced
 	 * @return Java reference depending on where it's referenced from.
@@ -126,7 +126,7 @@ public abstract class AbstractView {
 
 	/**
 	 * Returns the Java enum name based on a class object.
-	 * 
+	 *
 	 * @param e Given enum
 	 * @return Java enum name
 	 */
@@ -140,7 +140,7 @@ public abstract class AbstractView {
 
 	/**
 	 * Returns the Java type of a member object.
-	 * 
+	 *
 	 * @param attr Given member
 	 * @return Java class name
 	 */
@@ -154,8 +154,8 @@ public abstract class AbstractView {
 
 	/**
 	 * Returns the Java native type based on the JSON type.
-	 * 
-	 * @see http://tools.ietf.org/html/draft-zyp-json-schema-03#section-5.1
+	 *
+	 * @see <a href="http://tools.ietf.org/html/draft-zyp-json-schema-03#section-5.1">draft-zyp-json-schema-03</a>
 	 * @param klass type
 	 * @return Java native tape
 	 */
@@ -183,7 +183,7 @@ public abstract class AbstractView {
 			return "List<" + getClassReference(ns, klass.getArrayType()) + ">";
 		}
 	}
-	
+
 	protected String getArrayEnum(boolean asArray) {
 		return asArray ? "String[]" : "List<String>";
 	}
@@ -191,33 +191,33 @@ public abstract class AbstractView {
 	protected String getMapType(JavaClass klass) {
 		return "HashMap<String, " + getClassName(klass) + ">";
 	}
-	
+
 	/**
 	 * Returns a Java class name based on a global class.
-	 * 
+	 *
 	 * There is some tweaking here so class names read nicely, like
 	 * "AlbumRuleFilter" instead of "FilterRuleAlbums".
-	 * 
+	 *
 	 * @param klass
 	 * @return
 	 */
 	private String getGlobalType(JavaClass klass) {
 
 		String name = klass.getName();
-		
+
 		// Item.All -> AllItems
 		if (name.equals("ItemAll")) {
 			return "AllItems";
-			
+
 		// Items.Source -> SourceItem
 		} else if (name.startsWith("Items")) {
 			name = getPlural(name.substring(5)) + "Item";
-			
+
 		// Item.File -> FileItem
 		} else if (name.startsWith("Item")) {
 			name = getPlural(name.substring(4)) + "Item";
 		}
-		
+
 		// Details.Album -> AlbumDetail
 		if (name.startsWith("Details")) {
 			name = getPlural(name.substring(7)) + "Detail";
@@ -257,7 +257,7 @@ public abstract class AbstractView {
 
 	/**
 	 * Returns a Java class based on a variable name.
-	 * 
+	 *
 	 * @param type Variable name
 	 * @return Java class type
 	 */
@@ -274,7 +274,7 @@ public abstract class AbstractView {
 
 	/**
 	 * Tries to convert a plural word into the singular form.
-	 * 
+	 *
 	 * @param plural Word in plural form
 	 * @return Word in singular form
 	 */
@@ -289,11 +289,11 @@ public abstract class AbstractView {
 
 		return plural;
 	}
-	
+
 	protected String getListGetter(JavaClass klass) {
 		return "get" + klass.getNamespace().getName() + getClassName(klass) + "List";
 	}
-	
+
 	protected String getIndent(int idt) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < idt; i++) {
@@ -301,7 +301,7 @@ public abstract class AbstractView {
 		}
 		return sb.toString();
 	}
-	
+
 	protected String getDescription(JavaClass klass) {
 		return getDescription(klass.getDescription());
 	}
@@ -319,7 +319,7 @@ public abstract class AbstractView {
 		}
 		return sb.toString();
 	}
-	
+
 	private void renderEnumValues(StringBuilder sb, JavaEnum e) {
 		for (String value : e.getValues()) {
 			sb.append("<tt>");
@@ -331,10 +331,9 @@ public abstract class AbstractView {
 		}
 		sb.append(".");
 	}
-	
+
 	/**
 	 * Renders enum comment if given parameter is an enum or an array of enums.
-	 * @param sb Current StringBuilder
 	 * @param ns Current namespace
 	 * @param attr Parameter/Member
 	 */
@@ -358,7 +357,7 @@ public abstract class AbstractView {
 				sb.append(getEnumName(attr.getEnum()));
 				sb.append("}.");
 			}
-			
+
 		} else if (attr.getType().isEnumArray()) {
 			sb.append(" One or more of: ");
 			renderEnumValues(sb, attr.getType().getEnumArray());
@@ -366,5 +365,5 @@ public abstract class AbstractView {
 		}
 		return sb.toString();
 	}
-	
+
 }

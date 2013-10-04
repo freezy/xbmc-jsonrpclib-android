@@ -35,13 +35,13 @@ import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
 
 /**
  * Provides Parcelable-serialization via Android.
- * 
+ *
  * @author freezy <freezy@xbmc.org>
  */
 public class MethodAPIClassModule extends AbstractView implements IClassModule {
 
 	public final static String RESULT_PROPERTY_NAME = "RESULT";
-	
+
 	@Override
 	public void render(StringBuilder sb, Namespace ns, JavaClass klass, int idt) {
 		if (!(klass instanceof JavaMethod)) {
@@ -49,7 +49,7 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 		}
 		final String indent = getIndent(idt);
 		final JavaMethod method = (JavaMethod)klass;
-		
+
 		// property name
 		if (method.hasReturnProperty()) {
 			sb.append(indent).append("public final static String ");
@@ -58,19 +58,19 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 			sb.append(method.getReturnProperty());
 			sb.append("\";\n");
 		}
-		
+
 		for (JavaConstructor jc : method.getConstructors()) {
 			renderConstructor(sb, ns, method, jc, idt);
 		}
-		
+
 		renderParseOneMany(sb, ns, method, idt);
-		
+
 		renderStaticStuff(sb, method, idt);
 	}
-	
+
 	private void renderConstructor(StringBuilder sb, Namespace ns, JavaMethod method, JavaConstructor constructor, int idt) {
 		final String indent = getIndent(idt);
-		
+
 		// header
 		sb.append("\n");
 		sb.append(indent).append("/**\n");
@@ -80,11 +80,12 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 		for (JavaAttribute p : constructor.getParameters()) {
 			sb.append(indent).append(" * @param ");
 			sb.append(p.getName());
+			sb.append(" ");
 			sb.append(getDescription(ns, p));
 			sb.append("\n");
 		}
 		sb.append(indent).append(" */\n");
-		
+
 		// signature
 		sb.append(indent).append("public ");
 		sb.append(getClassName(method));
@@ -118,7 +119,7 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 			sb.delete(sb.length() - 2, sb.length());
 		}
 		sb.append(") {\n");
-		
+
 		// body
 		sb.append(indent).append("	super();\n");
 		for (JavaAttribute p : constructor.getParameters()) {
@@ -128,16 +129,16 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 			sb.append(p.getName());
 			sb.append(");\n");
 		}
-		
-		
+
+
 		sb.append(indent).append("}\n");
-		
+
 	}
-	
+
 	/**
 	 * Renders the <tt>parseMany()</tt> or <tt>parseOne()</tt> depending on the
 	 * return type.
-	 * 
+	 *
 	 * @param sb Current StringBuilder
 	 * @param ns Current namespace
 	 * @param method Method
@@ -145,7 +146,7 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 	 */
 	private void renderParseOneMany(StringBuilder sb, Namespace ns, JavaMethod method, int idt) {
 		final String indent = getIndent(idt);
-		
+
 		sb.append("\n");
 		sb.append(indent).append("@Override\n");
 		if (method.getReturnType().isTypeArray()) {
@@ -168,7 +169,7 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 			sb.append(indent).append("		return new ArrayList<").append(returnType).append(">(0);\n");
 			sb.append(indent).append("	}\n");
 			sb.append(indent).append("}\n");
-			
+
 		} else {
 			final String returnType = getClassReference(ns, method.getReturnType());
 			sb.append(indent).append("protected ").append(returnType).append(" parseOne(JsonNode node) {\n");
@@ -180,36 +181,36 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 				sb.append("return node.");
 				sb.append(JsonAccesClassModule.NATIVE_REQUIRED_NODE_GETTER.get(method.getReturnType().getName()));
 				sb.append("();\n");
-				
+
 			} else {
 				if (method.hasReturnProperty()) {
 					sb.append("return new ").append(returnType).append("((ObjectNode)node.get(RESULT));\n");
 				} else {
 					sb.append("return new ").append(returnType).append("(node);\n");
 				}
-				
+
 			}
 			sb.append(indent).append("}\n");
 		}
 	}
-	
+
 	/**
 	 * Renders <tt>getName()</tt> and <tt>returnsList()</tt>.
-	 * 
+	 *
 	 * @param sb Current StringBuilder
 	 * @param method Method
 	 * @param idt Indent
 	 */
 	private void renderStaticStuff(StringBuilder sb, JavaMethod method, int idt) {
 		final String indent = getIndent(idt);
-		
+
 		// public String getName() { }
 		sb.append("\n");
 		sb.append(indent).append("@Override\n");
 		sb.append(indent).append("public String getName() {\n");
 		sb.append(indent).append("	return API_TYPE;\n");
 		sb.append(indent).append("}\n");
-		
+
 		// protected boolean returnsList() { }
 		sb.append("\n");
 		sb.append(indent).append("@Override\n");
@@ -222,21 +223,21 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 	public Set<String> getImports(JavaClass klass) {
 		final Set<String> imports = new HashSet<String>();
 		imports.addAll(getInternalImports(klass));
-		
+
 		for (JavaClass innerClass : klass.getInnerTypes()) {
 			imports.addAll(getInternalImports(innerClass));
 		}
-		
+
 		if (((JavaMethod)klass).getReturnType().isTypeArray()) {
 			imports.add("java.util.ArrayList");
 			imports.add("org.codehaus.jackson.node.ArrayNode");
 		}
 		imports.add("org.codehaus.jackson.node.ObjectNode");
 		imports.add("org.codehaus.jackson.JsonNode");
-		
+
 		return imports;
 	}
-	
+
 	/**
 	 * Computes imports that refer to the API's global types.
 	 * @param klass
@@ -244,7 +245,7 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 	 */
 	private Set<String> getInternalImports(JavaClass klass) {
 		final Set<String> imports = new HashSet<String>();
-		
+
 		// members
 		for (JavaAttribute member : klass.getMembers()) {
 			if (!member.isEnum()) {
@@ -254,7 +255,7 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 				}
 			}
 		}
-		
+
 		// params in constructors
 		for (JavaConstructor constructor : klass.getConstructors()) {
 			for (JavaAttribute param : constructor.getParameters()) {
@@ -262,7 +263,7 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 					final JavaClass paramType = param.getType();
 					if (paramType.isGlobal() && !paramType.isNative() && paramType.hasName()) {
 						imports.add(
-								paramType.getNamespace().getPackageName() 
+								paramType.getNamespace().getPackageName()
 								+ "." + paramType.getNamespace().getName());
 					}
 				}
@@ -271,8 +272,8 @@ public class MethodAPIClassModule extends AbstractView implements IClassModule {
 				}
 			}
 		}
-		
+
 		return imports;
 	}
-	
+
 }

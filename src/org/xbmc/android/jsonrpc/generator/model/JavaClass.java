@@ -37,7 +37,7 @@ import org.xbmc.android.jsonrpc.generator.view.module.IParentModule;
 
 /**
  * Defines a class in an agnostic way.
- * 
+ *
  * @author freezy <freezy@xbmc.org>
  */
 public class JavaClass {
@@ -45,7 +45,7 @@ public class JavaClass {
 	private String name;
 	private final String apiType;
 	private final Namespace namespace;
-	
+
 	private String description = null;
 
 	private boolean isInner = false; // = !isGlobal
@@ -60,30 +60,30 @@ public class JavaClass {
 		 * Native type.
 		 * Currently supported is: <tt>integer</tt>, <tt>string</tt>,
 		 * <tt>boolean</tt>, <tt>number</tt>.
-		 * 
+		 *
 		 * @see JavaClass#getName()
 		 */
 		NATIVE,
-		
+
 		/**
-		 * A type that can be multiple different types. For every type, a 
+		 * A type that can be multiple different types. For every type, a
 		 * member is used, so all members but one is always null.
 		 * @see JavaClass#getMembers()
 		 */
-		MULTITYPE, 
-		
+		MULTITYPE,
+
 		/**
 		 * An array of types.
 		 * @see JavaClass#getArrayType()
 		 */
-		TYPEARRAY, 
-		
+		TYPEARRAY,
+
 		/**
 		 * An array of enums.
 		 * @see JavaClass#getEnumArray()
 		 */
-		ENUMARRAY, 
-		
+		ENUMARRAY,
+
 		/**
 		 * A dictionary (or {@link Map}).
 		 * Result of <tt>additionalProperties</tt> being set. The key is always
@@ -117,10 +117,10 @@ public class JavaClass {
 	 * If this is an inner class, the outer class is set here.
 	 */
 	private JavaClass outerType = null; // set if isInner == true.
-	
+
 	/**
 	 * True if this is used in any call as parameter and the user needs
-	 * to instantiate it (needed so we know we need to be able to construct it 
+	 * to instantiate it (needed so we know we need to be able to construct it
 	 * with its member values).
 	 */
 	private boolean usedAsParameter = false;
@@ -133,7 +133,7 @@ public class JavaClass {
 	 * True if this type respresents an API method.
 	 */
 	protected boolean usedAsMethod = false;
-	
+
 	/**
 	 * If true, this is just a place holder and the "real" object has yet to be
 	 * fetched.
@@ -159,10 +159,10 @@ public class JavaClass {
 
 	/**
 	 * New class by reference.
-	 * 
+	 *
 	 * Only the "id" of the global type is provided. When rendering the class
 	 * later, it must be resolved by using {@link #resolve(JavaClass)}.
-	 * 
+	 *
 	 * @param apiType Name of the global type ("id" attribute under "types").
 	 */
 	public JavaClass(String apiType) {
@@ -178,10 +178,10 @@ public class JavaClass {
 
 	/**
 	 * New class by namespace only.
-	 * 
+	 *
 	 * This happens only for anonymous item types ("Addon.Details" ->
 	 * dependencies) where there is neither a parameter name nor a member name.
-	 * 
+	 *
 	 * @param namespace Namespace reference
 	 */
 	public JavaClass(Namespace namespace) {
@@ -190,11 +190,11 @@ public class JavaClass {
 
 	/**
 	 * New class by namespace and variable name.
-	 * 
+	 *
 	 * Another anonymous type, but with a given variable name, retrieved from
 	 * property name or parameter name. It could also be a computed name for
 	 * multitypes.
-	 * 
+	 *
 	 * @param namespace Namespace reference
 	 * @param name Best guess of name (will be transformed later depending on
 	 *            type)
@@ -205,10 +205,10 @@ public class JavaClass {
 
 	/**
 	 * New class for global types.
-	 * 
+	 *
 	 * A global type, as defined in introspect's "type" list. The "id" attribute
 	 * corresponds to the {@link #apiType} variable.
-	 * 
+	 *
 	 * @param namespace Namespace reference
 	 * @param name Best guess of name (will be ignored later)
 	 * @param apiType Name of global type
@@ -222,18 +222,18 @@ public class JavaClass {
 			GLOBALS.put(apiType, this);
 		}
 	}
-	
+
 	/**
 	 * New class as enum array.
-	 * 
+	 *
 	 * When defining the model, we don't care about whether an enum is just an
-	 * enum or an array of enums, we always render just the enum values. 
+	 * enum or an array of enums, we always render just the enum values.
 	 * However, for parameters and results, this is important. In this case, an
 	 * array of enums is represented by a {@link JavaClass} with nature
 	 * {@link Nature#ENUMARRAY}.
-	 * 
+	 *
 	 * This constructor creates such a class for a given enum.
-	 * 
+	 *
 	 * @param arrayEnum Enum of the array
 	 */
 	public JavaClass(JavaEnum arrayEnum) {
@@ -244,7 +244,7 @@ public class JavaClass {
 		this.unresolved = false;
 		this.nature = Nature.ENUMARRAY;
 	}
-	
+
 	/**
 	 * Returns {@link #resolve()} but fails if class cannot be resolved. Use
 	 * this when you're sure you're resolving a class and not an enum.
@@ -254,13 +254,13 @@ public class JavaClass {
 	public static JavaClass resolveNonNull(JavaClass klass) {
 		return resolve(klass, true);
 	}
-	
+
 	/**
 	 * Returns {@link #resolve()} and returns null if class cannot be resolved.
 	 * Use this when it's not clear whether an enum or a type is being resolved
-	 * and in the first case {@link JavaEnum#resolve(JavaClass)} is called 
+	 * and in the first case {@link JavaEnum#resolve(JavaClass)} is called
 	 * right afterwards.
-	 * 
+	 *
 	 * @param klass The class to be resolved
 	 * @return Resolved class or null if not found.
 	 */
@@ -271,13 +271,13 @@ public class JavaClass {
 	/**
 	 * Returns the resolved class object if unresolved or the same instance
 	 * otherwise.
-	 * 
+	 *
 	 * If this class had only a reference to a global type, it was marked as
 	 * unresolved. Later, when all global types are transformed into
 	 * {@link JavaClass} objects (e.g. when rendering), the reference can be
 	 * returned via this method. </p> Note that this also resolves all the sub
 	 * types of the class, like the array type and the parent type.
-	 * 
+	 *
 	 * @param klass The class to be resolved
 	 * @param fail If true, an exception is thrown, otherwise null is returned.
 	 * @return Resolved class
@@ -323,7 +323,7 @@ public class JavaClass {
 	 * Resolves classes attached to this class.
 	 */
 	protected void resolve() {
-		
+
 		// skip if already resolved
 		if (resolved) {
 			return;
@@ -357,13 +357,13 @@ public class JavaClass {
 				throw new IllegalStateException("Cannot resolve map type \"" + name + "\".");
 			}
 		}
-		
+
 		// inner classes
 		final ListIterator<JavaClass> iterator = innerTypes.listIterator();
 		while (iterator.hasNext()) {
 			iterator.set(JavaClass.resolveNonNull(iterator.next()));
 		}
-		
+
 		// constructor types
 		for (JavaConstructor c : constructors) {
 			c.resolve();
@@ -373,7 +373,7 @@ public class JavaClass {
 		for (JavaAttribute m : members) {
 			m.resolveType();
 		}
-		
+
 		// copy all members from parent classes if multiple inheritance
 		if (!parentReferences.isEmpty()) {
 			// since these references may have a common ancestor (Media.Details.Base), we need to check for duplicate fields.
@@ -388,7 +388,7 @@ public class JavaClass {
 				}
 			}
 		}
-		
+
 		// now we're sure we have all fields, create contructors.
 		if (!usedAsMethod) {
 			final ConstructorController cc = new ConstructorController(this);
@@ -399,7 +399,7 @@ public class JavaClass {
 	/**
 	 * Returns true if the class extends another one, in which case
 	 * {@link #getParentClass()} doesn't return null;
-	 * 
+	 *
 	 * @see #getParentClass()
 	 * @return True if extends, false otherwise.
 	 */
@@ -409,7 +409,7 @@ public class JavaClass {
 
 	/**
 	 * Returns true if the class is of a native type.
-	 * 
+	 *
 	 * @return True if native, false otherwise.
 	 */
 	public boolean isNative() {
@@ -419,7 +419,7 @@ public class JavaClass {
 	/**
 	 * Returns true if the class is a type array. In this case,
 	 * {@link #getArrayType()} will return an object.
-	 * 
+	 *
 	 * @see #getArrayType()
 	 * @see #isEnumArray()
 	 * @return True if array, false otherwise.
@@ -427,11 +427,11 @@ public class JavaClass {
 	public boolean isTypeArray() {
 		return nature == Nature.TYPEARRAY;
 	}
-	
+
 	/**
 	 * Returns true if the class is an enum array. In this case,
 	 * {@link #getEnumArray()} will return an object.
-	 * 
+	 *
 	 * @see #getArrayType()
 	 * @see #isTypeArray()
 	 * @return True if type array, false otherwise.
@@ -439,7 +439,7 @@ public class JavaClass {
 	public boolean isEnumArray() {
 		return nature == Nature.ENUMARRAY;
 	}
-	
+
 	/**
 	 * Returns true if the class is a type map. In this case,
 	 * {@link #getMapType()} will return an object.
@@ -453,7 +453,7 @@ public class JavaClass {
 	 * Returns true if the class is a non-global inner class. In this case,
 	 * {@link #getOuterType()} returns an object. Note that {@link #isInner()}
 	 * == (!{@link #isGlobal()}).
-	 * 
+	 *
 	 * @see #getOuterType()
 	 * @return True if inner, false if global.
 	 */
@@ -464,7 +464,7 @@ public class JavaClass {
 	/**
 	 * Returns true if the class is a global class. Note that {@link #isInner()}
 	 * == (!{@link #isGlobal()}).
-	 * 
+	 *
 	 * @return True if global, false if inner.
 	 */
 	public boolean isGlobal() {
@@ -473,7 +473,7 @@ public class JavaClass {
 
 	/**
 	 * Returns true if this class is unresolved.
-	 * 
+	 *
 	 * @return True if unresolved, false if resolved.
 	 * @see #resolve(JavaClass)
 	 */
@@ -489,7 +489,7 @@ public class JavaClass {
 	public String getApiType() {
 		return apiType;
 	}
-	
+
 	/**
 	 * Marks this class as used as parameter.
 	 */
@@ -516,7 +516,7 @@ public class JavaClass {
 			}
 		}
 	}
-	
+
 	/**
 	 * Marks this class as used as result
 	 */
@@ -543,7 +543,7 @@ public class JavaClass {
 			}
 		}
 	}
-	
+
 	/**
 	 * Returns true if this type is used as parameter, false otherwise.
 	 * @return
@@ -551,7 +551,7 @@ public class JavaClass {
 	public boolean isUsedAsParameter() {
 		return usedAsParameter;
 	}
-	
+
 	/**
 	 * Returns true if this type is used as result, false otherwise.
 	 * @return
@@ -559,7 +559,7 @@ public class JavaClass {
 	public boolean isUsedAsResult() {
 		return usedAsResult;
 	}
-	
+
 	/**
 	 * Returns true if this type is used as API method, false otherwise.
 	 * @return
@@ -567,7 +567,7 @@ public class JavaClass {
 	public boolean isUsedAsMethod() {
 		return usedAsMethod;
 	}
-	
+
 	/**
 	 * Returns the name of the class.
 	 * <ul><li>If the class is native, this is the name of the native type (e.g. <tt>boolean</tt>, <tt>string</tt>)</li>
@@ -582,7 +582,7 @@ public class JavaClass {
 
 	/**
 	 * Adds type to inner types and updates the reference back to this instance.
-	 * 
+	 *
 	 * @param innerType The inner type linked to this class
 	 */
 	public void linkInnerType(JavaClass innerType) {
@@ -595,7 +595,7 @@ public class JavaClass {
 
 	/**
 	 * Marks the class as an inner class.
-	 * 
+	 *
 	 * @param outerType Outer type that contains the class.
 	 */
 	public void setInner(JavaClass outerType) {
@@ -617,7 +617,7 @@ public class JavaClass {
 	/**
 	 * Returns if the class should be rendered or not. Basically native types
 	 * and array of native types are not.
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean isVisible() {
@@ -638,7 +638,7 @@ public class JavaClass {
 
 	/**
 	 * Adds a new class member to this class.
-	 * 
+	 *
 	 * @param member New class member
 	 */
 	public void addMember(JavaAttribute member) {
@@ -650,7 +650,7 @@ public class JavaClass {
 
 	/**
 	 * Adds a new import to this class.
-	 * 
+	 *
 	 * @param i New import
 	 */
 	public void addImport(String i) {
@@ -662,7 +662,7 @@ public class JavaClass {
 
 	/**
 	 * Returns true if any inner types are available.
-	 * 
+	 *
 	 * @return True if inner types available, false otherwise.
 	 */
 	public boolean hasInnerTypes() {
@@ -674,7 +674,7 @@ public class JavaClass {
 
 	/**
 	 * Returns true if any inner enums are available.
-	 * 
+	 *
 	 * @return True if inner enums available, false otherwise.
 	 */
 	public boolean hasInnerEnums() {
@@ -712,7 +712,7 @@ public class JavaClass {
 
 	/**
 	 * Marks the class as a type array.
-	 * 
+	 *
 	 * @param arrayType Type of the array
 	 */
 	public void setArray(JavaClass arrayType) {
@@ -725,10 +725,10 @@ public class JavaClass {
 		this.nature = Nature.TYPEARRAY;
 		this.arrayType = arrayType;
 	}
-	
+
 	/**
 	 * Marks the class as a type map.
-	 * 
+	 *
 	 * @param mapType Type of the map value (key is String)
 	 */
 	public void setMap(JavaClass mapType) {
@@ -754,7 +754,7 @@ public class JavaClass {
 
 	/**
 	 * Returns true if the class is a multi-type class.
-	 * 
+	 *
 	 * @return True if multi-type, false otherwise.
 	 */
 	public boolean isMultiType() {
@@ -767,7 +767,7 @@ public class JavaClass {
 	/**
 	 * Returns the array type. This only returns an non-null object if
 	 * {@link #isTypeArray()} is true.
-	 * 
+	 *
 	 * @see #isTypeArray()
 	 * @return Array type of this class.
 	 */
@@ -777,11 +777,11 @@ public class JavaClass {
 		}
 		return arrayType;
 	}
-	
+
 	/**
 	 * Returns the array enum. This only returns an non-null object if
 	 * {@link #isEnumArray()} is true.
-	 * 
+	 *
 	 * @see #isEnumArray()
 	 * @return Array enum of this class.
 	 */
@@ -791,10 +791,10 @@ public class JavaClass {
 		}
 		return arrayEnum;
 	}
-	
+
 	/**
 	 * Returns the map type in case of a dictionary. This only returns a
-	 * non-null object if {@link #isTypeMap()} is true. 
+	 * non-null object if {@link #isTypeMap()} is true.
 	 * @return Map type of this class.
 	 */
 	public JavaClass getMapType() {
@@ -803,10 +803,10 @@ public class JavaClass {
 		}
 		return mapType;
 	}
-	
+
 	/**
 	 * Adds a suffix to the name.
-	 * 
+	 *
 	 * This is sometime needed if more than one anonymous type is used as
 	 * argument and both need to be declared but have the same name.
 	 * @param suffix Suffix
@@ -886,7 +886,7 @@ public class JavaClass {
 	/**
 	 * Returns the outer type. This only returns a non-null object if the class
 	 * is an inner class.
-	 * 
+	 *
 	 * @see #isInner()
 	 * @returns Outer class if available, null otherwise.
 	 */
@@ -900,7 +900,7 @@ public class JavaClass {
 	/**
 	 * Returns the super class. This only returns a non-null object if the
 	 * class extends another class.
-	 * 
+	 *
 	 * @see #doesExtend()
 	 * @return Parent class if available, null otherwise.
 	 */
@@ -913,7 +913,7 @@ public class JavaClass {
 
 	/**
 	 * Marks the class a child class by setting its parent class.
-	 * 
+	 *
 	 * @param parentClass Parent class
 	 */
 	public void setParentClass(JavaClass parentClass) {
@@ -925,7 +925,7 @@ public class JavaClass {
 		}
 		this.parentClass = parentClass;
 	}
-	
+
 	/**
 	 * Sets the parent references that are resolved later.
 	 * @param references
@@ -970,7 +970,7 @@ public class JavaClass {
 		}
 		return isInner ? namespace.getInnerClassModules() : namespace.getClassModules();
 	}
-	
+
 	/**
 	 * Returns if class has a description.
 	 * @return True if class has a description, false otherwise.
@@ -978,7 +978,7 @@ public class JavaClass {
 	public boolean hasDescription() {
 		return description != null;
 	}
-	
+
 	/**
 	 * Returns if class has a name.
 	 * @return True if class has a name, false otherwise.
@@ -1006,12 +1006,12 @@ public class JavaClass {
 	/**
 	 * Applies the import routine of a list of modules to this class and its
 	 * inner types.
-	 * 
-	 * This basically goes through all modules and applies 
+	 *
+	 * This basically goes through all modules and applies
 	 * {@link IClassModule#getImports(JavaClass)} / {@link IParentModule#getImports(JavaClass)}
 	 * to this class and all its inner types. These can then be retrieved by
 	 * {@link #getImports()}.
-	 * 
+	 *
 	 * @see #getImports()
 	 * @see IClassModule#getImports(JavaClass)
 	 * @see IParentModule#getImports(JavaClass)
@@ -1034,10 +1034,10 @@ public class JavaClass {
 			if (parentModule != null) {
 				imports.addAll(parentModule.getImports(this));
 			}
-			
+
 		}
 	}
-	
+
 	/**
 	 * Returns all parent members (own members exclusive) of this class.
 	 * @return
@@ -1045,7 +1045,7 @@ public class JavaClass {
 	public List<JavaAttribute> getParentMembers() {
 		return getParentMembers(false);
 	}
-	
+
 	/**
 	 * Returns all parent member (own members inclusive) of this class.
 	 * @return
@@ -1053,7 +1053,7 @@ public class JavaClass {
 	public List<JavaAttribute> getAllParentMembers() {
 		return getParentMembers(true);
 	}
-	
+
 	/**
 	 * Returns the members plus all parent members.
 	 * @return
@@ -1061,7 +1061,7 @@ public class JavaClass {
 	private List<JavaAttribute> getParentMembers(boolean includeOwnMembers) {
 		if (doesExtend()) {
 			final List<JavaAttribute> members = new ArrayList<JavaAttribute>();
-			members.addAll(parentClass.getParentMembers(true)); 
+			members.addAll(parentClass.getParentMembers(true));
 			if (includeOwnMembers) {
 				members.addAll(this.members);
 			}
@@ -1074,7 +1074,7 @@ public class JavaClass {
 			}
 		}
 	}
-	
+
 	/**
 	 * Recursively retrieves all imports from this class and its members,
 	 * inner types and enums.
@@ -1108,10 +1108,14 @@ public class JavaClass {
 		// map
 		if (isTypeMap()) {
 			imports.add("java.util.HashMap");
-		}		
+		}
+
+		// parent class
+		//imports.add(parentClass)
+
 		return imports;
 	}
-	
+
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
@@ -1145,7 +1149,7 @@ public class JavaClass {
 		}
 		return sb.toString();
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (!(obj instanceof JavaClass)) {
@@ -1167,7 +1171,7 @@ public class JavaClass {
 		if (c.isTypeArray()) {
 			return c.getArrayType().equals(getArrayType());
 		}
-		
+
 		return true;
 	}
 

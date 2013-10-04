@@ -31,25 +31,25 @@ import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
 
 /**
  * Provides Parcelable-serialization via Android.
- * 
+ *
  * @author freezy <freezy@xbmc.org>
  */
 public class CallParcelableClassModule extends AbstractView implements IClassModule {
 
 	@Override
 	public void render(StringBuilder sb, Namespace ns, JavaClass klass, int idt) {
-		
+
 		if (!(klass instanceof JavaMethod)) {
 			throw new IllegalArgumentException("When rendering method API class modules, passed class must be of type JavaMethod.");
 		}
 		final JavaMethod method = (JavaMethod)klass;
-		
+
 		// writeToParcel()
 		renderWriteToParcel(sb, ns, method, idt);
-		
+
 		// class constructor via parcel
 		renderParcelConstructor(sb, ns, klass, idt);
-		
+
 		// static final Parcelable.Creator<?> CREATOR
 		renderParcelableCreator(sb, ns, method, idt);
 	}
@@ -61,7 +61,7 @@ public class CallParcelableClassModule extends AbstractView implements IClassMod
 		imports.add("android.os.Parcelable");
 		return imports;
 	}
-	
+
 	/**
 	 * Generates the parcel serializator.
 	 * @param sb Current StringBuilder
@@ -71,14 +71,14 @@ public class CallParcelableClassModule extends AbstractView implements IClassMod
 	 */
 	private void renderWriteToParcel(StringBuilder sb, Namespace ns, JavaMethod klass, int idt) {
 		final String indent = getIndent(idt);
-		
+
 		// method header
 /*		sb.append(indent).append("/**\n");
 		sb.append(indent).append(" * Flatten this object into a Parcel.\n");
 		sb.append(indent).append(" * @param parcel the Parcel in which the object should be written.\n");
 		sb.append(indent).append(" * @param flags additional flags about how the object should be written.\n");
 		sb.append(indent).append(" * /\n");
-*/		
+*/
 
 		// signature
 		sb.append("\n");
@@ -89,13 +89,17 @@ public class CallParcelableClassModule extends AbstractView implements IClassMod
 		sb.append(indent).append("	super.writeToParcel(parcel, flags);\n");
 		if (klass.getReturnType().isNative()) {
 			sb.append(indent).append("	parcel.writeValue(mResult);\n");
-		} else {
+		}/* else if (klass.getReturnType().isTypeArray()) {
+			sb.append(indent).append("	for (").append(getClassName(klass.getReturnType().getArrayType())).append(" t : mResult) {\n");
+			sb.append(indent).append("		parcel.writeParcelable(t, flags);\n");
+			sb.append(indent).append("	}\n");
+		} */else {
 			sb.append(indent).append("	parcel.writeParcelable(mResult, flags);\n");
 		}
-		
+
 		sb.append(indent).append("}\n");
 	}
-	
+
 	/**
 	 * Generates the constructor via parcel
 	 * @param sb Current StringBuilder
@@ -105,13 +109,13 @@ public class CallParcelableClassModule extends AbstractView implements IClassMod
 	 */
 	private void renderParcelConstructor(StringBuilder sb, Namespace ns, JavaClass klass, int idt) {
 		final String indent = getIndent(idt);
-		
+
 		// header
 		sb.append("\n");
 		sb.append(indent).append("/**\n");
 		sb.append(indent).append(" * Construct via parcel.\n");
 		sb.append(indent).append(" */\n");
-		
+
 		// signature
 		sb.append(indent).append("protected ");
 		sb.append(getClassName(klass));
@@ -119,14 +123,14 @@ public class CallParcelableClassModule extends AbstractView implements IClassMod
 
 		// body
 		sb.append(indent).append("	super(parcel);\n");
-		
+
 		sb.append(indent).append("}\n");
 	}
-	
+
 	/**
 	 * Generates the static CREATOR class that creates an object from parcel
 	 * (basically just calls the constructor that does the work.)
-	 * 
+	 *
 	 * @param sb Current StringBuilder
 	 * @param ns Current namespace
 	 * @param klass Class to render
@@ -135,13 +139,13 @@ public class CallParcelableClassModule extends AbstractView implements IClassMod
 	private void renderParcelableCreator(StringBuilder sb, Namespace ns, JavaMethod klass, int idt) {
 		final String indent = getIndent(idt);
 		final String n = getClassName(klass);
-		
+
 		// variable comment block
 		sb.append("\n");
 		sb.append(indent).append("/**\n");
 		sb.append(indent).append(" * Generates instances of this Parcelable class from a Parcel.\n");
 		sb.append(indent).append(" */\n");
-		
+
 		// signature & body
 		sb.append(indent).append("public static final Parcelable.Creator<").append(n).append("> CREATOR = new Parcelable.Creator<").append(n).append(">() {\n");
 		sb.append(indent).append("	@Override\n");
@@ -154,5 +158,5 @@ public class CallParcelableClassModule extends AbstractView implements IClassMod
 		sb.append(indent).append("	}\n");
 		sb.append(indent).append("};\n");
 	}
-	
+
 }

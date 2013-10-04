@@ -20,6 +20,18 @@
  */
 package org.xbmc.android.jsonrpc.generator;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
 import org.apache.commons.io.FileUtils;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.Version;
@@ -40,79 +52,80 @@ import org.xbmc.android.jsonrpc.generator.introspect.wrapper.TypeWrapper;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 import org.xbmc.android.jsonrpc.generator.view.NamespaceView;
 import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
-import org.xbmc.android.jsonrpc.generator.view.module.classmodule.*;
+import org.xbmc.android.jsonrpc.generator.view.module.classmodule.CallParcelableClassModule;
+import org.xbmc.android.jsonrpc.generator.view.module.classmodule.ConvenienceExtensionsClassModule;
+import org.xbmc.android.jsonrpc.generator.view.module.classmodule.JsonAccesClassModule;
+import org.xbmc.android.jsonrpc.generator.view.module.classmodule.MemberDeclarationClassModule;
+import org.xbmc.android.jsonrpc.generator.view.module.classmodule.MethodAPIClassModule;
+import org.xbmc.android.jsonrpc.generator.view.module.classmodule.ModelParcelableClassModule;
 import org.xbmc.android.jsonrpc.generator.view.module.parentmodule.ClassParentModule;
 import org.xbmc.android.jsonrpc.generator.view.module.parentmodule.MethodParentModule;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
 /**
  * Main program. To make this work, update:
- * 
+ *
  * <ul><li>{@link #OUTPUT_FOLDER} where you want the java files placed (your source folder)</li>
  *      <li>{@link #MODEL_PACKAGE} in which package you want your model files</li>
  * </ul>
- * 
+ *
  * Folders will be created. Program will crash if no write permissions.
- * 
+ *
  * @author freezy <freezy@xbmc.org>
  */
 public class Introspect {
-	
+
 	public final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-	
+
 	// date: git show -s --format="%ci" 99fa6fb
-	public final static String XBMC_VERSION_HASH = "7f49891";
-	public final static String XBMC_VERSION_DATE = "2012-12-09 07:19:22 -0800";
+	public final static String XBMC_VERSION_HASH = "5090ee1";
+	public final static String XBMC_VERSION_DATE = "2013-10-08 20:43:45 -0700";
 	public final static String XBMC_VERSION_BRANCH = "Branch.MASTER";
 	public final static String XBMC_VERSION_TYPE = "Type.NIGHTLY";
-	
+
 	private static Result RESULT;
-	
+
+	private final static String SCHEMA = "introspect.json";
+
 	private final static String MODEL_PACKAGE = "org.xbmc.android.jsonrpc.api.model";
 	private final static String CALL_PACKAGE = "org.xbmc.android.jsonrpc.api.call";
-	
+
 	private final static String MODEL_CLASS_SUFFIX = "Model";
 	private final static String CALL_CLASS_SUFFIX  = "";
-	
-	private final static String OUTPUT_FOLDER = "D:/dev/xbmc-jsonrpclib-android";
+
+	private final static String OUTPUT_FOLDER = "D:/dev/xbmc-jsonrpclib-android-output";
 //	private final static String OUTPUT_FOLDER = "/home/tthomas/git/xbmc-jsonrpclib-android/";
 
 	private final static List<String> IGNORED_METHODS = new ArrayList<String>();
-	
+
 	static {
 		final SimpleModule module = new SimpleModule("xbmc-json-rpc", Version.unknownVersion());
 		module.addDeserializer(TypeWrapper.class, new TypeDeserializer());
 		module.addDeserializer(ExtendsWrapper.class, new ExtendsDeserializer());
 		module.addDeserializer(AdditionalPropertiesWrapper.class, new AdditionalPropertiesDeserializer());
-		
+
 		OBJECT_MAPPER.registerModule(module);
 		IGNORED_METHODS.add("JSONRPC.Introspect"); // don't care. also, there is no return type definition.
 		IGNORED_METHODS.add("XBMC.GetInfoBooleans"); // temporarily until fixed
 		IGNORED_METHODS.add("XBMC.GetInfoLabels");   // temporarily until fixed
 	}
-	
+
 	/**
 	 * Main program
 	 * @param args none
 	 */
 	public static void main(String[] args) {
-		
+
 		final long started = System.currentTimeMillis();
-		
+
 		try {
-			
+
 			// parse from json
-			final Response response = OBJECT_MAPPER.readValue(new File("introspect.json"), Response.class);
+			final Response response = OBJECT_MAPPER.readValue(new File(SCHEMA), Response.class);
 			RESULT = response.getResult();
 
-			final IClassModule[] typeClassModules = { 
-				new MemberDeclarationClassModule(), 
-				new JsonAccesClassModule(), 
+			final IClassModule[] typeClassModules = {
+				new MemberDeclarationClassModule(),
+				new JsonAccesClassModule(),
 				new ModelParcelableClassModule(),
 				new ConvenienceExtensionsClassModule()
 			};
@@ -127,7 +140,7 @@ public class Introspect {
 				ns.setParentModule(new ClassParentModule());
 				ns.setInnerParentModule(new ClassParentModule());
 			}
-			
+
 			// resolve types
 			for (Namespace ns : Namespace.getTypes()) {
 				ns.resolveChildren();
@@ -189,7 +202,7 @@ public class Introspect {
 			}
 			FileUtils.copyFile(new File("libs/jackson-core-asl-1.8.8.jar"), new File(OUTPUT_FOLDER + "/libs/jackson-core-asl-1.8.8.jar"));
 			FileUtils.copyFile(new File("libs/jackson-mapper-asl-1.8.8.jar"), new File(OUTPUT_FOLDER + "/libs/jackson-mapper-asl-1.8.8.jar"));
-			
+
 			// 5. update version file
 			final File versionFile = new File(OUTPUT_FOLDER + "/src/org/xbmc/android/jsonrpc/api/Version.java");
 			replaceInFile("%hash%", XBMC_VERSION_HASH, versionFile);
@@ -207,14 +220,14 @@ public class Introspect {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private static void render(Namespace ns) {
-		
+
 		// do nothing if no classes or enums to render.
 		if (ns.isEmpty()) {
 			return;
 		}
-		
+
 		final StringBuilder sb = new StringBuilder();
 		final NamespaceView view = new NamespaceView(ns);
 		final File out = getFile(ns);
@@ -225,9 +238,9 @@ public class Introspect {
 	}
 
 	/**
-	 * Computes the filename of the Java class file based on 
+	 * Computes the filename of the Java class file based on
 	 * {@link Introspect#OUTPUT_FOLDER} and the package of the namespace.
-	 * 
+	 *
 	 * @param ns Namespace
 	 * @return File handler
 	 */
@@ -244,10 +257,10 @@ public class Introspect {
         }
 		sb.append(ns.getName());
 		sb.append(".java");
-		
+
 		return new File(sb.toString());
 	}
-	
+
 	/**
 	 * Creates folder structure and dumps contents into file.
 	 * @param file File to write to
@@ -255,14 +268,14 @@ public class Introspect {
 	 */
 	private static void writeFile(File file, String contents) {
 		final File path = file.getParentFile();
-		
+
 		// create folders
 		if (!path.exists()) {
 			if (!path.mkdirs()) {
 				throw new IllegalArgumentException("Path " + path.getAbsolutePath() + " doesn't exist and cannot be created.");
 			}
 		}
-		
+
 		// dump to disk
 		try {
 			BufferedWriter out = new BufferedWriter(new FileWriter(file));
@@ -272,7 +285,7 @@ public class Introspect {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private static void replaceInFile(String oldString, String newString, File f) throws IOException {
 		final BufferedReader reader = new BufferedReader(new FileReader(f));
 		final StringBuilder sb = new StringBuilder();
@@ -282,12 +295,12 @@ public class Introspect {
 			sb.append("\r\n");
 		}
 		reader.close();
-		
+
 		final PrintWriter writer = new PrintWriter(new FileWriter(f));
 		writer.print(sb.toString());
 		writer.close();
 	}
-	
+
 	public static Property find(String name) {
 		if (RESULT == null) {
 			throw new RuntimeException("Must parse before finding types!");
@@ -297,7 +310,7 @@ public class Introspect {
 		}
 		return RESULT.getTypes().get(name);
 	}
-	
+
 	public static Property find(Property property) {
 		if (property.isRef()) {
 			return find(property.getRef());
