@@ -24,11 +24,11 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 /**
  * A global type as defined in introspect's <tt>types</tt> collection.
- * 
- * Only one additional attributes compared to {@link Property}: 
+ *
+ * Only one additional attributes compared to {@link Property}:
  * {@link Type#id}.
- * 
- * @see http://tools.ietf.org/html/draft-zyp-json-schema-03
+ *
+ * @see <a href="http://tools.ietf.org/html/draft-zyp-json-schema-03">IETF Draft</a>
  * @author freezy <freezy@xbmc.org>
  */
 @JsonIgnoreProperties({ "default" })
@@ -43,7 +43,7 @@ public class Type extends Property {
 	public void setId(String id) {
 		this.id = id;
 	}
-	
+
 	@Override
 	public String toString() {
 		return type != null ? type.toString() : "type=null";

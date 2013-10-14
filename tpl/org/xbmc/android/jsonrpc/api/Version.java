@@ -27,7 +27,7 @@ import java.util.Locale;
 
 /**
  * A class containing version information about a specific XBMC build.
- * 
+ *
  * @author freezy <freezy@xbmc.org>
  */
 public class Version {
@@ -36,9 +36,9 @@ public class Version {
 	private final Date date;
 	private final Branch branch;
 	private final Type type;
-	
+
 	private static Version VERSION;
-	
+
 	/**
 	 * Returns the version of XBMC against which the JSON-RPC library was built.
 	 * @return XBMC version
@@ -52,11 +52,11 @@ public class Version {
 
 	/**
 	 * Version definition
-	 * 
-	 * @param revision Revision hash
+	 *
+	 * @param hash Revision hash
 	 * @param date Date in format 2012-11-10 09:33:15 +0100
-	 * @param branch
-	 * @param type
+	 * @param branch XBMC branch name
+	 * @param type XBMC build name
 	 */
 	private Version(String hash, String date, Branch branch, Type type) {
 		final SimpleDateFormat sfd = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z", Locale.US);
@@ -72,7 +72,7 @@ public class Version {
 
 	/**
 	 * Returns the git hash of the commit the library was built against.
-	 * @return
+	 * @return Git hash of the XBMC build used to generate the library
 	 */
 	public String getHash() {
 		return hash;
@@ -80,7 +80,7 @@ public class Version {
 
 	/**
 	 * Returns the date of the XBMC build the library was built against.
-	 * @return
+	 * @return Date XBMC build used to generate the library
 	 */
 	public Date getDate() {
 		return date;
@@ -88,7 +88,7 @@ public class Version {
 
 	/**
 	 * Returns the branch of the XBMC build the library was built against.
-	 * @return
+	 * @return Branch name
 	 */
 	public Branch getBranch() {
 		return branch;
@@ -116,6 +116,6 @@ public class Version {
 	 * @author freezy <freezy@xbmc.org>
 	 */
 	public enum Type {
-		SNAPSHOT, NIGHTLY, RELEASE, BETA, RC, UNKNOWN;
+		SNAPSHOT, NIGHTLY, RELEASE, BETA, RC, UNKNOWN
 	}
 }

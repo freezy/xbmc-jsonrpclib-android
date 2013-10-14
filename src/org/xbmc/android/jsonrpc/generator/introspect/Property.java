@@ -39,10 +39,10 @@ import org.xbmc.android.jsonrpc.generator.introspect.wrapper.TypeWrapper;
  *     <li>{@link Method#params} - As a method parameter type extending Property.</li>
  *     <li>{@link Property#items} - As an array type.</li>
  * </ul>
- * 
+ *
  * All of its members can be found in the JSON-schema draft (see link below).
- * 
- * @see http://tools.ietf.org/html/draft-zyp-json-schema-03
+ *
+ * @see <a href="http://tools.ietf.org/html/draft-zyp-json-schema-03">IETF Draft</a>
  * @author freezy <freezy@xbmc.org>
  */
 public class Property {
@@ -58,7 +58,7 @@ public class Property {
 	 */
 	@JsonProperty("$ref")
 	protected String ref;
-	
+
 	/**
 	 * The value of this property MUST be another schema which will provide
 	 * a base schema which the current schema will inherit from.  The
@@ -68,20 +68,20 @@ public class Property {
 	 * be valid for all the schemas in the array.  A schema that extends
 	 * another schema MAY define additional attributes, constrain existing
 	 * attributes, or add other constraints.<p/>
-	 * 
+	 *
 	 * Conceptually, the behavior of extends can be seen as validating an
 	 * instance against all constraints in the extending schema as well as
 	 * the extended schema(s).  More optimized implementations that merge
 	 * schemas are possible, but are not required.  An example of using
 	 * "extends":<p/>
-	 * 
+	 *
 	 * <code><pre>
 	 *    {
 	 *       "description":"An adult",
 	 *       "properties":{"age":{"minimum": 21}},
 	 *       "extends":"person"
 	 *     }
-	 *     
+	 *
 	 *     {
 	 *       "description":"Extended schema",
 	 *       "properties":{"deprecated":{"type": "boolean"}},
@@ -104,7 +104,7 @@ public class Property {
 	 * order of the instance properties MAY be in any order.
 	 */
 	protected HashMap<String, Property> properties;
-	
+
 	/**
 	 *  This provides an enumeration of all possible values that are valid
 	 *  for the instance property.  This MUST be an array, and each item in
@@ -121,12 +121,12 @@ public class Property {
 	 * purpose the instance property.
 	 */
 	protected String description;
-	
+
 	/**
 	 * This attribute defines what the primitive type or the schema of the
 	 * instance MUST be in order to validate.  This attribute can take one
 	 * of two forms:<p/>
-	 * 
+	 *
 	 * <b>Simple Types</b>: A string indicating a primitive or simple type. The
 	 * following are acceptable string values:
 	 * <ul><li><tt>string</tt> Value MUST be a string.</li>
@@ -142,25 +142,25 @@ public class Property {
 	 *             is not included in a union, null values are not allowed (the
 	 *             primitives listed above do not allow nulls on their own).</li>
 	 *     <li><tt>any</tt> Value MAY be of any type including null.</li></ul>
-	 *     
+	 *
 	 * If the property is not defined or is not in this list, then any
 	 * type of value is acceptable.  Other type values MAY be used for
 	 * custom purposes, but minimal validators of the specification
 	 * implementation can allow any instance value on unknown type
 	 * values.<p/>
-	 * 
+	 *
 	 * <b>Union Types</b>: An array of two or more simple type definitions. Each
 	 * item in the array MUST be a simple type definition or a schema.
 	 * The instance value is valid if it is of the same type as one of
 	 * the simple type definitions, or valid by one of the schemas, in
 	 * the array.<br>
-	 * 
+	 *
 	 * For example, a schema that defines if an instance can be a string or
 	 * a number would be:<br>
 	 * <code><tt>{"type":["string","number"]}</tt></code>
 	 */
 	protected TypeWrapper type;
-	
+
 	/**
 	 * This attribute indicates if the instance must have a value, and not
 	 * be undefined.  This is false by default, making the instance
@@ -186,7 +186,7 @@ public class Property {
 	 *  "additionalProperties" (Section 5.4) for objects.
 	 */
 	protected Property items;
-	
+
 	/**
 	 * This attribute indicates that all items in an array instance MUST be
 	 * unique (contains no two identical values).
@@ -203,7 +203,7 @@ public class Property {
 	 *         object.</li></ul>
 	 */
 	protected Boolean uniqueItems;
-	
+
 	/**
 	 * This attribute defines the minimum number of values in an array when
 	 * the array is the instance value.
@@ -215,13 +215,13 @@ public class Property {
 	 * of the string.
 	 */
 	protected Integer minLength;
-	
+
 	/**
 	 * This attribute defines the minimum value of the instance property
 	 * when the type of the instance value is a number.
 	 */
 	protected Integer minimum;
-	
+
 	/**
 	 * This attribute defines the maximum value of the instance property
 	 * when the type of the instance value is a number.
@@ -244,29 +244,29 @@ public class Property {
 	 */
 	@JsonProperty("default")
 	protected String defaultValue;
-	
+
 	/**
 	 * Returns true if properties are declared within this type, as opposed to
 	 * reference, native type or enum.
-	 * 
+	 *
 	 * If true, we assume that the {@link #properties} map is filled up.
-	 * 
+	 *
 	 * @return True if object definition available, false otherwise.
 	 */
 	public boolean isObjectDefinition() {
 		return type != null && type.getName() != null && type.getName().equals("object");
 	}
-	
+
 	public boolean isNative() {
 		return type != null && type.getName() != null
 				&& !type.getName().equals("object")
 				&& !type.getName().equals("array");
 	}
-	
+
 	public boolean isMultitype() {
 		return type != null && type.isList();
 	}
-	
+
 	public boolean isArray() {
 		return type != null && type.getName() != null && type.getName().equals("array");
 	}
@@ -275,12 +275,12 @@ public class Property {
 		return ref;
 //		return ref != null ? ref : (type != null && type.isObject() ? type.getObj().getRef() : null);
 	}
-	
+
 	public boolean isRef() {
 		return ref != null;
 //		return ref != null || (type != null && type.isObject() && type.getObj().isRef());
 	}
-	
+
 	public boolean isRequired() {
 		return required != null && required;
 	}
@@ -288,11 +288,11 @@ public class Property {
 	public void setRef(String ref) {
 		this.ref = ref;
 	}
-	
+
 	public boolean hasProperties() {
 		return properties != null && !properties.isEmpty();
 	}
-	
+
 	public boolean hasAdditionalProperties() {
 		return additionalProperties != null && additionalProperties.isSet();
 	}
@@ -308,7 +308,7 @@ public class Property {
 	public List<String> getEnums() {
 		return enums;
 	}
-	
+
 	public boolean isEnum() {
 		return (enums != null && !enums.isEmpty());
 	}
@@ -404,7 +404,7 @@ public class Property {
 	public void setDefault(String defaultValue) {
 		this.defaultValue = defaultValue;
 	}
-	
+
 	/**
 	 * Returns true if this type extends another type, false otherwise.
 	 * @return True if extends, false otherwise.
@@ -412,7 +412,7 @@ public class Property {
 	public boolean doesExtend() {
 		return extendsValue != null;
 	}
-	
+
 	public ExtendsWrapper getExtends() {
 		return extendsValue;
 	}
@@ -420,7 +420,7 @@ public class Property {
 	public void setExtends(ExtendsWrapper extendsValue) {
 		this.extendsValue = extendsValue;
 	}
-	
+
 	protected void copyTo(Property dest) {
 		// firstly copy attributes from parent(s)
 		if (extendsValue != null) {
@@ -471,11 +471,11 @@ public class Property {
 			dest.setUniqueItems(uniqueItems);
 		}
 	}
-	
+
 	/**
 	 * Traverses all parents and copies all attributes. A new object is then
 	 * returned, not a reference.
-	 * 
+	 *
 	 * @return Copy of this object, with all attributes copied from parents and
 	 *         references.
 	 */

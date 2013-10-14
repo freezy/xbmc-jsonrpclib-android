@@ -29,13 +29,13 @@ import org.xbmc.android.jsonrpc.generator.introspect.Property;
 
 /**
  * Defines an enum in an agnostic way.
- * 
+ *
  * @author freezy <freezy@xbmc.org>
  */
 public class JavaEnum {
 
 	private final String name;
-	private final Namespace namespace;  
+	private final Namespace namespace;
 	private final String apiType;
 	private final NativeType nativeType;
 	private final List<String> values = new ArrayList<String>();
@@ -45,14 +45,14 @@ public class JavaEnum {
 	private boolean isArray = false;
 	private JavaEnum parentEnum = null;
 	private JavaClass outerType = null; // set if isInner == true
-	
+
 	public enum NativeType {
 		STRING {
 			@Override
 			public String toString() {
 				return "String";
 			}
-		}, 
+		},
 		INTEGER {
 			@Override
 			public String toString() {
@@ -67,12 +67,12 @@ public class JavaEnum {
 		this.apiType = apiType;
 		this.nativeType = nativeType;
 		this.unresolved = false;
-		
+
 		if (apiType != null) {
 			GLOBALS.put(apiType, this);
 		}
 	}
-	
+
 	public JavaEnum(String apiType) {
 		if (apiType == null) {
 			throw new IllegalArgumentException("API type must not be null when creating unresolved enum references.");
@@ -83,7 +83,7 @@ public class JavaEnum {
 		this.nativeType = null;
 		this.unresolved = true;
 	}
-	
+
 	/**
 	 * Contains all global enums for resolving purpose.
 	 */
@@ -108,7 +108,7 @@ public class JavaEnum {
 		}
 		return nativeType.toString();
 	}
-	
+
 	public Namespace getNamespace() {
 		if (unresolved) {
 			throw new IllegalStateException("Unresolved.");
@@ -136,7 +136,7 @@ public class JavaEnum {
 		}
 		return isInner;
 	}
-	
+
 	public boolean isUnresolved() {
 		return unresolved;
 	}
@@ -155,7 +155,7 @@ public class JavaEnum {
 		this.outerType = outerType;
 		this.isInner = true;
 	}
-	
+
 	public JavaEnum getParentEnum() {
 		if (unresolved) {
 			throw new IllegalStateException("Unresolved.");
@@ -172,14 +172,14 @@ public class JavaEnum {
 		}
 		this.parentEnum = parentEnum;
 	}
-	
+
 	public boolean doesExtend() {
 		if (unresolved) {
 			throw new IllegalStateException("Unresolved.");
 		}
 		return parentEnum != null;
 	}
-	
+
 	public JavaEnum setArray() {
 		if (unresolved) {
 			throw new IllegalStateException("Unresolved.");
@@ -187,26 +187,25 @@ public class JavaEnum {
 		this.isArray = true;
 		return this;
 	}
-	
+
 	public boolean isInt() {
 		if (unresolved) {
 			throw new IllegalStateException("Unresolved.");
 		}
 		return nativeType == NativeType.INTEGER;
 	}
-	
+
 	public boolean isString() {
 		if (unresolved) {
 			throw new IllegalStateException("Unresolved.");
 		}
 		return nativeType == NativeType.STRING;
 	}
-	
+
 	/**
 	 * Global enums sometimes are defined as array of enums. Since we render
 	 * them as if they are normal enums when defining, it's important to know
 	 * when methods refer to them whether they're array or not.
-	 * @return
 	 */
 	public boolean isArray() {
 		if (unresolved) {
@@ -214,46 +213,45 @@ public class JavaEnum {
 		}
 		return isArray;
 	}
-	
+
 	protected void resolve() {
-		
+
 		// resolve parent class
 		if (parentEnum != null) {
 			parentEnum = resolve(parentEnum);
 		}
 	}
-	
+
 
 	/**
 	 * Returns the resolved enum object.
-	 * 
+	 *
 	 * It's possible that specially methods contain "unresolved" classes
 	 * where there is only a reference. It will be converted to a {@link JavaClass},
 	 * but it potentially could also be an {@link JavaEnum}.
-	 * 
+	 *
 	 * If {@link JavaClass#resolve(JavaClass)} returns null, this should be
 	 * tried.
-	 * 
+	 *
 	 * Why not use {@link Property#obj()} to figure out if it's an enum in the
 	 * first place? Well, since it would be an empty JavaEnum with only the API
 	 * type set, we didn't bother, JavaClass suits the case equally.
-	 * 
-	 * @param klass
-	 * @return
+	 *
+	 * @param klass Enum to resolve
 	 */
 	public static JavaEnum resolve(JavaClass klass) {
 
 		if (!klass.isUnresolved() || klass.getApiType() == null) {
 			return null;
 		}
-		
+
 		if (!GLOBALS.containsKey(klass.getApiType())) {
 			return null;
 		}
 
 		return GLOBALS.get(klass.getApiType());
 	}
-	
+
 	public static JavaEnum resolve(JavaEnum e) {
 
 		final JavaEnum resolvedEnum;

@@ -45,7 +45,7 @@ public final class GlobalModel {
 		public final ConfigurationModel.Notifications notifications;
 		/**
 		 * Construct from JSON object.
-		 * @param obj JSON object representing a Configuration object
+		 * @param node JSON object representing a Configuration object
 		 */
 		public Configuration(ObjectNode node) {
 			mType = API_TYPE;
@@ -53,7 +53,7 @@ public final class GlobalModel {
 		}
 		/**
 		 * Construct object with native values for later serialization.
-		 * @param notifications 
+		 * @param notifications Notifications
 		 */
 		public Configuration(ConfigurationModel.Notifications notifications) {
 			this.notifications = notifications;
@@ -66,7 +66,7 @@ public final class GlobalModel {
 		}
 		/**
 		 * Extracts a list of {@link GlobalModel.Configuration} objects from a JSON array.
-		 * @param obj ObjectNode containing the list of objects
+		 * @param node ObjectNode containing the list of objects
 		 * @param key Key pointing to the node where the list is stored
 		 */
 		static ArrayList<GlobalModel.Configuration> getGlobalModelConfigurationList(ObjectNode node, String key) {
@@ -132,7 +132,7 @@ public final class GlobalModel {
 		public final int seconds;
 		/**
 		 * Construct from JSON object.
-		 * @param obj JSON object representing a Time object
+		 * @param node JSON object representing a Time object
 		 */
 		public Time(ObjectNode node) {
 			mType = API_TYPE;
@@ -143,10 +143,10 @@ public final class GlobalModel {
 		}
 		/**
 		 * Construct object with native values for later serialization.
-		 * @param hours 
-		 * @param milliseconds 
-		 * @param minutes 
-		 * @param seconds 
+		 * @param hours Hours
+		 * @param milliseconds Milliseconds
+		 * @param minutes Minutes
+		 * @param seconds  Seconds
 		 */
 		public Time(int hours, int milliseconds, int minutes, int seconds) {
 			this.hours = hours;
@@ -165,7 +165,7 @@ public final class GlobalModel {
 		}
 		/**
 		 * Extracts a list of {@link GlobalModel.Time} objects from a JSON array.
-		 * @param obj ObjectNode containing the list of objects
+		 * @param node ObjectNode containing the list of objects
 		 * @param key Key pointing to the node where the list is stored
 		 */
 		static ArrayList<GlobalModel.Time> getGlobalModelTimeList(ObjectNode node, String key) {

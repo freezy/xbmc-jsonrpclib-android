@@ -55,7 +55,7 @@ public final class ConfigurationModel {
 		public final boolean videolibrary;
 		/**
 		 * Construct from JSON object.
-		 * @param obj JSON object representing a Notifications object
+		 * @param node JSON object representing a Notifications object
 		 */
 		public Notifications(ObjectNode node) {
 			mType = API_TYPE;
@@ -68,12 +68,12 @@ public final class ConfigurationModel {
 		}
 		/**
 		 * Construct object with native values for later serialization.
-		 * @param audiolibrary 
-		 * @param gui 
-		 * @param other 
-		 * @param player 
-		 * @param system 
-		 * @param videolibrary 
+		 * @param audiolibrary
+		 * @param gui
+		 * @param other
+		 * @param player
+		 * @param system
+		 * @param videolibrary
 		 */
 		public Notifications(boolean audiolibrary, boolean gui, boolean other, boolean player, boolean system, boolean videolibrary) {
 			this.audiolibrary = audiolibrary;
@@ -96,7 +96,7 @@ public final class ConfigurationModel {
 		}
 		/**
 		 * Extracts a list of {@link ConfigurationModel.Notifications} objects from a JSON array.
-		 * @param obj ObjectNode containing the list of objects
+		 * @param node ObjectNode containing the list of objects
 		 * @param key Key pointing to the node where the list is stored
 		 */
 		static ArrayList<ConfigurationModel.Notifications> getConfigurationModelNotificationsList(ObjectNode node, String key) {

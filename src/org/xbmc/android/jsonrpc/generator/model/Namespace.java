@@ -36,14 +36,14 @@ import org.xbmc.android.jsonrpc.generator.view.module.IParentModule;
 
 /**
  * Defines the "outer" class, where the classes sit.
- * 
+ *
  * @author freezy <freezy@xbmc.org>
  */
 public class Namespace {
 
 	private static final HashMap<String, Namespace> TYPES = new HashMap<String, Namespace>();
 	private static final HashMap<String, Namespace> METHODS = new HashMap<String, Namespace>();
-	
+
 	private final Map<String, IClassModule> classModules = new HashMap<String, IClassModule>();
 	private final Map<String, IClassModule> innerClassModules = new HashMap<String, IClassModule>();
 	private IParentModule parentModule = null;
@@ -52,7 +52,7 @@ public class Namespace {
 	private final String name;
 	private final String packageName;
 	private final String classSuffix;
-	
+
 	private final List<JavaClass> classes = new ArrayList<JavaClass>();
 	private final List<JavaEnum> enums = new ArrayList<JavaEnum>();
 	private final Set<String> imports = new HashSet<String>();
@@ -62,7 +62,7 @@ public class Namespace {
 		this.packageName = packageName;
 		this.classSuffix = classSuffix;
 	}
-	
+
 	/**
 	 * Retrieves imports for each module and class of the namespace.
 	 */
@@ -71,11 +71,10 @@ public class Namespace {
 			klass.findModuleImports(classModules.values(), parentModule);
 		}
 	}
-	
+
 	/**
 	 * Recursively computes a list the imports needed by all classes
 	 * in this namespace.
-	 * @return
 	 */
 	public Set<String> findImports() {
 		for (JavaClass klass : classes) {
@@ -90,47 +89,45 @@ public class Namespace {
 		}
 		return new TreeSet<String>(imports);
 	}
-	
+
 	/**
 	 * Goes through all classes in the namespace and resolves them.
 	 */
 	public void resolveChildren() {
-		
+
 		// classes
 		final ListIterator<JavaClass> classIterator = classes.listIterator();
 		while (classIterator.hasNext()) {
 			classIterator.set(JavaClass.resolveNonNull(classIterator.next()));
 		}
-		
+
 		// enums
 		final ListIterator<JavaEnum> enumIterator = enums.listIterator();
 		while (enumIterator.hasNext()) {
 			enumIterator.set(JavaEnum.resolve(enumIterator.next()));
 		}
 	}
-	
+
 	public void addClassModule(IClassModule... classModules) {
-		for (int i = 0; i < classModules.length; i++) {
-			final IClassModule cm = classModules[i];
+		for (final IClassModule cm : classModules) {
 			if (!this.classModules.containsKey(cm.getClass().getName())) {
 				this.classModules.put(cm.getClass().getName(), cm);
 			}
 		}
 	}
-	
+
 	public void addInnerClassModule(IClassModule... classModules) {
-		for (int i = 0; i < classModules.length; i++) {
-			final IClassModule cm = classModules[i];
+		for (final IClassModule cm : classModules) {
 			if (!this.innerClassModules.containsKey(cm.getClass().getName())) {
 				this.innerClassModules.put(cm.getClass().getName(), cm);
 			}
 		}
 	}
-	
+
 	public void setParentModule(IParentModule parentModule) {
 		this.parentModule = parentModule;
 	}
-	
+
 	public void setInnerParentModule(IParentModule parentModule) {
 		this.innerParentModule = parentModule;
 	}
@@ -142,11 +139,11 @@ public class Namespace {
 	public void addEnum(JavaEnum e) {
 		enums.add(e);
 	}
-	
+
 	public String getName() {
 		return name + classSuffix;
 	}
-	
+
 	public String getApiName() {
 		return name;
 	}
@@ -162,11 +159,11 @@ public class Namespace {
 	public List<JavaEnum> getEnums() {
 		return enums;
 	}
-	
+
 	public Collection<IClassModule> getClassModules() {
 		return classModules.values();
 	}
-	
+
 	public Collection<IClassModule> getInnerClassModules() {
 		return innerClassModules.values();
 	}
@@ -174,7 +171,7 @@ public class Namespace {
 	public IParentModule getParentModule() {
 		return parentModule;
 	}
-	
+
 	public IParentModule getInnerParentModule() {
 		return innerParentModule;
 	}
@@ -182,7 +179,7 @@ public class Namespace {
 	public void addImport(String i) {
 		imports.add(i);
 	}
-	
+
 	public boolean isEmpty() {
 		for (JavaClass klass : classes) {
 			if (klass.isVisible()) {
@@ -206,12 +203,12 @@ public class Namespace {
 	public static Collection<Namespace> getTypes() {
 		return TYPES.values();
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public static Collection<Namespace> getAll() {
 		return CollectionUtils.union(TYPES.values(), METHODS.values());
 	}
-	
+
 	public static Namespace getMethod(String name, String packageName, String classSuffix) {
 		// trim suffixes if provided
 		if (name.contains(".")) {
@@ -222,11 +219,11 @@ public class Namespace {
 		}
 		return METHODS.get(name);
 	}
-	
+
 	public static Collection<Namespace> getMethods() {
 		return METHODS.values();
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		return this.getName().equals(((Namespace)obj).getName());

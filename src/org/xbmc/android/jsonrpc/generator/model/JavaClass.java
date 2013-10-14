@@ -90,7 +90,7 @@ public class JavaClass {
 		 * a String, value is defined by mapType.
 		 * @see
 		 */
-		TYPEMAP;
+		TYPEMAP
 	}
 
 	/**
@@ -443,7 +443,6 @@ public class JavaClass {
 	/**
 	 * Returns true if the class is a type map. In this case,
 	 * {@link #getMapType()} will return an object.
-	 * @return
 	 */
 	public boolean isTypeMap() {
 		return nature == Nature.TYPEMAP;
@@ -546,7 +545,6 @@ public class JavaClass {
 
 	/**
 	 * Returns true if this type is used as parameter, false otherwise.
-	 * @return
 	 */
 	public boolean isUsedAsParameter() {
 		return usedAsParameter;
@@ -554,7 +552,6 @@ public class JavaClass {
 
 	/**
 	 * Returns true if this type is used as result, false otherwise.
-	 * @return
 	 */
 	public boolean isUsedAsResult() {
 		return usedAsResult;
@@ -562,7 +559,6 @@ public class JavaClass {
 
 	/**
 	 * Returns true if this type is used as API method, false otherwise.
-	 * @return
 	 */
 	public boolean isUsedAsMethod() {
 		return usedAsMethod;
@@ -574,7 +570,6 @@ public class JavaClass {
 	 *     <li>If the class is global, this is the ID of type (e.g. <tt>Addon.Details</tt>, <tt>Video.Details.Episode</tt>)</li>
 	 *     <li>If the class is a multitype, then this is the name of its parameter (e.g. <tt>Broken</tt>, <tt>And</tt>)</li>
 	 *  </ul>
-	 * @return
 	 */
 	public String getName() {
 		return name;
@@ -617,8 +612,6 @@ public class JavaClass {
 	/**
 	 * Returns if the class should be rendered or not. Basically native types
 	 * and array of native types are not.
-	 *
-	 * @return
 	 */
 	public boolean isVisible() {
 		if (unresolved) {
@@ -629,7 +622,7 @@ public class JavaClass {
 
 	/**
 	 * Sets all class constructors.
-	 * @param constructors
+	 * @param constructors New constructors
 	 */
 	public void setConstructors(List<JavaConstructor> constructors) {
 		this.constructors.clear();
@@ -888,7 +881,7 @@ public class JavaClass {
 	 * is an inner class.
 	 *
 	 * @see #isInner()
-	 * @returns Outer class if available, null otherwise.
+	 * @return Outer class if available, null otherwise.
 	 */
 	public JavaClass getOuterType() {
 		if (unresolved) {
@@ -928,7 +921,7 @@ public class JavaClass {
 
 	/**
 	 * Sets the parent references that are resolved later.
-	 * @param references
+	 * @param references Parent references
 	 */
 	public void setParentReferences(List<String> references) {
 		this.parentReferences = references;
@@ -989,7 +982,6 @@ public class JavaClass {
 
 	/**
 	 * Returns the class description.
-	 * @return
 	 */
 	public String getDescription() {
 		return description;
@@ -997,7 +989,6 @@ public class JavaClass {
 
 	/**
 	 * Sets the class description.
-	 * @param description
 	 */
 	public void setDescription(String description) {
 		this.description = description;
@@ -1040,7 +1031,6 @@ public class JavaClass {
 
 	/**
 	 * Returns all parent members (own members exclusive) of this class.
-	 * @return
 	 */
 	public List<JavaAttribute> getParentMembers() {
 		return getParentMembers(false);
@@ -1048,7 +1038,6 @@ public class JavaClass {
 
 	/**
 	 * Returns all parent member (own members inclusive) of this class.
-	 * @return
 	 */
 	public List<JavaAttribute> getAllParentMembers() {
 		return getParentMembers(true);
@@ -1056,7 +1045,6 @@ public class JavaClass {
 
 	/**
 	 * Returns the members plus all parent members.
-	 * @return
 	 */
 	private List<JavaAttribute> getParentMembers(boolean includeOwnMembers) {
 		if (doesExtend()) {

@@ -40,7 +40,7 @@ import org.xbmc.android.jsonrpc.generator.model.Namespace;
 
 /**
  * Produces a {@link JavaClass} for a given {@link Method}.
- * 
+ *
  * @author freezy <freezy@xbmc.org>
  */
 public class MethodController {
@@ -48,15 +48,15 @@ public class MethodController {
 	private final String name;
 	private final String apiType;
 	private final Method method;
-	private final Map<String, JavaClass> innerClassDupes = new HashMap<String, JavaClass>(); 
-	
+	private final Map<String, JavaClass> innerClassDupes = new HashMap<String, JavaClass>();
+
 	private final static String RESULT_CLASS_SUFFIX = "Result";
 	private final static List<String> META_RETURN_PROPS = new ArrayList<String>();
-	
+
 	static {
 		META_RETURN_PROPS.add("limits");
 	}
-	
+
 	/**
 	 * Creates a new method controller.
 	 * @param apiType Full name of the method, e.g.: <tt>Addons.ExecuteAddon</tt>
@@ -70,33 +70,36 @@ public class MethodController {
 		this.apiType = apiType;
 		this.name = apiType.contains(".") ? apiType.substring(apiType.indexOf(".") + 1) : apiType;
 	}
-	
+
 	/**
 	 * Registers a method.
-	 * @param packageName 
+	 * @param packageName Name of the package
+	 * @param classSuffix Class suffix
+	 * @return
 	 */
 	public Namespace register(String packageName, String classSuffix) {
-		
+
 		final Namespace ns = Namespace.getMethod(apiType, packageName, classSuffix);
 		ns.addClass(getClass(ns, name));
-		
+
 		return ns;
 	}
-	
+
 	/**
 	 * Creates the agnostic {@link JavaClass} object.
-	 * 
-	 * @param className Name of the class (retrieved from parent key)
+	 *
+	 * @param namespace Namespace
+	 * @param methodName Name of the class (retrieved from parent key)
 	 * @return Class object
 	 */
 	public JavaMethod getClass(Namespace namespace, String methodName) {
-		
+
 		final JavaMethod klass = new JavaMethod(namespace, name, apiType);
-		
+
 		final List<JavaConstructor> constructors = new ArrayList<JavaConstructor>();
 		constructors.add(new JavaConstructor(klass));
 		JavaAttribute properties = null;
-		
+
 		// 1. parameters
 		for (Param p : method.getParams()) {
 
@@ -108,35 +111,35 @@ public class MethodController {
 				}
 			} else if (p.isArray() && p.getItems().isEnum()) {
 				throw new UnsupportedOperationException("No support for params that are arrays of enums yet.");
-				
+
 			} else {
-				
+
 				final TypeWrapper tr = p.getType();
-				
+
 				// single type
 				if (!p.isMultitype() || Helper.equalNativeTypes(tr.getList())) {
 					final JavaAttribute jp = getParam(p.getName(), p, namespace, klass);
-					
+
 					// "properties" is a special case, we add them at the end.
 					if (p.getName().equals("properties")) {
 						properties = jp;
 						continue;
 					}
-					
+
 					// add parameter to all constructor
 					for (JavaConstructor jc : constructors) {
 						jc.addParameter(jp);
 					}
-					
+
 				// multitype
 				} else {
-					
+
 					// copy current constructors so we can copy them for each additional type
 					final List<JavaConstructor> copiedConstructors = new ArrayList<JavaConstructor>();
 					for (JavaConstructor jc : constructors) {
 						copiedConstructors.add(jc.copy());
 					}
-					
+
 					int i = 0;
 					for (Type t : tr.getList()) {
 						if (i == 0) {
@@ -169,7 +172,7 @@ public class MethodController {
 				}
 			}
 		}
-		
+
 		// create constructor aliases without non-required args
 		final int size = constructors.size();
 		for (int j = 0; j < size; j++) {
@@ -202,7 +205,7 @@ public class MethodController {
 				}
 			}
 		}
-		
+
 		// add properties if previously skipped
 		if (properties != null) {
 			for (JavaConstructor jc : constructors) {
@@ -211,29 +214,29 @@ public class MethodController {
 		}
 		klass.setConstructors(constructors);
 
-		
+
 		// 2. return type
 		final TypeWrapper tw = method.getReturns();
 		if (tw.isObject()) {
-			
+
 			final Type type = tw.getObj();
-			
+
 			// result type is either native, array, a type reference...
 			if (type.isNative() || type.isRef() || type.isArray()) {
-				
+
 				final String name = klass.getName() + RESULT_CLASS_SUFFIX;
 				final PropertyController returnTypeController = new PropertyController(null, method.getReturns().getObj());
 				final JavaClass returnType = returnTypeController.getClass(namespace, name, klass);
-				
+
 				if (returnType.isTypeArray()) {
 					klass.linkInnerType(returnType.getArrayType());
 				}
-				
+
 				klass.setReturnType(returnType);
 
-			// ...or an object	
+			// ...or an object
 			} else if (type.isObjectDefinition()) {
-				/* 
+				/*
 				 * In case of an object, there are two scenarios. Either the
 				 * the object is a "meta" object, meaning it contains meta data
 				 * such as the limits of the result. In this case there is
@@ -260,9 +263,9 @@ public class MethodController {
 				if (!type.hasProperties() && !type.hasAdditionalProperties()) {
 					throw new IllegalStateException("Definition is object but no props defined. That's seriously weird.");
 				}
-				
+
 				if (type.hasProperties()) {
-					
+
 					// go through props and compare and count.
 					String potentialResultPropName = null; // the non-meta prop in case there is only one.
 					int nonMetaProps = 0;
@@ -272,19 +275,19 @@ public class MethodController {
 							nonMetaProps++;
 						}
 					}
-					
+
 					// first case described above: data is wrapped into a meta object.
 					if (nonMetaProps == 1) {
 						final Property prop = type.getProperties().get(potentialResultPropName);
 						if (!prop.isRef() && !prop.isNative() && !prop.isArray()) {
 							throw new IllegalStateException("Return type is expected to be either reference, native or array");
 						}
-						
+
 						final PropertyController returnTypeController = new PropertyController(null, prop);
 						klass.setReturnType(returnTypeController.getClass(namespace, null, klass));
 						klass.setReturnProperty(potentialResultPropName);
-					
-					// second case: full object definition. we suffix the class name with RESULT_CLASS_SUFFIX	
+
+					// second case: full object definition. we suffix the class name with RESULT_CLASS_SUFFIX
 					} else {
 						final String name = klass.getName() + RESULT_CLASS_SUFFIX;
 						final PropertyController returnTypeController = new PropertyController(null, type);
@@ -295,29 +298,29 @@ public class MethodController {
 				} else {
 					throw new UnsupportedOperationException("Naked objects with only additional attributes are not yet supported.");
 				}
-				
+
 			} else {
 				throw new IllegalStateException("Result type is expected to be a reference, native or an object.");
 			}
-			
+
 		} else {
 			throw new RuntimeException("Expected return type is an object with properties.");
 		}
-		
+
 		// description
 		klass.setDescription(method.getDescription());
-		
+
 		return klass;
 	}
-	
-	
+
+
 	/**
-	 * Returns a JavaParameter for a given property. 
-	 * @param name
-	 * @param p
-	 * @param namespace
-	 * @param klass
-	 * @return
+	 * Returns a JavaParameter for a given property.
+	 * @param name Name
+	 * @param p Property
+	 * @param namespace Namespace
+	 * @param klass Class
+	 * @return Parameter
 	 */
 	private JavaAttribute getParam(String name, Property p, Namespace namespace, JavaClass klass) {
 		final JavaAttribute jp;
@@ -329,7 +332,7 @@ public class MethodController {
 		} else {
 			final JavaClass type = pc.getClass(namespace, name, klass);
 			jp = new JavaAttribute(name, type, klass);
-			
+
 			type.setUsedAsParameter();
 			if (type.isInner()) {
 				final String k = type.getName();
@@ -338,7 +341,7 @@ public class MethodController {
 						// update "old" type with new name and set null
 						innerClassDupes.get(k).suffixName(getSuffixFromMembers(innerClassDupes.get(k)));
 						innerClassDupes.put(k, null);
-					} 
+					}
 					// update type with new name
 					type.suffixName(getSuffixFromMembers(type));
 				} else {
@@ -352,7 +355,7 @@ public class MethodController {
 		jp.resolveType();
 		return jp;
 	}
-	
+
 	/**
 	 * Returns some nicely readable suffix, generated from member names.
 	 * @param klass To be suffixed class

@@ -24,16 +24,16 @@ package org.xbmc.android.jsonrpc.api;
 import org.codehaus.jackson.JsonNode;
 
 /**
- * All model objects of the API must implement this interface. 
+ * All model objects of the API must implement this interface.
  *
  * @author freezy <freezy@xbmc.org>
  */
 public interface JsonSerializable {
-	
+
 	/**
 	 * Returns a JSON-serialized version of this object.
-	 * @return
+	 * @return Deserialized Json Node
 	 */
 	public abstract JsonNode toJsonNode();
-	
+
 }

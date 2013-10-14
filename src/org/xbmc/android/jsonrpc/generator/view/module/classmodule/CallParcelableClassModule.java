@@ -89,11 +89,7 @@ public class CallParcelableClassModule extends AbstractView implements IClassMod
 		sb.append(indent).append("	super.writeToParcel(parcel, flags);\n");
 		if (klass.getReturnType().isNative()) {
 			sb.append(indent).append("	parcel.writeValue(mResult);\n");
-		}/* else if (klass.getReturnType().isTypeArray()) {
-			sb.append(indent).append("	for (").append(getClassName(klass.getReturnType().getArrayType())).append(" t : mResult) {\n");
-			sb.append(indent).append("		parcel.writeParcelable(t, flags);\n");
-			sb.append(indent).append("	}\n");
-		} */else {
+		} else {
 			sb.append(indent).append("	parcel.writeParcelable(mResult, flags);\n");
 		}
 

@@ -27,8 +27,8 @@ import org.xbmc.android.jsonrpc.generator.model.JavaEnum;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 
 /**
- * Produces a {@link JavaMember} for a given {@link Property}.
- * 
+ * Produces a {@link JavaAttribute} for a given {@link Property}.
+ *
  * @author freezy <freezy@xbmc.org>
  */
 public class MemberController {
@@ -45,10 +45,10 @@ public class MemberController {
 
 		final Property obj = property.obj();
 		final JavaAttribute member;
-		
+
 		// direct enum
 		if (obj.isEnum() || (obj.isArray() && obj.getItems().obj().isEnum())) {
-			
+
 			final PropertyController pc = new PropertyController(name, obj);
 			final JavaEnum e = pc.getEnum(namespace, name);
 			parentType.linkInnerEnum(e);

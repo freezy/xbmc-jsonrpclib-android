@@ -39,36 +39,36 @@ import android.util.Log;
  * <ul><li><tt>JSONRPC.Introspect</tt></li>
  *     <li><tt>XBMC.GetInfoBooleans</tt></li>
  *     <li><tt>XBMC.GetInfoLabels</tt></li></ul>
- * 
+ *
  * It's up to the application to correctly parse those response types, if
  * necessary.
- * 
+ *
  * @author freezy <freezy@xbmc.org>
  */
 public class UndefinedResult implements Parcelable {
-	
+
 	private final static String TAG = UndefinedResult.class.getSimpleName();
 	private final static ObjectMapper OM = new ObjectMapper();
-	
+
 	private final JsonNode mResponse;
-	
+
 	/**
 	 * Class constructor.
-	 * @param obj Root node of the response object.
+	 * @param node Root node of the response object.
 	 */
 	public UndefinedResult(JsonNode node) {
 		mResponse = node;
 	}
-	
+
 	/**
 	 * Returns the root response object.
-	 * 
+	 *
 	 * @return Root object of the response.
 	 */
 	public JsonNode getResponse() {
 		return mResponse;
 	}
-	
+
 	/**
 	 * Returns the <tt>result</tt> node of the response object.
 	 * @return The <tt>result</tt> node of the response object.
@@ -81,15 +81,15 @@ public class UndefinedResult implements Parcelable {
 	public void writeToParcel(Parcel parcel, int flags) {
 		parcel.writeValue(mResponse.toString());
 	}
-	
+
 	@Override
 	public int describeContents() {
 		return 0;
 	}
-	
+
 	/**
 	 * Class constructor via parcel
-	 * @param obj Root node of the response object.
+	 * @param parcel Root node of the response object.
 	 */
 	private UndefinedResult(Parcel parcel) {
 		ObjectNode response = null;
@@ -103,7 +103,7 @@ public class UndefinedResult implements Parcelable {
 			mResponse = response;
 		}
 	}
-	
+
 	/**
 	 * Generates instances of this Parcelable class from a Parcel.
 	 */

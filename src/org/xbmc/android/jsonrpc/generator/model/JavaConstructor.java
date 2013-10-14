@@ -25,7 +25,7 @@ import java.util.List;
 
 /**
  * Defines a class constructor in an agnostic way.
- * 
+ *
  * @author freezy <freezy@xbmc.org>
  */
 public class JavaConstructor {
@@ -36,7 +36,7 @@ public class JavaConstructor {
 	public JavaConstructor(JavaClass type) {
 		this.type = type;
 	}
-	
+
 	public boolean hasParameters() {
 		return !parameters.isEmpty();
 	}
@@ -52,18 +52,17 @@ public class JavaConstructor {
 	public JavaClass getType() {
 		return type;
 	}
-	
+
 	public void resolve() {
 		type = JavaClass.resolveNonNull(type);
 		for (JavaAttribute param : parameters) {
 			param.resolveType();
 		}
 	}
-	
+
 	/**
 	 * Returns a new reference of this constructor. Note that references to
 	 * parameters stay the same, only the list and the constructor are cloned.
-	 * @return
 	 */
 	public JavaConstructor copy() {
 		final JavaConstructor jc = new JavaConstructor(this.type);
@@ -72,20 +71,20 @@ public class JavaConstructor {
 		}
 		return jc;
 	}
-	
+
 	/**
-	 * Returns true if a constructor has the same amount of parameters per 
+	 * Returns true if a constructor has the same amount of parameters per
 	 * type, in the same order.
-	 * 
-	 * @param jc
-	 * @return
+	 *
+	 * @param jc Constructor to be compared with
+	 * @return True if same params, false otherwise
 	 */
 	public boolean hasSameParams(JavaConstructor jc) {
-		
+
 		if (parameters.size() != jc.getParameters().size()) {
 			return false;
 		}
-		
+
 		for (int i = 0; i < parameters.size(); i++) {
 			if (parameters.get(i).isEnum() != jc.getParameters().get(i).isEnum()) {
 				return false;
@@ -95,14 +94,14 @@ public class JavaConstructor {
 			}
 			final JavaClass class1 = parameters.get(i).getType();
 			final JavaClass class2 = jc.getParameters().get(i).getType();
-			
+
 			if (!class1.equals(class2)) {
 				return false;
 			}
 		}
 		return true;
 	}
-	
+
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();

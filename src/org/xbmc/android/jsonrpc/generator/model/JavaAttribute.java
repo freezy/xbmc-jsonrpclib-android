@@ -32,24 +32,24 @@ import java.util.List;
  *     <li>A list of types (multitype)</li>
  * </ul>
  * Plus some additional members such as <tt>description</tt> or <tt>required</tt>.
- * 
+ *
  * @author freezy <freezy@xbmc.org>
  */
 public class JavaAttribute {
 
 	// variable name
 	private final String name;
-	
+
 	// those 3 are exclusive
 	private JavaClass type;
 	private JavaEnum e;
 	private final List<JavaClass> multitypes = new ArrayList<JavaClass>();
 	private final JavaClass parent;
-	
+
 	// additional attributes
 	private boolean required = false;
 	private String description;
-	
+
 	/**
 	 * Construct with type
 	 * @param name Variable name
@@ -98,10 +98,9 @@ public class JavaAttribute {
 		this.multitypes.addAll(multitypes);
 		this.parent = parent;
 	}
-	
+
 	/**
 	 * Resolves the type (if not enum)
-	 * @return
 	 */
 	public void resolveType() {
 		if (type != null) {
@@ -126,53 +125,47 @@ public class JavaAttribute {
 			}
 		}
 	}
-	
+
 	/**
 	 * Returns true if multitype, false othewise.
-	 * @return
 	 */
 	public boolean isMultitype() {
 		return !multitypes.isEmpty();
 	}
-	
+
 	/**
 	 * Returns true if enum, false othewise.
-	 * @return
 	 */
 	public boolean isEnum() {
 		return e != null;
 	}
-	
+
 	/**
-	 * Returns true if the variable is a type (not enum) and the type is an 
+	 * Returns true if the variable is a type (not enum) and the type is an
 	 * inner type (not global).
-	 * @return
 	 */
 	public boolean isInner() {
 		return type != null && type.isInner();
 	}
-	
+
 	/**
 	 * Returns true if the variable is a type (not enum) and the type is an
 	 * array.
-	 * @return
 	 */
 	public boolean isArray() {
-		return (type != null && (type.isEnumArray() || type.isTypeArray())) || (e != null && e.isArray()); 
+		return (type != null && (type.isEnumArray() || type.isTypeArray())) || (e != null && e.isArray());
 	}
-	
+
 	/**
 	 * Returns true if the variable is a map ("additionalProperties").
-	 * @return
 	 */
 	public boolean isMap() {
 		return type != null && type.isTypeMap();
 	}
-	
+
 	/**
-	 * Returns true if the variable is a type (not enum) and the type is a 
+	 * Returns true if the variable is a type (not enum) and the type is a
 	 * global type (not inner).
-	 * @return
 	 */
 	public boolean isGlobal() {
 		return type != null && type.isGlobal();
@@ -180,23 +173,21 @@ public class JavaAttribute {
 
 	/**
 	 * Returns true if description is set.
-	 * @return
 	 */
 	public boolean hasDescription() {
 		return description != null;
 	}
-	
+
 	/**
 	 * Returns the description or null if not set.
-	 * @return
 	 */
 	public String getDescription() {
 		return description;
 	}
 
 	/**
-	 * Sets the description
-	 * @param description
+	 * Sets the description.
+	 * @param description New description
 	 */
 	public void setDescription(String description) {
 		this.description = description;
@@ -204,7 +195,6 @@ public class JavaAttribute {
 
 	/**
 	 * Returns the name of the variable.
-	 * @return
 	 */
 	public String getName() {
 		return name;
@@ -213,7 +203,6 @@ public class JavaAttribute {
 	/**
 	 * Returns the type of the variable.
 	 * @see #isEnum()
-	 * @return
 	 */
 	public JavaClass getType() {
 		return type;
@@ -222,15 +211,13 @@ public class JavaAttribute {
 	/**
 	 * Returns the enum of the variable.
 	 * @see #isEnum()
-	 * @return
 	 */
 	public JavaEnum getEnum() {
 		return e;
 	}
-	
+
 	/**
 	 * Returns the parent class.
-	 * @return
 	 */
 	public JavaClass getParent() {
 		return parent;
@@ -239,7 +226,6 @@ public class JavaAttribute {
 	/**
 	 * Returns true if the variable is marked as "required", in case of a
 	 * parameter.
-	 * @return
 	 */
 	public boolean isRequired() {
 		return required;
@@ -247,12 +233,12 @@ public class JavaAttribute {
 
 	/**
 	 * Sets the required flag.
-	 * @param required
+	 * @param required New flag value
 	 */
 	public void setRequired(boolean required) {
 		this.required = required;
 	}
-	
+
 	/**
 	 * Compares another variable by name.
 	 */
@@ -260,7 +246,7 @@ public class JavaAttribute {
 	public boolean equals(Object obj) {
 		return ((JavaAttribute)obj).getName().equals(name);
 	}
-	
+
 	@Override
 	public String toString() {
 		return name;

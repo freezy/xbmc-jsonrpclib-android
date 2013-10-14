@@ -28,15 +28,15 @@ import org.xbmc.android.jsonrpc.generator.introspect.Type;
 
 /**
  * Contains helper routines.
- * 
+ *
  * @author freezy <freezy@xbmc.org>
  */
 public class Helper {
-	
+
 	/**
 	 * Returns true if a list of types have the same native type.
-	 * @param types
-	 * @return
+	 * @param types List of types
+	 * @return True if list of types have the same native type, false otherwise.
 	 */
 	public static boolean equalNativeTypes(List<Type> types) {
 		if (!types.get(0).obj().isNative()) {

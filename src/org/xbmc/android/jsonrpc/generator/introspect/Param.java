@@ -24,10 +24,10 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 /**
  * A parameter, as used in the <tt>params</tt> field of a method.
- * 
- * It extends {@link property} and additionally contains the {@link #name}
+ *
+ * It extends {@link Property} and additionally contains the {@link #name}
  * of the parameter.
- * 
+ *
  * @author freezy <freezy@xbmc.org>
  */
 @JsonIgnoreProperties({ "default" })
@@ -42,7 +42,7 @@ public class Param extends Property {
 	public void setName(String name) {
 		this.name = name;
 	}
-	
+
 	public String toString() {
 		if (type != null) {
 			return type.toString();
