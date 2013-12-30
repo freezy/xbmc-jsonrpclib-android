@@ -21,10 +21,12 @@
 
 package org.xbmc.android.jsonrpc.io;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.*;
+import android.util.Log;
 import org.codehaus.jackson.JsonNode;
 import org.xbmc.android.jsonrpc.api.AbstractCall;
 import org.xbmc.android.jsonrpc.api.AbstractModel;
@@ -35,18 +37,9 @@ import org.xbmc.android.jsonrpc.notification.PlayerObserver;
 import org.xbmc.android.jsonrpc.notification.SystemEvent;
 import org.xbmc.android.jsonrpc.service.ConnectionService;
 
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.Message;
-import android.os.Messenger;
-import android.os.Parcelable;
-import android.os.RemoteException;
-import android.util.Log;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 
 /**
  * Provides simple access to XBMC's JSON-RPC API.
@@ -59,7 +52,7 @@ import android.util.Log;
  * {@link #setPreferHTTP()}, which will use HTTP as transport layer and
  * not use the connection service but {@link JsonApiRequest}.
  * <p/>
- * 
+ *
  * The TCP connection is managed by {@link ConnectionService}. The manager uses
  * a {@link Messenger} to communicate with the service using a {@link Handler}
  * on both sides (see {@link IncomingHandler}).
@@ -147,7 +140,7 @@ public class ConnectionManager {
 	 * XBMC host configuration
 	 */
 	private final HostConfig mHost;
-	
+
 	/**
 	 * Path where data gets posted.
 	 */
@@ -170,10 +163,24 @@ public class ConnectionManager {
 	/**
 	 * Executes a JSON-RPC request with the full result in the callback.
 	 * @param call Call to execute
-	 * @param callback
-	 * @return
+	 * @param callback How to treat result
+	 * @param <T> Result type
+	 * @return This instance
 	 */
 	public <T> ConnectionManager call(final AbstractCall<T> call, final ApiCallback<T> callback) {
+		return call(call, null, callback);
+	}
+
+	/**
+	 * Executes a JSON-RPC request with the full result in the callback, which is executed
+	 * on the provided handler.
+	 * @param call Call to execute
+	 * @param handler Result is posted on that handler
+	 * @param callback How to treat result
+	 * @param <T> Result type
+	 * @return This instance
+	 */
+	public <T> ConnectionManager call(final AbstractCall<T> call, final Handler handler, final ApiCallback<T> callback) {
 
 		if (mPreferHTTP) {
 
@@ -184,9 +191,28 @@ public class ConnectionManager {
 					try {
 						// synchronously post, retrieve and parse response.
 						call.setResponse(JsonApiRequest.execute(getUrl(), mHost.getUsername(), mHost.getPassword(), call.getRequest()));
-						callback.onResponse(call);
-					} catch (ApiException e) {
-						callback.onError(e.getCode(), e.getDisplayableMessage(mContext), e.getHint(mContext));
+						if (handler != null) {
+							handler.post(new Runnable() {
+								@Override
+								public void run() {
+									callback.onResponse(call);
+								}
+							});
+						} else {
+							callback.onResponse(call);
+						}
+
+					} catch (final ApiException e) {
+						if (handler != null) {
+							handler.post(new Runnable() {
+								@Override
+								public void run() {
+									callback.onError(e.getCode(), e.getDisplayableMessage(mContext), e.getHint(mContext));
+								}
+							});
+						} else {
+							callback.onError(e.getCode(), e.getDisplayableMessage(mContext), e.getHint(mContext));
+						}
 					}
 				}
 			}).start();
@@ -208,7 +234,7 @@ public class ConnectionManager {
 	 * @param call Call to execute
 	 * @param handler Handler to treat result
 	 * @param callback Callback to handle result, can be null.
-	 * @return
+	 * @return Class instance
 	 */
 	public ConnectionManager call(AbstractCall<?> call, JsonHandler handler, HandlerCallback callback) {
 
@@ -417,7 +443,7 @@ public class ConnectionManager {
 			Log.i(TAG, "Service disconnected.");
 		}
 	};
-	
+
 	/**
 	 * Returns the path of the HTTP request. Default is {@link ConnectionManager#HTTP_PATH}.
 	 * @return HTTP path
@@ -428,7 +454,7 @@ public class ConnectionManager {
 
 	/**
 	 * Sets the path of the HTTP request. Should start with slash and end without.
-	 * @param httpPath
+	 * @param httpPath Path
 	 */
 	public void setHttpPath(String httpPath) {
 		mHttpPath = httpPath;
