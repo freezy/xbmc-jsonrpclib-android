@@ -108,7 +108,7 @@ public class Version {
 	 * @author freezy <freezy@xbmc.org>
 	 */
 	public enum Branch {
-		EDEN, FRODO, MASTER, UNKNOWN;
+		EDEN, FRODO, GOTHAM, MASTER, UNKNOWN
 	}
 
 	/**

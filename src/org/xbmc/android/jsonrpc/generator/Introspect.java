@@ -20,18 +20,6 @@
  */
 package org.xbmc.android.jsonrpc.generator;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
 import org.apache.commons.io.FileUtils;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.Version;
@@ -52,14 +40,15 @@ import org.xbmc.android.jsonrpc.generator.introspect.wrapper.TypeWrapper;
 import org.xbmc.android.jsonrpc.generator.model.Namespace;
 import org.xbmc.android.jsonrpc.generator.view.NamespaceView;
 import org.xbmc.android.jsonrpc.generator.view.module.IClassModule;
-import org.xbmc.android.jsonrpc.generator.view.module.classmodule.CallParcelableClassModule;
-import org.xbmc.android.jsonrpc.generator.view.module.classmodule.ConvenienceExtensionsClassModule;
-import org.xbmc.android.jsonrpc.generator.view.module.classmodule.JsonAccesClassModule;
-import org.xbmc.android.jsonrpc.generator.view.module.classmodule.MemberDeclarationClassModule;
-import org.xbmc.android.jsonrpc.generator.view.module.classmodule.MethodAPIClassModule;
-import org.xbmc.android.jsonrpc.generator.view.module.classmodule.ModelParcelableClassModule;
+import org.xbmc.android.jsonrpc.generator.view.module.classmodule.*;
 import org.xbmc.android.jsonrpc.generator.view.module.parentmodule.ClassParentModule;
 import org.xbmc.android.jsonrpc.generator.view.module.parentmodule.MethodParentModule;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * Main program. To make this work, update:
@@ -76,11 +65,11 @@ public class Introspect {
 
 	public final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-	// date: git show -s --format="%ci" 99fa6fb
-	public final static String XBMC_VERSION_HASH = "923f1c8";
-	public final static String XBMC_VERSION_DATE = "2013-10-13 14:53:21 +0200";
-	public final static String XBMC_VERSION_BRANCH = "Branch.MASTER";
-	public final static String XBMC_VERSION_TYPE = "Type.NIGHTLY";
+	// date: git show -s --format="%ci" 9ed3e58
+	public final static String XBMC_VERSION_HASH = "9ed3e58";
+	public final static String XBMC_VERSION_DATE = "2013-12-12 13:47:49 -0800";
+	public final static String XBMC_VERSION_BRANCH = "Branch.FRODO";
+	public final static String XBMC_VERSION_TYPE = "Type.RELEASE";
 
 	private static Result RESULT;
 
@@ -92,7 +81,7 @@ public class Introspect {
 	private final static String MODEL_CLASS_SUFFIX = "Model";
 	private final static String CALL_CLASS_SUFFIX  = "";
 
-	private final static String OUTPUT_FOLDER = "D:/dev/xbmc-jsonrpclib-android-output";
+	private final static String OUTPUT_FOLDER = "D:/dev/xbmc-jsonrpclib-android";
 //	private final static String OUTPUT_FOLDER = "/home/tthomas/git/xbmc-jsonrpclib-android/";
 
 	private final static List<String> IGNORED_METHODS = new ArrayList<String>();
