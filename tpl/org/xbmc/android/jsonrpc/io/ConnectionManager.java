@@ -139,7 +139,7 @@ public class ConnectionManager {
 	/**
 	 * XBMC host configuration
 	 */
-	private final HostConfig mHost;
+	private HostConfig mHost;
 
 	/**
 	 * Path where data gets posted.
@@ -458,6 +458,14 @@ public class ConnectionManager {
 	 */
 	public void setHttpPath(String httpPath) {
 		mHttpPath = httpPath;
+	}
+
+	/**
+	 * Updates the host config.
+	 * @param hostConfig New host config.
+	 */
+	public void setHostConfig(HostConfig hostConfig) {
+		mHost = hostConfig;
 	}
 
 	/**
