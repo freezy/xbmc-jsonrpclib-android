@@ -21,20 +21,10 @@
 
 package org.xbmc.android.jsonrpc.service;
 
-import java.io.BufferedWriter;
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Timer;
-import java.util.TimerTask;
-
+import android.app.IntentService;
+import android.content.Intent;
+import android.os.*;
+import android.util.Log;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParseException;
@@ -47,15 +37,15 @@ import org.xbmc.android.jsonrpc.io.ConnectionManager;
 import org.xbmc.android.jsonrpc.io.JsonHandler;
 import org.xbmc.android.jsonrpc.notification.AbstractEvent;
 
-import android.app.IntentService;
-import android.content.Intent;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.Message;
-import android.os.Messenger;
-import android.os.RemoteException;
-import android.util.Log;
+import java.io.BufferedWriter;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
+import java.util.*;
 
 /**
  * Service which keeps a steady TCP connection to XBMC's JSON-RPC API via TCP
@@ -72,11 +62,11 @@ import android.util.Log;
  * arrive before shutting down.
  * <p/>
  * About message exchange, see {@link ConnectionManager}.
- * 
+ *
  * @author freezy <freezy@xbmc.org>
  */
 public class ConnectionService extends IntentService {
-	
+
 	public final static String TAG = ConnectionService.class.getSimpleName();
 
 	private static final int SOCKET_TIMEOUT = 5000;
@@ -84,7 +74,7 @@ public class ConnectionService extends IntentService {
 	public static final String EXTRA_ADDRESS = "org.xbmc.android.jsonprc.extra.ADDRESS";
 	public static final String EXTRA_TCPPORT = "org.xbmc.android.jsonprc.extra.TCPPORT";
 	public static final String EXTRA_HTTPPORT = "org.xbmc.android.jsonprc.extra.HTTPPORT";
-	
+
 	public static final String EXTRA_STATUS = "org.xbmc.android.jsonprc.extra.STATUS";
 	public static final String EXTRA_APICALL = "org.xbmc.android.jsonprc.extra.APICALL";
 	public static final String EXTRA_NOTIFICATION = "org.xbmc.android.jsonprc.extra.NOTIFICATION";
@@ -96,77 +86,67 @@ public class ConnectionService extends IntentService {
 	public static final int MSG_CONNECTING = 0x03;
 	public static final int MSG_CONNECTED = 0x04;
 	public static final int MSG_RECEIVE_NOTIFICATION = 0x05;
-	public static final int MSG_RECEIVE_APICALL = 0x06;	
-	public static final int MSG_RECEIVE_HANDLED_APICALL = 0x07;	
+	public static final int MSG_RECEIVE_APICALL = 0x06;
+	public static final int MSG_RECEIVE_HANDLED_APICALL = 0x07;
 	public static final int MSG_SEND_APICALL = 0x08;
 	public static final int MSG_SEND_HANDLED_APICALL = 0x09;
-	public static final int MSG_ERROR = 0x0a;	
+	public static final int MSG_ERROR = 0x0a;
 
 	public static final int RESULT_SUCCESS = 0x01;
-	
+
 	/**
-	 * Time in milliseconds we wait for new requests until we shut down the 
+	 * Time in milliseconds we wait for new requests until we shut down the
 	 * service (and connection).
 	 */
 	private static final long COOLDOWN = 10000;
-	
+
+	/**
+	 * Static reference to Jackson's object mapper.
+	 */
+	private final static ObjectMapper OM = new ObjectMapper();
+
 	/**
 	 * Target we publish for clients to send messages to IncomingHandler.
 	 */
-	private final Messenger mMessenger = new Messenger(new IncomingHandler());
+	private final Messenger messenger = new Messenger(new IncomingHandler());
 
 	/**
 	 * Keeps track of all currently registered client. Normally, all clients
 	 * are {@link ConnectionManager} instances.
 	 */
-	private final ArrayList<Messenger> mClients = new ArrayList<Messenger>();
+	private final ArrayList<Messenger> clients = new ArrayList<Messenger>();
 	/**
 	 * API call results are only returned to the client requested it, so here are the relations.
 	 */
-	private final HashMap<String, Messenger> mClientMap = new HashMap<String, Messenger>();
+	private final HashMap<String, Messenger> clientMap = new HashMap<String, Messenger>();
 	/**
-	 * If we have to send data before we're connected, store data until connection 
+	 * If we have to send data before we're connected, store data until connection
 	 */
-	private final LinkedList<AbstractCall<?>> mPendingCalls = new LinkedList<AbstractCall<?>>();
+	private final LinkedList<AbstractCall<?>> pendingCalls = new LinkedList<AbstractCall<?>>();
 	/**
 	 * All calls the service is currently dealing with. Key is the ID of the call.
 	 */
-	private final HashMap<String, AbstractCall<?>> mCalls = new HashMap<String, AbstractCall<?>>();
+	private final HashMap<String, AbstractCall<?>> calls = new HashMap<String, AbstractCall<?>>();
 	/**
 	 * The handler we'll update with a status code as soon as we're done.
 	 */
-	private final HashMap<String, JsonHandler> mHandlers = new HashMap<String, JsonHandler>();
+	private final HashMap<String, JsonHandler> handlers = new HashMap<String, JsonHandler>();
 
 	/**
 	 * Reference to the socket, so we shut it down properly.
 	 */
-	private Socket mSocket = null;
+	private Socket socket = null;
 	/**
 	 * Output writer so we can also write stuff to the socket.
 	 */
-	private BufferedWriter mOut = null;
-	
+	private BufferedWriter out = null;
+
 	/**
-	 * Static reference to Jackson's object mapper.
-	 */
-	private final static ObjectMapper OM = new ObjectMapper();
-	
-	/**
-	 * When no more clients are connected, wait {@link #COOLDOWN} milliseconds 
+	 * When no more clients are connected, wait {@link #COOLDOWN} milliseconds
 	 * and then shut down the service if no new clients connect.
 	 */
-	private Timer mCooldownTimer = null;
-	
-	
-	/**
-	 * Host name or IP address of XBMC
-	 */
-	private String mAddress;
-	/**
-	 * Port where the TCP service is running (default 9090).
-	 */
-	private int mPort;
-	
+	private Timer cooldownTimer = null;
+
 	/**
 	 * Class constructor must be empty for services.
 	 */
@@ -176,62 +156,66 @@ public class ConnectionService extends IntentService {
 
 	@Override
 	protected void onHandleIntent(Intent intent) {
-		
-		mPort = intent.getIntExtra(EXTRA_TCPPORT, 9090);
-		mAddress = intent.getStringExtra(EXTRA_ADDRESS) != null ? intent.getStringExtra(EXTRA_ADDRESS) : "10.0.2.2";
-		
+
+		final int port = intent.getIntExtra(EXTRA_TCPPORT, 9090);
+		final String address = intent.getStringExtra(EXTRA_ADDRESS) != null ? intent.getStringExtra(EXTRA_ADDRESS) : "10.0.2.2";
+
 		long s = System.currentTimeMillis();
-		Log.d(TAG, "Starting TCP client...");
+		Log.d(TAG, "Starting TCP client for " + address + ":" + port + "...");
 		notifyStatus(MSG_CONNECTING, null);
-		Socket socket = null;
+		Socket sock;
 
 		try {
-			final InetSocketAddress sockaddr = new InetSocketAddress(mAddress, mPort);
-			socket = new Socket();
-			mSocket = socket;       // update class reference
-			socket.setSoTimeout(0); // no timeout for reading from connection.
-			socket.connect(sockaddr, SOCKET_TIMEOUT);
-			mOut = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+			final InetSocketAddress sockaddr = new InetSocketAddress(address, port);
+			sock = new Socket();
+			socket = sock;       // update class reference
+			sock.setSoTimeout(0); // no timeout for reading from connection.
+			sock.connect(sockaddr, SOCKET_TIMEOUT);
+			out = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));
+			Log.d(TAG, "Connected and writer setup.");
 		} catch (UnknownHostException e) {
 			Log.e(TAG, "Unknown host: " + e.getMessage(), e);
 			notifyError(new ApiException(ApiException.IO_UNKNOWN_HOST,  "Unknown host: " + e.getMessage(), e), null);
 			stopSelf();
+			out = null;
 			return;
 		} catch (SocketTimeoutException e) {
 			Log.e(TAG, "Unknown host: " + e.getMessage(), e);
 			notifyError(new ApiException(ApiException.IO_SOCKETTIMEOUT,  "Connection timeout: " + e.getMessage(), e), null);
 			stopSelf();
+			out = null;
 			return;
 		} catch (IOException e) {
 			Log.e(TAG, "I/O error while opening: " + e.getMessage(), e);
 			notifyError(new ApiException(ApiException.IO_EXCEPTION_WHILE_OPENING,  "I/O error while opening: " + e.getMessage(), e), null);
 			stopSelf();
+			out = null;
 			return;
 		}
-		
+
 		try {
 			Log.i(TAG, "Connected to TCP socket in " + (System.currentTimeMillis() - s) + "ms");
 			notifyStatus(MSG_CONNECTED, null);
-			
-			// check for saved post data to send while we weren't connected,
-			// but do it in a separate thread so we can read already while sending.
-			if (!mPendingCalls.isEmpty()) {
+
+			// check for saved post data to send while we weren't connected, but
+			// do it in a separate thread so we can read already while sending.
+			if (!pendingCalls.isEmpty()) {
 				new Thread("post-data-on-connection") {
 					@Override
 					public void run() {
-						final LinkedList<AbstractCall<?>> calls = mPendingCalls;
+						final LinkedList<AbstractCall<?>> calls = pendingCalls;
 						while (!calls.isEmpty()) {
 							writeSocket(calls.poll());
 						}
-					};
+					}
 				}.start();
 			}
-			
+
 			final JsonFactory jf = OM.getJsonFactory();
-			final JsonParser jp = jf.createJsonParser(socket.getInputStream());
+			final JsonParser jp = jf.createJsonParser(sock.getInputStream());
 			JsonNode node;
 			while ((node = OM.readTree(jp)) != null) {
-				final String debugDump = node.toString();
+				final String debugDump = ((Object)node).toString();
 				if (debugDump.length() > 80) {
 					Log.i(TAG, "READ: " + debugDump.substring(0, 80) + "...");
 				} else {
@@ -239,8 +223,7 @@ public class ConnectionService extends IntentService {
 				}
 				notifyClients(node);
 			}
-			mOut.close();
-			Log.i(TAG, "TCP socket closed.");
+
 
 		} catch (JsonParseException e) {
 			Log.e(TAG, "Cannot parse JSON response: " + e.getMessage(), e);
@@ -253,29 +236,31 @@ public class ConnectionService extends IntentService {
 			notifyError(new ApiException(ApiException.IO_EXCEPTION_WHILE_READING,  "I/O error while reading: " + e.getMessage(), e), null);
 		} finally {
 			try {
-				if (socket != null) {
-					socket.close();
+				if (sock != null) {
+					sock.close();
 				}
-				if (mOut != null) {
-					mOut.close();
+				if (out != null) {
+					out.close();
+					out = null;
+					Log.i(TAG, "TCP socket closed.");
 				}
 			} catch (IOException e) {
 				// do nothing.
 			}
 		}
-	}	
+	}
 
 	@Override
 	public IBinder onBind(Intent intent) {
 		Log.i(TAG, "Connection service bound to new client.");
-		return mMessenger.getBinder();
+		return messenger.getBinder();
 	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
 		try {
-			final Socket socket = mSocket;
+			final Socket socket = this.socket;
 			if (socket != null) {
 				if (socket.isConnected()) {
 					socket.shutdownInput();
@@ -289,7 +274,7 @@ public class ConnectionService extends IntentService {
 		}
 		Log.d(TAG, "Notification service destroyed.");
 	}
-	
+
 	/**
 	 * Starts cooldown. If there is no new client for {@link #COOLDOWN}
 	 * milliseconds, the service will shutdown, otherwise it will continue
@@ -297,42 +282,43 @@ public class ConnectionService extends IntentService {
 	 */
 	private void cooldown() {
 		Log.i(TAG, "Starting service cooldown.");
-		mCooldownTimer = new Timer();
-		mCooldownTimer.schedule(new TimerTask() {
+		cooldownTimer = new Timer();
+		cooldownTimer.schedule(new TimerTask() {
 			@Override
 			public void run() {
-				if (mClients.isEmpty()) {
+				if (clients.isEmpty()) {
 					Log.i(TAG, "No new clients, shutting down service.");
+					out = null;
 					stopSelf();
 				} else {
-					Log.i(TAG, "Cooldown failed, got " + mClients.size() + " new client(s).");
+					Log.i(TAG, "Cooldown failed, got " + clients.size() + " new client(s).");
 				}
 			}
 		}, COOLDOWN);
 	}
-	
+
 
 	/**
 	 * Treats the received result.
 	 * <p/>
-	 * If an ID is found in the response, the API call object is retrieved, 
+	 * If an ID is found in the response, the API call object is retrieved,
 	 * updated and sent back to the client.
 	 * <p/>
 	 * Otherwise, the notification object is sent to all clients.
-	 * 
+	 *
 	 * @param node JSON-serialized response
 	 */
 	private void notifyClients(JsonNode node) {
-		final ArrayList<Messenger> clients = mClients;
-		final HashMap<String, Messenger> map = mClientMap;
-		final HashMap<String, AbstractCall<?>> calls = mCalls;
-		final HashMap<String, JsonHandler> handlers = mHandlers;
-		
+		final ArrayList<Messenger> clients = this.clients;
+		final HashMap<String, Messenger> map = clientMap;
+		final HashMap<String, AbstractCall<?>> calls = this.calls;
+		final HashMap<String, JsonHandler> handlers = this.handlers;
+
 		// check for errors
 		if (node.has("error")) {
 			notifyError(new ApiException(node), node.get("id").getValueAsText());
-			
-		// check if notification or api call
+
+			// check if notification or api call
 		} else if (node.has("id")) {
 			// it's api call.
 			final String id = node.get("id").getValueAsText();
@@ -421,32 +407,32 @@ public class ConnectionService extends IntentService {
 			}
 		}
 	}
-	
+
 	/**
 	 * Sends an error to all clients.
 	 * @param e Thrown API exception
-     * @param id ID of the request
+	 * @param id ID of the request
 	 */
 	private void notifyError(ApiException e, String id) {
 
 		// if id is set and callback exists, only send error back to one client.
-		if (id != null && mClientMap.containsKey(id)) {
+		if (id != null && clientMap.containsKey(id)) {
 			try {
 				final Message msg = Message.obtain(null, MSG_ERROR);
 				msg.setData(e.getBundle(getResources()));
-				mClientMap.get(id).send(msg);
+				clientMap.get(id).send(msg);
 				Log.i(TAG, "Sent error to client with ID " + id + ".");
 			} catch (RemoteException e2) {
 				Log.e(TAG, "Cannot send errors to client " + id + ": "+ e.getMessage(), e2);
-				mClientMap.remove(id);
+				clientMap.remove(id);
 			}
 		} else {
 			// otherwise, send error back to all clients and die.
-			for (int i = mClients.size() - 1; i >= 0; i--) {
+			for (int i = clients.size() - 1; i >= 0; i--) {
 				final Message msg = Message.obtain(null, MSG_ERROR);
 				msg.setData(e.getBundle(getResources()));
 				try {
-					mClients.get(i).send(msg);
+					clients.get(i).send(msg);
 					Log.i(TAG, "Sent error to client " + i + ".");
 				} catch (RemoteException e2) {
 					Log.e(TAG, "Cannot send errors to client: " + e2.getMessage(), e2);
@@ -455,13 +441,14 @@ public class ConnectionService extends IntentService {
 					 * through the list from back to front so this is safe to do
 					 * inside the loop.
 					 */
-					mClients.remove(i);
+					clients.remove(i);
 				}
 			}
 			stopSelf();
+			out = null;
 		}
 	}
-	
+
 	private void notifyStatus(int code, Messenger replyTo) {
 		if (replyTo != null) {
 			try {
@@ -470,20 +457,20 @@ public class ConnectionService extends IntentService {
 				Log.e(TAG, "Could not notify sender of new status: " + e.getMessage(), e);
 			}
 		} else {
-			for (int i = mClients.size() - 1; i >= 0; i--) {
+			for (int i = clients.size() - 1; i >= 0; i--) {
 				final Message msg = Message.obtain(null, code);
 				try {
-					mClients.get(i).send(msg);
+					clients.get(i).send(msg);
 				} catch (RemoteException e2) {
 					Log.e(TAG, "Could not notify sender of new status: " + e2.getMessage(), e2);
-					mClients.remove(i);
+					clients.remove(i);
 				}
 			}
 		}
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Serializes the API request and dumps it on the socket.
 	 * @param call
@@ -493,14 +480,14 @@ public class ConnectionService extends IntentService {
 		Log.d(TAG, "Sending data to server.");
 		Log.d(TAG, "REQUEST: " + data);
 		try {
-			mOut.write(data + "\n");
-			mOut.flush();
+			out.write(data + "\n");
+			out.flush();
 		} catch (IOException e) {
 			Log.e(TAG, "Error writing to socket: " + e.getMessage(), e);
 			notifyError(new ApiException(ApiException.IO_EXCEPTION_WHILE_WRITING,  "I/O error while writing: " + e.getMessage(), e),  call.getId());
 		}
 	}
-	
+
 	/**
 	 * Handler of incoming messages from clients.
 	 */
@@ -508,59 +495,59 @@ public class ConnectionService extends IntentService {
 		@Override
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
-			case MSG_REGISTER_CLIENT:
-				mClients.add(msg.replyTo);
-				Log.d(TAG, "Registered new client.");
-				if (mCooldownTimer != null) {
-					Log.i(TAG, "Aborting cooldown timer.");
-					mCooldownTimer.cancel();
-					mCooldownTimer.purge();
+				case MSG_REGISTER_CLIENT:
+					clients.add(msg.replyTo);
+					Log.d(TAG, "Registered new client.");
+					if (cooldownTimer != null) {
+						Log.i(TAG, "Aborting cooldown timer.");
+						cooldownTimer.cancel();
+						cooldownTimer.purge();
+					}
+					if (socket != null && socket.isConnected()) {
+						Log.d(TAG, "Directly notifying connected status.");
+						notifyStatus(MSG_CONNECTED, msg.replyTo);
+					}
+					Log.d(TAG, "Done!");
+					break;
+				case MSG_UNREGISTER_CLIENT:
+					clients.remove(msg.replyTo);
+					Log.d(TAG, "Unregistered client.");
+					if (clients.size() == 0) {
+						Log.i(TAG, "No more clients, cooling down service.");
+						cooldown();
+					}
+					break;
+				case MSG_SEND_APICALL: {
+					Log.d(TAG, "Sending new API call..");
+					final Bundle data = msg.getData();
+					final AbstractCall<?> call = data.getParcelable(EXTRA_APICALL);
+					calls.put(call.getId(), call);
+					clientMap.put(call.getId(), msg.replyTo);
+					if (out == null) {
+						pendingCalls.add(call);
+					} else {
+						writeSocket(call);
+					}
 				}
-				if (mSocket != null && mSocket.isConnected()) {
-					Log.d(TAG, "Directly notifying connected status.");
-					notifyStatus(MSG_CONNECTED, msg.replyTo);
-				}
-				Log.d(TAG, "Done!");
 				break;
-			case MSG_UNREGISTER_CLIENT:
-				mClients.remove(msg.replyTo);
-				Log.d(TAG, "Unregistered client.");
-				if (mClients.size() == 0) {
-					Log.i(TAG, "No more clients, cooling down service.");
-					cooldown();
+				case MSG_SEND_HANDLED_APICALL: {
+					Log.d(TAG, "Sending new handled API call..");
+					final Bundle data = msg.getData();
+					final AbstractCall<?> call = data.getParcelable(EXTRA_APICALL);
+					final JsonHandler handler = data.getParcelable(EXTRA_HANDLER);
+					calls.put(call.getId(), call);
+					handlers.put(call.getId(), handler);
+					clientMap.put(call.getId(), msg.replyTo);
+					if (out == null) {
+						Log.d(TAG, "Quering for later.");
+						pendingCalls.add(call);
+					} else {
+						writeSocket(call);
+					}
 				}
 				break;
-			case MSG_SEND_APICALL: {
-				Log.d(TAG, "Sending new API call..");
-				final Bundle data = msg.getData();
-				final AbstractCall<?> call = (AbstractCall<?>)data.getParcelable(EXTRA_APICALL);
-				mCalls.put(call.getId(), call);
-				mClientMap.put(call.getId(), msg.replyTo);
-				if (mOut == null) {
-					mPendingCalls.add(call);
-				} else {
-					writeSocket(call);
-				}
-			}
-			break;
-			case MSG_SEND_HANDLED_APICALL: {
-				Log.d(TAG, "Sending new handled API call..");
-				final Bundle data = msg.getData();
-				final AbstractCall<?> call = (AbstractCall<?>)data.getParcelable(EXTRA_APICALL);
-				final JsonHandler handler = (JsonHandler)data.getParcelable(EXTRA_HANDLER);
-				mCalls.put(call.getId(), call);
-				mHandlers.put(call.getId(), handler);
-				mClientMap.put(call.getId(), msg.replyTo);
-				if (mOut == null) {
-					Log.d(TAG, "Quering for later.");
-					mPendingCalls.add(call);
-				} else {
-					writeSocket(call);
-				}
-			}
-			break;
-			default:
-				super.handleMessage(msg);
+				default:
+					super.handleMessage(msg);
 			}
 		}
 	}
