@@ -94,11 +94,12 @@ public class Introspect {
 
 	public static void generate(File generatorFolder, File outputFolder) {
 		final long started = System.currentTimeMillis();
+		//System.out.println("Generating API from " + generatorFolder.getAbsolutePath() + " to " + outputFolder.getAbsolutePath());
 
 		try {
 
 			// parse from json
-			final Response response = OBJECT_MAPPER.readValue(new File(SCHEMA), Response.class);
+			final Response response = OBJECT_MAPPER.readValue(new File(generatorFolder.getAbsolutePath() + "/src/main/json/" + SCHEMA), Response.class);
 			RESULT = response.getResult();
 
 			final IClassModule[] typeClassModules = {
@@ -160,7 +161,7 @@ public class Introspect {
 			replaceInFile("Branch.UNKNOWN", XBMC_VERSION_BRANCH, versionFile);
 			replaceInFile("Type.UNKNOWN", XBMC_VERSION_TYPE, versionFile);
 
-			System.out.println("Done in " + (System.currentTimeMillis() - started) + "ms.");
+			System.out.println("Generated JSON RPC API in " + (System.currentTimeMillis() - started) + "ms.");
 
 		} catch (JsonParseException e) {
 			e.printStackTrace();
