@@ -51,11 +51,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 /**
- * Main program. To make this work, update:
- *
- * <ul><li>{@link #OUTPUT_FOLDER} where you want the java files placed (your source folder)</li>
- *      <li>{@link #MODEL_PACKAGE} in which package you want your model files</li>
- * </ul>
+ * Main program. This is executed by the Gradle goal.
  *
  * Folders will be created. Program will crash if no write permissions.
  *
@@ -75,14 +71,12 @@ public class Introspect {
 
 	private final static String SCHEMA = "introspect.json";
 
-	private final static String MODEL_PACKAGE = "org.xbmc.android.jsonrpc.api.model";
-	private final static String CALL_PACKAGE = "org.xbmc.android.jsonrpc.api.call";
+	private final static String PACKAGE = "org.xbmc.android.jsonrpc.api";
+	private final static String MODEL_PACKAGE = PACKAGE + ".model";
+	private final static String CALL_PACKAGE = PACKAGE + ".call";
 
 	private final static String MODEL_CLASS_SUFFIX = "Model";
 	private final static String CALL_CLASS_SUFFIX  = "";
-
-	private final static String OUTPUT_FOLDER = "D:/dev/xbmc-jsonrpclib-android";
-//	private final static String OUTPUT_FOLDER = "/home/tthomas/git/xbmc-jsonrpclib-android/";
 
 	private final static List<String> IGNORED_METHODS = new ArrayList<String>();
 
@@ -98,12 +92,7 @@ public class Introspect {
 		IGNORED_METHODS.add("XBMC.GetInfoLabels");   // temporarily until fixed
 	}
 
-	/**
-	 * Main program
-	 * @param args none
-	 */
-	public static void main(String[] args) {
-
+	public static void generate(File generatorFolder, File outputFolder) {
 		final long started = System.currentTimeMillis();
 
 		try {
@@ -113,10 +102,10 @@ public class Introspect {
 			RESULT = response.getResult();
 
 			final IClassModule[] typeClassModules = {
-				new MemberDeclarationClassModule(),
-				new JsonAccesClassModule(),
-				new ModelParcelableClassModule(),
-				new ConvenienceExtensionsClassModule()
+					new MemberDeclarationClassModule(),
+					new JsonAccesClassModule(),
+					new ModelParcelableClassModule(),
+					new ConvenienceExtensionsClassModule()
 			};
 
 			// register types
@@ -158,42 +147,14 @@ public class Introspect {
 				ns.findModuleImports();
 			}
 
-			// 1. copy static classes
-			final String relRoot = "org/xbmc/android/jsonrpc";
-			final File destRoot = new File(OUTPUT_FOLDER + "/src/" + relRoot);
-			if (!destRoot.exists()) {
-				if (!destRoot.mkdirs()) {
-					throw new RuntimeException("Cannot create folder " + destRoot.getAbsolutePath() + ".");
-				}
-			}
-			FileUtils.copyDirectory(new File("tpl/" + relRoot), destRoot);
-
-			// 2. render
+			// 1. render
 			for (Namespace ns : Namespace.getAll()) {
-				render(ns);
+				render(ns, outputFolder);
 			}
 
-			// 3. copy resources
-			final File resRoot = new File(OUTPUT_FOLDER + "/res/");
-			if (!resRoot.exists()) {
-				if (!resRoot.mkdir()) {
-					throw new RuntimeException("Cannot create folder " + resRoot.getAbsolutePath() + ".");
-				}
-			}
-			FileUtils.copyDirectory(new File("res/"), resRoot);
-
-			// 4. while we're at it, copy necessary libs
-			final File libRoot = new File(OUTPUT_FOLDER + "/libs/");
-			if (!libRoot.exists()) {
-				if (!libRoot.mkdir()) {
-					throw new RuntimeException("Cannot create folder " + libRoot.getAbsolutePath() + ".");
-				}
-			}
-			FileUtils.copyFile(new File("libs/jackson-core-asl-1.8.8.jar"), new File(OUTPUT_FOLDER + "/libs/jackson-core-asl-1.8.8.jar"));
-			FileUtils.copyFile(new File("libs/jackson-mapper-asl-1.8.8.jar"), new File(OUTPUT_FOLDER + "/libs/jackson-mapper-asl-1.8.8.jar"));
-
-			// 5. update version file
-			final File versionFile = new File(OUTPUT_FOLDER + "/src/org/xbmc/android/jsonrpc/api/Version.java");
+			// 2. create version file
+			final File versionFile = getFile(PACKAGE, "Version", outputFolder);
+			FileUtils.copyFile(new File(generatorFolder.getAbsolutePath() + "/src/main/tpl/Version.java"), versionFile);
 			replaceInFile("%hash%", XBMC_VERSION_HASH, versionFile);
 			replaceInFile("%date%", XBMC_VERSION_DATE, versionFile);
 			replaceInFile("Branch.UNKNOWN", XBMC_VERSION_BRANCH, versionFile);
@@ -210,7 +171,8 @@ public class Introspect {
 		}
 	}
 
-	private static void render(Namespace ns) {
+
+	private static void render(Namespace ns, File outputFolder) {
 
 		// do nothing if no classes or enums to render.
 		if (ns.isEmpty()) {
@@ -219,7 +181,7 @@ public class Introspect {
 
 		final StringBuilder sb = new StringBuilder();
 		final NamespaceView view = new NamespaceView(ns);
-		final File out = getFile(ns);
+		final File out = getFile(ns, outputFolder);
 		view.render(sb);
 		if (sb.length() > 0) {
 			writeFile(out, sb.toString());
@@ -228,26 +190,40 @@ public class Introspect {
 
 	/**
 	 * Computes the filename of the Java class file based on
-	 * {@link Introspect#OUTPUT_FOLDER} and the package of the namespace.
+	 * <tt>outputFolder</tt> and the package of the namespace.
 	 *
 	 * @param ns Namespace
+	 * @param outputFolder Folder where to write the file
 	 * @return File handler
 	 */
-	private static File getFile(Namespace ns) {
-		final StringBuilder sb = new StringBuilder(OUTPUT_FOLDER.replace("\\", "/"));
-		final String[] packages = ns.getPackageName().split("\\.");
+	private static File getFile(Namespace ns, File outputFolder) {
+		return new File(getPathFromPackage(ns.getPackageName(), outputFolder).append(ns.getName()).append(".java").toString());
+	}
+
+	/**
+	 * Computes the filename of the Java class file based on
+	 * <tt>outputFolder</tt>, the given package and class name.
+	 *
+	 * @param pak Name of the package
+	 * @param klass Name of the class
+	 * @param outputFolder Folder where to write the file
+	 * @return File handler
+	 */
+	private static File getFile(String pak, String klass, File outputFolder) {
+		return new File(getPathFromPackage(pak, outputFolder).toString() + "/" + klass + ".java");
+	}
+
+	private static StringBuilder getPathFromPackage(String pak, File outputFolder) {
+		final StringBuilder sb = new StringBuilder(outputFolder.getAbsolutePath().replace("\\", "/"));
+		final String[] packages = pak.split("\\.");
 		if (!sb.toString().endsWith("/")) {
 			sb.append("/");
 		}
-		sb.append("src/");
-        for (String pak : packages) {
-            sb.append(pak);
-            sb.append("/");
-        }
-		sb.append(ns.getName());
-		sb.append(".java");
-
-		return new File(sb.toString());
+		for (String p : packages) {
+			sb.append(p);
+			sb.append("/");
+		}
+		return sb;
 	}
 
 	/**

@@ -1,4 +1,4 @@
-//import org.xbmc.Generator
+import org.xbmc.android.jsonrpc.generator.Introspect
 
 buildscript {
 	repositories {
@@ -28,12 +28,11 @@ android {
 	}
 }
 
-/*
+
 task generateLibrarySources {
-	Generator.generate(file("../xbmc-jsonrpclib/src-gen/main/java"))
+	Introspect.generate(file("../generator"), file("../xbmc-jsonrpclib/src-gen/main/java"))
 }
 
 gradle.projectsEvaluated {
 	compileDebug.dependsOn(generateLibrarySources)
 }
-*/
