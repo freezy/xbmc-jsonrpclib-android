@@ -1,9 +1,5 @@
 apply plugin: "java"
 
-repositories {
-	mavenCentral()
-}
-
 dependencies {
 	compile 'commons-io:commons-io:2.4'
 	compile 'commons-collections:commons-collections:3.2.1'
