@@ -1,0 +1,28 @@
+import org.xbmc.Generator
+
+buildscript {
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath "com.android.tools.build:gradle:0.6.+"
+	}
+}
+apply plugin: "android-library"
+
+android {
+	compileSdkVersion 4
+	buildToolsVersion "19.0.0"
+
+	sourceSets {
+		main.java.srcDirs = ['src/main/java', 'src-gen/main/java']
+	}
+}
+
+task generateLibrarySources {
+	Generator.generate(file("../xbmc-jsonrpclib/src-gen/main/java"))
+}
+
+gradle.projectsEvaluated {
+	compileDebug.dependsOn(generateLibrarySources)
+}
