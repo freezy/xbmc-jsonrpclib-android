@@ -1,7 +1,18 @@
-.idea/**
 .gradle/**
 */.gradle/**
 */build/**
 *.iml
+.idea/compiler.xml
+.idea/copyright/
+.idea/dictionaries/
+.idea/encodings.xml
+.idea/gradle.xml
+.idea/libraries/
+.idea/misc.xml
+.idea/modules.xml
+.idea/scopes/
+.idea/uiDesigner.xml
+.idea/vcs.xml
+.idea/workspace.xml
 local.properties
 
