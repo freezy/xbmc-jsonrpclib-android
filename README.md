@@ -17,7 +17,7 @@ How it works
 ------------
 XBMC's JSON-RPC API offers an introspect call that describes the entire API using a JSON schema. This schema is parsed
 and coverted into classes that represent the API for a given version of XBMC. You can find the current schema
-[here](src/main/json/introspect.json).
+[here](generator/src/main/json/introspect.json).
 
 Building
 --------
