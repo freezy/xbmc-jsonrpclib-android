@@ -7913,6 +7913,10 @@
 							"required": true,
 							"type": "string"
 						},
+						"order": {
+							"required": true,
+							"type": "integer"
+						},
 						"thumbnail": {
 							"default": "",
 							"type": "string"
