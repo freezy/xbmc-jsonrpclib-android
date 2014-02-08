@@ -1,8 +1,28 @@
-apply plugin: "java"
+apply plugin: 'java'
+apply plugin: 'groovy'
 
 dependencies {
+	compile gradleApi()
+	compile localGroovy()
 	compile 'commons-io:commons-io:2.4'
 	compile 'commons-collections:commons-collections:3.2.1'
 	compile 'org.codehaus.jackson:jackson-core-asl:1.8.11'
 	compile 'org.codehaus.jackson:jackson-mapper-asl:1.8.11'
+}
+
+apply plugin: 'maven'
+
+repositories {
+	mavenCentral()
+}
+
+group = 'org.xbmc.android.jsonrpc.generator'
+version = '1.0-SNAPSHOT'
+
+uploadArchives {
+	repositories {
+		mavenDeployer {
+			repository(url: uri('../repo'))
+		}
+	}
 }
