@@ -1,1 +1,1 @@
-include ":generator", ":xbmc-jsonrpclib"
+include ":xbmc-jsonrpclib"

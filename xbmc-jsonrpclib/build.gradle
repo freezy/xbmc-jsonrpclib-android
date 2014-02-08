@@ -33,7 +33,7 @@ android {
 }
 
 task generateLibrarySources {
-	Introspect.generate(file("../generator"), file("../xbmc-jsonrpclib/src-gen/main/java"))
+	Introspect.generate(file("../buildSrc"), file("../xbmc-jsonrpclib/src-gen/main/java"))
 }
 
 gradle.projectsEvaluated {
