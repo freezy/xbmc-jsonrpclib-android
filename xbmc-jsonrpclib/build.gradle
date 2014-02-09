@@ -1,3 +1,4 @@
+import org.xbmc.android.jsonrpc.generator.GradleTask
 
 buildscript {
 
@@ -50,9 +51,14 @@ generator {
 	outputDir = file('../xbmc-jsonrpclib/src-gen/main/java')
 }
 
-task generateLibrarySources(type: org.xbmc.android.jsonrpc.generator.GradleTask) {
+task generateLibrarySources(type: GradleTask) {
 }
 
 gradle.projectsEvaluated {
 	preBuild.dependsOn(generateLibrarySources)
+}
+
+// disable lint for faster builds - enable and fix before releasing!
+project.afterEvaluate {
+	project.tasks.lint.enabled = false
 }
