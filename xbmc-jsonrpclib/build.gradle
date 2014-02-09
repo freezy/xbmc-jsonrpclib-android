@@ -1,11 +1,18 @@
 
 buildscript {
+
+	project.getTasks().create([name: "generator", type: GradleBuild]) {
+		buildFile = '../generator/build.gradle'
+		tasks = ['install']
+	}.execute()
+
 	repositories {
 		mavenCentral()
 		maven {
 			url uri('../repo')
 		}
 	}
+
 	dependencies {
 		classpath 'com.android.tools.build:gradle:0.7.+'
 		classpath group: 'org.xbmc.android.jsonrpc.generator',
@@ -39,13 +46,11 @@ android {
 }
 
 generator {
-	srcDir = '../generator'
+	srcDir = 'generator'
 	outputDir = '../xbmc-jsonrpclib/src-gen/main/java'
 }
 
 task generateLibrarySources(type: org.xbmc.android.jsonrpc.generator.GradleTask) {
-	println("running consumer task!")
-//	Introspect.generate(file("../generator"), file("../xbmc-jsonrpclib/src-gen/main/java"))
 }
 
 gradle.projectsEvaluated {

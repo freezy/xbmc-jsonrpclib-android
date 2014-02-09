@@ -19,7 +19,7 @@ repositories {
 group = 'org.xbmc.android.jsonrpc.generator'
 version = '1.0-SNAPSHOT'
 
-uploadArchives {
+install {
 	repositories {
 		mavenDeployer {
 			repository(url: uri('../repo'))
