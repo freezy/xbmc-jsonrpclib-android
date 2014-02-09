@@ -47,12 +47,12 @@ android {
 
 generator {
 	srcDir = 'generator'
-	outputDir = '../xbmc-jsonrpclib/src-gen/main/java'
+	outputDir = 'xbmc-jsonrpclib/src-gen/main/java'
 }
 
 task generateLibrarySources(type: org.xbmc.android.jsonrpc.generator.GradleTask) {
 }
 
 gradle.projectsEvaluated {
-	build.dependsOn(generateLibrarySources)
+	preBuild.dependsOn(generateLibrarySources)
 }

@@ -10,6 +10,10 @@ dependencies {
 	compile 'org.codehaus.jackson:jackson-mapper-asl:1.8.11'
 }
 
+sourceSets {
+	main.java.srcDir '../generator/src/main/java'
+}
+
 apply plugin: 'maven'
 
 repositories {
