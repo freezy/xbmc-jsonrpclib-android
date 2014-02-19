@@ -38,21 +38,21 @@ import java.util.Random;
 
 /**
  * Super class of all API call implementations.
- * 
+ *
  * <p/>
- * Every sub class represents an API method of XBMC's JSON-RPC API. Basically 
+ * Every sub class represents an API method of XBMC's JSON-RPC API. Basically
  * it implements two things:
  * 	<ol><li>Creation of the JSON request object sent to XBMC's JSON-RPC API</li>
  * 	    <li>Parsing of the JSON response and serialization into our model</li></ol>
- * 
+ *
  * <h3>Type</h3>
  * Every sub class is typed with the class of our model that is returned in the
- * API method. The model aims to represent the types of the JSON-RPC API. All 
+ * API method. The model aims to represent the types of the JSON-RPC API. All
  * classes of the model extend {@link AbstractModel}.
- * 
+ *
  * <h3>Lists vs. single items</h3>
  * API methods either return a single item or a list of items. We both define
- * {@link #getResult()} for a single result and {@link #getResults()} for a 
+ * {@link #getResult()} for a single result and {@link #getResults()} for a
  * bunch of results. Both work independently of what actual kind of result is
  * returned by XBMC.
  * <p/>
@@ -70,23 +70,28 @@ import java.util.Random;
  * 	    </li></ol>
  * The rest is taken care of in this abstract class.
  * <p/>
- *  
+ *
  * @author freezy <freezy@xbmc.org>
  */
 public abstract class AbstractCall<T> implements Parcelable {
-	
+
 //	private static final String TAG = AbstractCall.class.getSimpleName();
 
 	public static final String RESULT = "result";
-	
+
 	private final static Random RND = new Random(System.currentTimeMillis());
 	protected final static ObjectMapper OM = new ObjectMapper();
-	
+
+	/**
+	 * Name of the node containing pagination limits
+	 */
+	public static final String LIMITS = "limits";
+
 	/**
 	 * Name of the node containing parameters in the JSON-RPC request
 	 */
 	private static final String PARAMS = "params";
-	
+
 	/**
 	 * Returns the name of the method.
 	 * @return Full name of the method, e.g. "AudioLibrary.GetSongDetails".
@@ -97,24 +102,24 @@ public abstract class AbstractCall<T> implements Parcelable {
 	 * Returns true if the API method returns a list of items, false if the API
 	 * method returns a single item.
 	 * <p/>
-	 * Depending on this value, either {@link #parseOne(JsonNode)} or 
+	 * Depending on this value, either {@link #parseOne(JsonNode)} or
 	 * {@link #parseMany(JsonNode)} must be overridden by the sub class.
-	 * 
+	 *
 	 * @return True if API call returns a list, false if only one item
 	 */
 	protected abstract boolean returnsList();
-	
+
 	/**
 	 * JSON request object sent to the API
-	 * 
+	 *
 	 * <p/>
 	 * <u>Example</u>:
 	 * 	<code>{"jsonrpc": "2.0", "method": "Application.GetProperties", "id": "1", "params": { "properties": [ "version" ] } }</code>
 	 */
 	public ObjectNode mRequest = OM.createObjectNode();
-	
+
 	/**
-	 * The <tt>response</tt> node of the JSON response (the root node of the 
+	 * The <tt>response</tt> node of the JSON response (the root node of the
 	 * response)
 	 * <p/>
 	 * <u>Example</u>:
@@ -123,25 +128,25 @@ public abstract class AbstractCall<T> implements Parcelable {
 	 */
 	protected T mResult = null;
 	protected ArrayList<T> mResults = null;
-	
+
 	/**
 	 * The ID of the request.
 	 */
 	private final String mId;
-	
+
 	/**
 	 * Creates the standard structure of the JSON request.
-	 * 
+	 *
 	 */
 	protected AbstractCall() {
 		final ObjectNode request = mRequest;
-		
+
 		mId = String.valueOf(RND.nextLong());
 		request.put("jsonrpc", "2.0");
 		request.put("id", mId);
 		request.put("method", getName());
 	}
-	
+
 	/**
 	 * Returns the JSON request object sent to XBMC.
 	 * @return Request object
@@ -149,7 +154,7 @@ public abstract class AbstractCall<T> implements Parcelable {
 	public ObjectNode getRequest() {
 		return mRequest;
 	}
-	
+
 	/**
 	 * Sets the response object once the data has arrived.
 	 * </p>
@@ -164,7 +169,7 @@ public abstract class AbstractCall<T> implements Parcelable {
 			mResult = parseOne(response.get(RESULT));
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public void copyResponse(AbstractCall<?> call) {
 		if (returnsList()) {
@@ -173,13 +178,13 @@ public abstract class AbstractCall<T> implements Parcelable {
 			mResult = (T)call.getResult();
 		}
 	}
-	
+
 	/**
 	 * Returns the result as a single item.
 	 * <p>
-	 * If the API method returned a list, this will return the first item, 
+	 * If the API method returned a list, this will return the first item,
 	 * otherwise the one item returned by the API method is returned.
-	 * 
+	 *
 	 * @return Result of the API method as a single item
 	 */
 	public T getResult() {
@@ -188,13 +193,13 @@ public abstract class AbstractCall<T> implements Parcelable {
 		}
 		return mResult;
 	}
-	
+
 	/**
 	 * Returns the result as a list of items.
 	 * <p>
 	 * If the API method returned a single result, this will return a list
 	 * containing the single result only, otherwise the whole list is returned.
-	 * 
+	 *
 	 * @return Result of the API method as list
 	 */
 	public ArrayList<T> getResults() {
@@ -205,7 +210,7 @@ public abstract class AbstractCall<T> implements Parcelable {
 		}
 		return mResults;
 	}
-	
+
 	/**
 	 * Returns the generated ID of the request.
 	 * @return Generated ID of the request
@@ -213,7 +218,7 @@ public abstract class AbstractCall<T> implements Parcelable {
 	public String getId() {
 		return mId;
 	}
-	
+
 	/**
 	 * Gets the result object from a response.
 	 * @param obj
@@ -222,40 +227,40 @@ public abstract class AbstractCall<T> implements Parcelable {
 	protected JsonNode parseResult(JsonNode obj) {
 		return obj.get(RESULT);
 	}
-	
+
 	protected ArrayNode parseResults(JsonNode obj, String key) {
 		if(obj.get(key) instanceof NullNode) {
 			return null;
 		}
 		return (ArrayNode)obj.get(key);
 	}
-	
+
 	/**
 	 * Parses the result if the API method returns a single item.
 	 * <p/>
 	 * Either this <b>or</b> {@link #parseMany(JsonNode)} must be overridden
 	 * by every sub class.
-	 * 
+	 *
 	 * @param obj The <tt>result</tt> node of the JSON response object.
 	 * @return Result of the API call
 	 */
 	protected T parseOne(JsonNode obj) {
 		return null;
 	}
-	
+
 	/**
 	 * Parses the result if the API method returns a list of items.
 	 * <p/>
 	 * Either this <b>or</b> {@link #parseOne(JsonNode)} must be overridden
 	 * by every sub class.
-	 * 
+	 *
 	 * @param obj The <tt>result</tt> node of the JSON response object.
 	 * @return Result of the API call
 	 */
 	protected ArrayList<T> parseMany(JsonNode obj) {
 		return null;
 	}
-	
+
 	/**
 	 * Adds a string parameter to the request object (only if not null).
 	 * @param name Name of the parameter
@@ -266,7 +271,7 @@ public abstract class AbstractCall<T> implements Parcelable {
 			getParameters().put(name, value);
 		}
 	}
-	
+
 	/**
 	 * Adds an integer parameter to the request object (only if not null).
 	 * @param name Name of the parameter
@@ -277,7 +282,7 @@ public abstract class AbstractCall<T> implements Parcelable {
 			getParameters().put(name, value);
 		}
 	}
-	
+
 	/**
 	 * Adds a boolean parameter to the request object (only if not null).
 	 * @param name Name of the parameter
@@ -288,19 +293,19 @@ public abstract class AbstractCall<T> implements Parcelable {
 			getParameters().put(name, value);
 		}
 	}
-	
+
 	protected void addParameter(String name, Double value) {
 		if (value != null) {
 			getParameters().put(name, value);
 		}
 	}
-	
+
 	protected void addParameter(String name, AbstractModel value) {
 		if (value != null) {
 			getParameters().put(name, value.toJsonNode());
 		}
 	}
-	
+
 	/**
 	 * Adds an array of strings to the request object (only if not null and not empty).
 	 * @param name Name of the parameter
@@ -317,7 +322,7 @@ public abstract class AbstractCall<T> implements Parcelable {
 		}
 		getParameters().put(name, props);
 	}
-	
+
 	/**
 	 * Adds a hashmap of strings to the request object (only if not null and not empty).
 	 * @param name Name of the parmeter
@@ -333,7 +338,7 @@ public abstract class AbstractCall<T> implements Parcelable {
 		}
 		getParameters().put(name, props);
 	}
-	
+
 	/**
 	 * Returns the parameters array. Use this to add any parameters.
 	 * @param request
@@ -349,7 +354,7 @@ public abstract class AbstractCall<T> implements Parcelable {
 			return parameters;
 		}
 	}
-	
+
 	/**
 	 * Flatten this object into a Parcel.
 	 * @param parcel the Parcel in which the object should be written
@@ -364,7 +369,7 @@ public abstract class AbstractCall<T> implements Parcelable {
 	public int describeContents() {
 		return 0;
 	}
-	
+
 	protected AbstractCall(Parcel parcel) {
 		mId = parcel.readString();
 		try {
@@ -375,5 +380,5 @@ public abstract class AbstractCall<T> implements Parcelable {
 			Log.e(getName(), "I/O exception reading JSON object from parcel: " + e.getMessage(), e);
 		}
 	}
-	
+
 }

@@ -28,6 +28,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 import org.codehaus.jackson.JsonNode;
+import org.xbmc.android.jsonrpc.api.AbstractCall;
+import org.xbmc.android.jsonrpc.api.model.ListModel.Limits;
 
 import java.io.IOException;
 
@@ -107,5 +109,23 @@ public abstract class JsonHandler implements Parcelable {
 	@Override
 	public void writeToParcel(Parcel parcel, int flags) {
 		parcel.writeString(mAuthority);
+	}
+
+	/**
+	 * Returns false if the response contains more than 0 results.
+	 * @param response Response
+	 * @return True if empty, false otherwise
+	 */
+	protected boolean isEmptyResult(JsonNode response) {
+		if (!response.has(AbstractCall.RESULT)) {
+			throw new IllegalArgumentException("Response node must contain a RESULT child.");
+		}
+		if (!response.get(AbstractCall.RESULT).has(AbstractCall.LIMITS)) {
+			return true;
+		}
+		if (!response.get(AbstractCall.RESULT).get(AbstractCall.LIMITS).has(Limits.END)) {
+			return true;
+		}
+		return response.get(AbstractCall.RESULT).get(AbstractCall.LIMITS).get(Limits.END).getIntValue() == 0;
 	}
 }
