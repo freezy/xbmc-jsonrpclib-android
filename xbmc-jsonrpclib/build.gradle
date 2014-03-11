@@ -13,7 +13,7 @@ buildscript {
 	}
 
 	dependencies {
-		classpath 'com.android.tools.build:gradle:0.7.+'
+		classpath 'com.android.tools.build:gradle:0.9.+'
 		classpath group: 'org.xbmc.android.jsonrpc.generator',
 				name: 'Generator',
 				version: '1.0-SNAPSHOT'
