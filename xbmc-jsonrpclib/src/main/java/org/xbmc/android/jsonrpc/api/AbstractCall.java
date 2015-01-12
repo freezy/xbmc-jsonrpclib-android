@@ -124,7 +124,6 @@ public abstract class AbstractCall<T> implements Parcelable {
 	 * <p/>
 	 * <u>Example</u>:
 	 * 	<code> { "version": { "major": 11, "minor": 0, "revision": "20111210-f1ae0b6", "tag": "alpha" } </code>
-	 * @todo fix example
 	 */
 	protected T mResult = null;
 	protected ArrayList<T> mResults = null;
@@ -157,10 +156,10 @@ public abstract class AbstractCall<T> implements Parcelable {
 
 	/**
 	 * Sets the response object once the data has arrived.
-	 * </p>
+	 * <p/>
 	 * This must be the root object of the response, containing the
 	 * <tt>result</tt> object.
-	 * @param response
+	 * @param response Root node of response
 	 */
 	public void setResponse(JsonNode response) {
 		if (returnsList()) {
@@ -221,8 +220,8 @@ public abstract class AbstractCall<T> implements Parcelable {
 
 	/**
 	 * Gets the result object from a response.
-	 * @param obj
-	 * @return
+	 * @param obj Response
+	 * @return Result node of response
 	 */
 	protected JsonNode parseResult(JsonNode obj) {
 		return obj.get(RESULT);
@@ -317,8 +316,8 @@ public abstract class AbstractCall<T> implements Parcelable {
 			return;
 		}
 		final ArrayNode props = OM.createArrayNode();
-		for (int i = 0; i < values.length; i++) {
-			props.add(values[i]);
+		for (String value : values) {
+			props.add(value);
 		}
 		getParameters().put(name, props);
 	}
@@ -341,8 +340,7 @@ public abstract class AbstractCall<T> implements Parcelable {
 
 	/**
 	 * Returns the parameters array. Use this to add any parameters.
-	 * @param request
-	 * @return
+	 * @return Parameters
 	 */
 	private ObjectNode getParameters() {
 		final ObjectNode request = mRequest;

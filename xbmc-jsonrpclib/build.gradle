@@ -13,7 +13,7 @@ buildscript {
 	}
 
 	dependencies {
-		classpath 'com.android.tools.build:gradle:0.9.+'
+		classpath 'com.android.tools.build:gradle:1.0.0'
 		classpath group: 'org.xbmc.android.jsonrpc.generator',
 				name: 'Generator',
 				version: '1.0-SNAPSHOT'
@@ -26,11 +26,12 @@ apply plugin: "generator"
 dependencies {
 	compile 'org.codehaus.jackson:jackson-core-asl:1.8.11'
 	compile 'org.codehaus.jackson:jackson-mapper-asl:1.8.11'
+	compile 'com.koushikdutta.async:androidasync:1.2.4'
 }
 
 android {
 	compileSdkVersion 19
-	buildToolsVersion "19.0.1"
+	buildToolsVersion "21.1.2"
 
 	defaultConfig {
 		minSdkVersion 9
